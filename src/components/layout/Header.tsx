@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/authStore'
 import TokenBadge from './TokenBadge'
+import RulesDropdown from './RulesDropdown'
 
 export default function Header() {
   const { profile, clear } = useAuthStore()
@@ -25,6 +26,7 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-3">
+          <RulesDropdown />
           <TokenBadge />
           <button
             onClick={handleSignOut}
