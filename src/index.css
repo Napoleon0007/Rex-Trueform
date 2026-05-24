@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html {
     background-color: #000000;
+  }
+
+  body {
+    background-color: transparent;
     color: #f8fafc;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
