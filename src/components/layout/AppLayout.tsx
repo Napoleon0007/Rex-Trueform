@@ -46,7 +46,7 @@ export default function AppLayout() {
   }, [profile, setProfile])
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen">
       <Header />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-6">
         <Outlet />
