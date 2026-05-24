@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useEvents } from '../hooks/useEvents'
 import { useAuthStore } from '../store/authStore'
 import { SPORT_CATEGORIES } from '../lib/categories'
@@ -55,6 +55,9 @@ export default function DashboardPage() {
       })
   }, [allEvents, category, status, search, sort, now, sixHours])
 
+  const [rulesOpen, setRulesOpen] = useState(false)
+  const rulesRef = useRef<HTMLDivElement>(null)
+
   return (
     <div className="space-y-5">
       {/* Greeting */}
@@ -63,8 +66,32 @@ export default function DashboardPage() {
           <h1 className="text-xl font-black text-white">
             Hey, <span className="text-orange-500">{profile?.display_name ?? 'Player'}</span>
           </h1>
-          <p className="mt-0.5 text-sm text-slate-500">Place your predictions before time runs out.</p>
+          <p className="mt-0.5 text-sm text-white">Place your predictions before time runs out.</p>
         </div>
+      </div>
+
+      {/* Collapsible Rules */}
+      <div className="rounded-2xl border border-orange-500/20 bg-[#111] overflow-hidden">
+        <button
+          onClick={() => setRulesOpen((o) => !o)}
+          className="w-full flex items-center justify-between px-4 py-3 text-left"
+        >
+          <span className="text-sm font-semibold text-orange-400">📋 Rules</span>
+          <span className="text-slate-500 text-xs transition-transform duration-200" style={{ transform: rulesOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+        </button>
+        {rulesOpen && (
+          <div ref={rulesRef} className="px-4 pb-4 space-y-2 border-t border-orange-500/10">
+            <ul className="mt-3 space-y-2 text-sm text-slate-300">
+              <li><span className="text-orange-400 font-semibold">50 tokens</span> added to your account every month</li>
+              <li>Tokens <span className="text-white font-semibold">roll over</span> — unused tokens carry into next month</li>
+              <li><span className="text-rose-400 font-semibold">−20 token penalty</span> if you still have tokens left at month end</li>
+              <li>Predict outcomes before markets close</li>
+              <li>Payouts are <span className="text-white font-semibold">proportional</span> — closer predictions win bigger shares</li>
+              <li>Winner markets: correct pickers <span className="text-white font-semibold">split the entire pot</span></li>
+              <li>If nobody picks correctly, all bets are refunded</li>
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Search + sort row */}

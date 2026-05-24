@@ -82,7 +82,12 @@ export default function AdminPage() {
         <section className="space-y-3">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-700">Settled</h2>
           {settled.map((event) => (
-            <EventRow key={event.id} event={event} />
+            <EventRow
+              key={event.id}
+              event={event}
+              onEdit={() => setEditing(event)}
+              onSettle={() => setSettling(event)}
+            />
           ))}
         </section>
       )}
@@ -182,15 +187,15 @@ function EventRow({
             </Button>
           )}
 
-          {/* Closed events: Enter Result */}
+          {/* Closed + Settled: Enter / Re-enter result */}
           {onSettle && (
             <Button size="sm" variant="outline" onClick={onSettle}>
-              Enter result
+              {isSettled ? 'Re-enter result' : 'Enter result'}
             </Button>
           )}
 
-          {/* Closed events: Void */}
-          {isClosed && !confirmVoid && (
+          {/* Closed + Settled: Void */}
+          {(isClosed || isSettled) && !confirmVoid && (
             <Button
               size="sm"
               variant="outline"
@@ -201,8 +206,8 @@ function EventRow({
             </Button>
           )}
 
-          {/* Open + Closed events: Delete */}
-          {!isSettled && !confirmDelete && (
+          {/* All statuses: Delete */}
+          {!confirmDelete && (
             <Button
               size="sm"
               variant="outline"
@@ -219,7 +224,10 @@ function EventRow({
       {confirmVoid && (
         <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
-            Void event? All bets will be <span className="text-amber-400">refunded</span>.
+            {isSettled
+              ? <>Payouts will be <span className="text-rose-400">reversed</span> and bets <span className="text-amber-400">refunded</span>.</>
+              : <>All bets will be <span className="text-amber-400">refunded</span>.</>
+            }
           </p>
           <div className="flex gap-2 shrink-0">
             <Button size="sm" variant="secondary" onClick={() => setConfirmVoid(false)}>
@@ -242,7 +250,9 @@ function EventRow({
         <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
             Delete permanently?{' '}
-            {isClosed
+            {isSettled
+              ? 'Token history remains — only the event record is removed.'
+              : isClosed
               ? 'Refunds already processed via void.'
               : 'Only possible if no bets placed.'
             }
