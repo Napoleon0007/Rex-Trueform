@@ -1,12 +1,30 @@
+import { useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useUserBet } from '../../hooks/useBets'
 import EventCard from './EventCard'
+import BetModal from './BetModal'
 import type { EventWithResult } from '../../types/database'
 
 function EventItemWithBet({ event }: { event: EventWithResult }) {
   const { user } = useAuthStore()
   const { data: userBet } = useUserBet(event.id, user?.id)
-  return <EventCard event={event} userBet={userBet} />
+  const [betOpen, setBetOpen] = useState(false)
+
+  const isOpen = event.status === 'open' && new Date(event.closing_time) > new Date()
+  const canBetDirect = isOpen && !userBet
+
+  return (
+    <>
+      <EventCard
+        event={event}
+        userBet={userBet}
+        onBet={canBetDirect ? () => setBetOpen(true) : undefined}
+      />
+      {canBetDirect && (
+        <BetModal event={event} open={betOpen} onClose={() => setBetOpen(false)} />
+      )}
+    </>
+  )
 }
 
 interface EventListProps {

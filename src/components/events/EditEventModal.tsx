@@ -1,30 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
-import { useCreateEvent } from '../../hooks/useEvents'
+import { useUpdateEvent } from '../../hooks/useEvents'
 import { SPORT_CATEGORIES } from '../../lib/categories'
+import type { EventWithResult } from '../../types/database'
 
-interface CreateEventModalProps {
+interface EditEventModalProps {
+  event: EventWithResult
   open: boolean
   onClose: () => void
 }
 
 const UNIT_SUGGESTIONS = ['goals', 'points', 'runs', 'seconds', 'votes', '°C', 'km/h', 'minutes']
 
-export default function CreateEventModal({ open, onClose }: CreateEventModalProps) {
-  const createEvent = useCreateEvent()
-  const [eventType, setEventType] = useState<'numeric' | 'score'>('score')
+export default function EditEventModal({ event, open, onClose }: EditEventModalProps) {
+  const updateEvent = useUpdateEvent()
+
+  function toLocalDatetime(iso: string) {
+    const d = new Date(iso)
+    const offset = d.getTimezoneOffset()
+    const local = new Date(d.getTime() - offset * 60000)
+    return local.toISOString().slice(0, 16)
+  }
+
+  const [eventType, setEventType] = useState<'numeric' | 'score'>(event.event_type ?? 'numeric')
   const [form, setForm] = useState({
-    event_name: '',
-    description: '',
-    category: 'General',
-    unit: '',
-    team_home: '',
-    team_away: '',
-    closing_time: '',
+    event_name: event.event_name,
+    description: event.description ?? '',
+    category: event.category,
+    unit: event.unit === 'score' ? '' : event.unit,
+    team_home: event.team_home ?? '',
+    team_away: event.team_away ?? '',
+    closing_time: toLocalDatetime(event.closing_time),
   })
   const [error, setError] = useState('')
+
+  // Reset form when event changes
+  useEffect(() => {
+    setEventType(event.event_type ?? 'numeric')
+    setForm({
+      event_name: event.event_name,
+      description: event.description ?? '',
+      category: event.category,
+      unit: event.unit === 'score' ? '' : event.unit,
+      team_home: event.team_home ?? '',
+      team_away: event.team_away ?? '',
+      closing_time: toLocalDatetime(event.closing_time),
+    })
+    setError('')
+  }, [event.id])
 
   function set(field: keyof typeof form, value: string) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -38,7 +63,6 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
     if (!form.closing_time) { setError('Closing time is required'); return }
 
     const closingDate = new Date(form.closing_time)
-    if (closingDate <= new Date()) { setError('Closing time must be in the future'); return }
 
     if (eventType === 'score') {
       if (!form.team_home.trim()) { setError('Home team name is required'); return }
@@ -48,32 +72,25 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
     }
 
     try {
-      await createEvent.mutateAsync({
+      await updateEvent.mutateAsync({
+        id: event.id,
         event_name: form.event_name.trim(),
         description: form.description.trim() || undefined,
         category: form.category,
         event_type: eventType,
         unit: eventType === 'score' ? 'score' : form.unit.trim(),
-        team_home: eventType === 'score' ? form.team_home.trim() : undefined,
-        team_away: eventType === 'score' ? form.team_away.trim() : undefined,
+        team_home: eventType === 'score' ? form.team_home.trim() : null,
+        team_away: eventType === 'score' ? form.team_away.trim() : null,
         closing_time: closingDate.toISOString(),
       })
       onClose()
-      setForm({ event_name: '', description: '', category: 'General', unit: '', team_home: '', team_away: '', closing_time: '' })
-      setEventType('score')
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create event')
+      setError(err instanceof Error ? err.message : 'Failed to update event')
     }
   }
 
-  function defaultClosingTime() {
-    const d = new Date(Date.now() + 24 * 60 * 60 * 1000)
-    d.setMinutes(0, 0, 0)
-    return d.toISOString().slice(0, 16)
-  }
-
   return (
-    <Modal open={open} onClose={onClose} title="Create Market">
+    <Modal open={open} onClose={onClose} title="Edit Market">
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* Event type toggle */}
@@ -134,7 +151,6 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
           </div>
         </div>
 
-        {/* Score event: team names */}
         {eventType === 'score' && (
           <div className="grid grid-cols-2 gap-3">
             <Input
@@ -152,7 +168,6 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
           </div>
         )}
 
-        {/* Numeric event: unit */}
         {eventType === 'numeric' && (
           <div className="flex flex-col gap-2">
             <Input
@@ -179,15 +194,14 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         <Input
           label="Betting closes"
           type="datetime-local"
-          value={form.closing_time || defaultClosingTime()}
+          value={form.closing_time}
           onChange={(e) => set('closing_time', e.target.value)}
-          min={new Date().toISOString().slice(0, 16)}
         />
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
-        <Button type="submit" loading={createEvent.isPending} className="w-full" size="lg">
-          Create market
+        <Button type="submit" loading={updateEvent.isPending} className="w-full" size="lg">
+          Save changes
         </Button>
       </form>
     </Modal>

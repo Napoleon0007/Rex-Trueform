@@ -8,9 +8,10 @@ import type { Bet } from '../../types/database'
 interface EventCardProps {
   event: EventWithResult
   userBet?: Bet | null
+  onBet?: () => void
 }
 
-export default function EventCard({ event, userBet }: EventCardProps) {
+export default function EventCard({ event, userBet, onBet }: EventCardProps) {
   const navigate = useNavigate()
   const isOpen = event.status === 'open' && new Date(event.closing_time) > new Date()
   const endingSoon = isOpen && new Date(event.closing_time) <= new Date(Date.now() + 6 * 60 * 60 * 1000)
@@ -19,7 +20,7 @@ export default function EventCard({ event, userBet }: EventCardProps) {
   return (
     <div
       className="group relative cursor-pointer rounded-2xl border border-[#222] bg-[#111] overflow-hidden transition-all duration-200 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5 active:scale-[0.99]"
-      onClick={() => navigate(`/events/${event.id}`)}
+      onClick={() => onBet ? onBet() : navigate(`/events/${event.id}`)}
     >
       {/* Orange top bar for open events */}
       {isOpen && <div className="h-0.5 bg-orange-500" />}

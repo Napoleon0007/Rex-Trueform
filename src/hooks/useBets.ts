@@ -41,16 +41,19 @@ export function usePlaceBet() {
     mutationFn: async ({
       eventId,
       prediction,
+      predictionAway,
       amount,
     }: {
       eventId: string
       prediction: number
+      predictionAway?: number
       amount: number
     }) => {
       const { data, error } = await supabase.rpc('place_bet', {
         p_event_id: eventId,
         p_prediction: prediction,
         p_amount: amount,
+        ...(predictionAway !== undefined ? { p_prediction_away: predictionAway } : {}),
       })
       if (error) throw error
       return data as string

@@ -18,6 +18,9 @@ export interface CasinoEvent {
   description: string | null
   unit: string
   category: string
+  event_type: 'numeric' | 'score'
+  team_home: string | null
+  team_away: string | null
   closing_time: string
   status: EventStatus
   created_at: string
@@ -26,6 +29,7 @@ export interface CasinoEvent {
 
 export interface EventWithResult extends CasinoEvent {
   actual_result: number | null
+  actual_away: number | null
   total_tokens_bet: number | null
   total_score: number | null
   settled_at: string | null
@@ -37,6 +41,7 @@ export interface Bet {
   user_id: string
   event_id: string
   prediction: number
+  prediction_away: number | null
   amount: number
   score: number | null
   payout: number | null
@@ -65,6 +70,7 @@ export interface EventResult {
   id: string
   event_id: string
   actual_result: number
+  actual_away: number | null
   total_tokens_bet: number
   total_score: number
   settled_by: string
