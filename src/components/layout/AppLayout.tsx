@@ -1,9 +1,11 @@
 import { Outlet, NavLink } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
 import { cn } from '../../lib/utils'
+
+const BG_VIDEOS = ['/maradona.mp4', '/pele.mp4']
 
 function BottomNav() {
   const { profile } = useAuthStore()
@@ -40,23 +42,33 @@ function BottomNav() {
 export default function AppLayout() {
   const { user, setProfile } = useAuthStore()
   const { data: profile } = useProfile(user?.id)
+  const [videoIndex, setVideoIndex] = useState(0)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     if (profile) setProfile(profile)
   }, [profile, setProfile])
 
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    v.src = BG_VIDEOS[videoIndex]
+    v.load()
+    v.play().catch(() => {})
+  }, [videoIndex])
+
   return (
     <div className="min-h-screen">
       <video
-        src="/maradona.mp4"
+        ref={videoRef}
         autoPlay
         muted
-        loop
         playsInline
+        onEnded={() => setVideoIndex((i) => (i + 1) % BG_VIDEOS.length)}
         className="fixed inset-0 w-full h-full object-cover"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, filter: 'grayscale(1) brightness(0.65)' }}
       />
-      <div className="fixed inset-0 bg-black/50" style={{ zIndex: 1 }} />
+      <div className="fixed inset-0 bg-black/20" style={{ zIndex: 1 }} />
       <Header />
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-6" style={{ zIndex: 2 }}>
         <Outlet />
