@@ -36,20 +36,25 @@ export default function Modal({ open, onClose, title, children, className }: Mod
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" />
       <div
         className={cn(
-          'relative z-10 w-full max-w-md rounded-2xl border border-[#333] bg-[#111] p-6 shadow-2xl shadow-black/50 animate-slide-up',
+          'relative z-10 w-full max-w-md rounded-2xl border border-[#333] bg-[#111] shadow-2xl shadow-black/50 animate-slide-up',
+          'flex flex-col max-h-[90vh]',
           className,
         )}
       >
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+        {/* Sticky header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-[#222] px-6 py-4">
+          <h2 className="text-lg font-semibold text-white truncate pr-4">{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white/5 hover:text-white transition-colors"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-white/5 hover:text-white transition-colors"
           >
             ✕
           </button>
         </div>
-        {children}
+        {/* Scrollable body */}
+        <div className="overflow-y-auto px-6 py-5">
+          {children}
+        </div>
       </div>
     </div>,
     document.body,

@@ -73,7 +73,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-300">Description <span className="text-slate-600">(optional)</span></label>
           <textarea
-            className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none transition-colors"
+            className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 text-base text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none transition-colors"
             placeholder="Extra context for players..."
             rows={2}
             value={form.description}
