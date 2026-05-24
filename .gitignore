@@ -1,0 +1,10 @@
+node_modules
+dist
+.env.local
+.env
+*.local
+.DS_Store
+
+# Original media files (served from public/ instead)
+IMG_7194.JPG
+Jono lumu.mp4
