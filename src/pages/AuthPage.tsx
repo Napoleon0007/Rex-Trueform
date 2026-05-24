@@ -15,7 +15,7 @@ export default function AuthPage() {
       />
 
       {/* Dark overlay so content stays readable */}
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/20" />
 
       {/* Subtle orange vignette at the bottom */}
       <div className="pointer-events-none absolute bottom-0 inset-x-0 h-64 bg-gradient-to-t from-orange-900/20 to-transparent" />
