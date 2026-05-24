@@ -12,9 +12,17 @@ interface CreateEventModalProps {
 
 const UNIT_SUGGESTIONS = ['goals', 'points', 'runs', 'seconds', 'votes', '°C', 'km/h', 'minutes']
 
+type EventType = 'winner' | 'score' | 'numeric'
+
+const EVENT_TYPES: { type: EventType; label: string }[] = [
+  { type: 'winner', label: '⚽ Winner' },
+  { type: 'score',  label: '🏆 Score' },
+  { type: 'numeric', label: '🔢 Numeric' },
+]
+
 export default function CreateEventModal({ open, onClose }: CreateEventModalProps) {
   const createEvent = useCreateEvent()
-  const [eventType, setEventType] = useState<'numeric' | 'score'>('score')
+  const [eventType, setEventType] = useState<EventType>('winner')
   const [form, setForm] = useState({
     event_name: '',
     description: '',
@@ -40,7 +48,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
     const closingDate = new Date(form.closing_time)
     if (closingDate <= new Date()) { setError('Closing time must be in the future'); return }
 
-    if (eventType === 'score') {
+    if (eventType === 'score' || eventType === 'winner') {
       if (!form.team_home.trim()) { setError('Home team name is required'); return }
       if (!form.team_away.trim()) { setError('Away team name is required'); return }
     } else {
@@ -53,14 +61,14 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         description: form.description.trim() || undefined,
         category: form.category,
         event_type: eventType,
-        unit: eventType === 'score' ? 'score' : form.unit.trim(),
-        team_home: eventType === 'score' ? form.team_home.trim() : undefined,
-        team_away: eventType === 'score' ? form.team_away.trim() : undefined,
+        unit: eventType === 'numeric' ? form.unit.trim() : eventType,
+        team_home: (eventType === 'score' || eventType === 'winner') ? form.team_home.trim() : undefined,
+        team_away: (eventType === 'score' || eventType === 'winner') ? form.team_away.trim() : undefined,
         closing_time: closingDate.toISOString(),
       })
       onClose()
       setForm({ event_name: '', description: '', category: 'General', unit: '', team_home: '', team_away: '', closing_time: '' })
-      setEventType('score')
+      setEventType('winner')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create event')
     }
@@ -77,26 +85,40 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* Event type toggle */}
-        <div className="flex gap-2 rounded-xl border border-[#222] bg-[#0d0d0d] p-1">
-          {(['score', 'numeric'] as const).map((t) => (
+        <div className="flex gap-1.5 rounded-xl border border-[#222] bg-[#0d0d0d] p-1">
+          {EVENT_TYPES.map(({ type, label }) => (
             <button
-              key={t}
+              key={type}
               type="button"
-              onClick={() => setEventType(t)}
+              onClick={() => setEventType(type)}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${
-                eventType === t
+                eventType === type
                   ? 'bg-orange-500 text-white'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {t === 'score' ? '🏆 Score prediction' : '🔢 Numeric prediction'}
+              {label}
             </button>
           ))}
         </div>
 
+        {/* Helper text */}
+        <p className="text-xs text-slate-500">
+          {eventType === 'winner'
+            ? 'Players pick who wins — correct pickers share the pot.'
+            : eventType === 'score'
+            ? 'Players predict the exact score — closest prediction wins the most.'
+            : 'Players predict a number — closest prediction wins the most.'
+          }
+        </p>
+
         <Input
           label="Event name"
-          placeholder={eventType === 'score' ? 'e.g. Springboks vs All Blacks' : 'e.g. Total points scored'}
+          placeholder={
+            eventType === 'winner' ? 'e.g. South Africa vs England' :
+            eventType === 'score'  ? 'e.g. Springboks vs All Blacks' :
+            'e.g. Total goals scored'
+          }
           value={form.event_name}
           onChange={(e) => set('event_name', e.target.value)}
           autoFocus
@@ -134,25 +156,25 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
           </div>
         </div>
 
-        {/* Score event: team names */}
-        {eventType === 'score' && (
+        {/* Score / Winner: team names */}
+        {(eventType === 'score' || eventType === 'winner') && (
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Home team"
-              placeholder="e.g. Springboks"
+              placeholder="e.g. South Africa"
               value={form.team_home}
               onChange={(e) => set('team_home', e.target.value)}
             />
             <Input
               label="Away team"
-              placeholder="e.g. All Blacks"
+              placeholder="e.g. England"
               value={form.team_away}
               onChange={(e) => set('team_away', e.target.value)}
             />
           </div>
         )}
 
-        {/* Numeric event: unit */}
+        {/* Numeric: unit */}
         {eventType === 'numeric' && (
           <div className="flex flex-col gap-2">
             <Input

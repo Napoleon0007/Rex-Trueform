@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { StatusBadge } from '../ui/Badge'
-import { timeUntil, formatDateTime } from '../../lib/utils'
+import { timeUntil, formatDateTime, winnerLabel } from '../../lib/utils'
 import { categoryEmoji } from '../../lib/categories'
 import type { EventWithResult } from '../../types/database'
 import type { Bet } from '../../types/database'
@@ -54,7 +54,13 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
             {isOpen
               ? `⏱ ${timeUntil(event.closing_time)}${endingSoon ? ' — ending soon!' : ' left'}`
               : event.status === 'settled'
-              ? `✓ Result: ${event.actual_result} ${event.unit}`
+              ? `✓ Result: ${
+                  event.event_type === 'winner'
+                    ? winnerLabel(event.actual_result ?? 0, event.team_home, event.team_away)
+                    : event.event_type === 'score'
+                    ? `${event.actual_result} – ${event.actual_away}`
+                    : `${event.actual_result} ${event.unit}`
+                }`
               : `Closed ${formatDateTime(event.closing_time)}`
             }
           </span>
@@ -66,32 +72,46 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
         {/* User's bet — shown below stats */}
         {userBet && (
           <div className="mt-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-3 py-2">
-            {event.status === 'settled' && userBet.payout != null ? (
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">
-                  Predicted <span className="text-slate-200 font-medium">{userBet.prediction} {event.unit}</span>
-                </span>
-                <span className={userBet.payout >= userBet.amount ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                  {userBet.payout >= userBet.amount ? '+' : ''}{Math.round(userBet.payout - userBet.amount)} tokens
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">
-                  Your bet: <span className="text-orange-400 font-semibold">{userBet.amount} tokens</span>
-                  {' on '}
-                  <span className="text-white font-medium">{userBet.prediction} {event.unit}</span>
-                </span>
-                <span className="text-orange-500">🎟</span>
-              </div>
-            )}
+            {(() => {
+              const predDisplay = event.event_type === 'winner'
+                ? winnerLabel(userBet.prediction, event.team_home, event.team_away)
+                : event.event_type === 'score'
+                ? `${userBet.prediction}–${userBet.prediction_away ?? 0}`
+                : `${userBet.prediction} ${event.unit}`
+              return event.status === 'settled' && userBet.payout != null ? (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Predicted <span className="text-slate-200 font-medium">{predDisplay}</span>
+                  </span>
+                  <span className={userBet.payout >= userBet.amount ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                    {userBet.payout >= userBet.amount ? '+' : ''}{Math.round(userBet.payout - userBet.amount)} tokens
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Your bet: <span className="text-orange-400 font-semibold">{userBet.amount} tokens</span>
+                    {' on '}
+                    <span className="text-white font-medium">{predDisplay}</span>
+                  </span>
+                  <span className="text-orange-500">🎟</span>
+                </div>
+              )
+            })()}
           </div>
         )}
 
         {/* CTA for open events with no bet */}
         {isOpen && !userBet && (
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-slate-600">Unit: {event.unit}</span>
+            <span className="text-xs text-slate-600">
+              {event.event_type === 'winner'
+                ? `${event.team_home} · Draw · ${event.team_away}`
+                : event.event_type === 'score'
+                ? `${event.team_home} vs ${event.team_away}`
+                : `Unit: ${event.unit}`
+              }
+            </span>
             <span className="text-xs font-semibold text-orange-500 group-hover:text-orange-400 transition-colors">
               Place bet →
             </span>

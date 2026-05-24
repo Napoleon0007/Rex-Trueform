@@ -44,7 +44,7 @@ export function useCreateEvent() {
       description?: string
       unit: string
       category: string
-      event_type: 'numeric' | 'score'
+      event_type: 'numeric' | 'score' | 'winner'
       team_home?: string
       team_away?: string
       closing_time: string
@@ -72,7 +72,7 @@ export function useUpdateEvent() {
       description?: string
       unit?: string
       category?: string
-      event_type?: 'numeric' | 'score'
+      event_type?: 'numeric' | 'score' | 'winner'
       team_home?: string | null
       team_away?: string | null
       closing_time?: string

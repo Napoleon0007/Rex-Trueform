@@ -23,3 +23,14 @@ export function formatMonth(year: number, month: number): string {
 export function pluralise(n: number, word: string): string {
   return `${n} ${word}${n === 1 ? '' : 's'}`
 }
+
+export function winnerLabel(
+  pick: number,
+  teamHome: string | null | undefined,
+  teamAway: string | null | undefined,
+): string {
+  if (pick === 1) return teamHome ?? 'Home'
+  if (pick === 2) return 'Draw'
+  if (pick === 3) return teamAway ?? 'Away'
+  return String(pick)
+}

@@ -24,12 +24,12 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
     return local.toISOString().slice(0, 16)
   }
 
-  const [eventType, setEventType] = useState<'numeric' | 'score'>(event.event_type ?? 'numeric')
+  const [eventType, setEventType] = useState<'numeric' | 'score' | 'winner'>(event.event_type ?? 'numeric')
   const [form, setForm] = useState({
     event_name: event.event_name,
     description: event.description ?? '',
     category: event.category,
-    unit: event.unit === 'score' ? '' : event.unit,
+    unit: (event.unit === 'score' || event.unit === 'winner') ? '' : event.unit,
     team_home: event.team_home ?? '',
     team_away: event.team_away ?? '',
     closing_time: toLocalDatetime(event.closing_time),
@@ -43,7 +43,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
       event_name: event.event_name,
       description: event.description ?? '',
       category: event.category,
-      unit: event.unit === 'score' ? '' : event.unit,
+      unit: (event.unit === 'score' || event.unit === 'winner') ? '' : event.unit,
       team_home: event.team_home ?? '',
       team_away: event.team_away ?? '',
       closing_time: toLocalDatetime(event.closing_time),

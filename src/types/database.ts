@@ -18,7 +18,7 @@ export interface CasinoEvent {
   description: string | null
   unit: string
   category: string
-  event_type: 'numeric' | 'score'
+  event_type: 'numeric' | 'score' | 'winner'
   team_home: string | null
   team_away: string | null
   closing_time: string

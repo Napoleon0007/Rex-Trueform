@@ -5,6 +5,7 @@ import Input from '../ui/Input'
 import { usePlaceBet } from '../../hooks/useBets'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useAuthStore } from '../../store/authStore'
+import { winnerLabel } from '../../lib/utils'
 import type { EventWithResult } from '../../types/database'
 
 interface BetModalProps {
@@ -17,8 +18,10 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
   const { user } = useAuthStore()
   const { data: balance = 0 } = useTokenBalance(user?.id)
   const placeBet = usePlaceBet()
-  const isScore = event.event_type === 'score'
+  const isScore  = event.event_type === 'score'
+  const isWinner = event.event_type === 'winner'
 
+  const [winnerPick, setWinnerPick] = useState<1 | 2 | 3 | null>(null)
   const [predHome, setPredHome] = useState('')
   const [predAway, setPredAway] = useState('')
   const [prediction, setPrediction] = useState('')
@@ -29,46 +32,48 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
     e.preventDefault()
     setError('')
 
-    if (isScore) {
-      const home = parseInt(predHome, 10)
-      const away = parseInt(predAway, 10)
-      if (isNaN(home) || home < 0) { setError('Enter a valid home score'); return }
-      if (isNaN(away) || away < 0) { setError('Enter a valid away score'); return }
-      if (amount < 1 || amount > balance) { setError(`Amount must be between 1 and ${balance}`); return }
+    if (amount < 1 || amount > balance) { setError(`Amount must be between 1 and ${balance}`); return }
 
-      try {
+    try {
+      if (isWinner) {
+        if (winnerPick === null) { setError('Pick a result first'); return }
+        await placeBet.mutateAsync({ eventId: event.id, prediction: winnerPick, amount })
+        setWinnerPick(null)
+      } else if (isScore) {
+        const home = parseInt(predHome, 10)
+        const away = parseInt(predAway, 10)
+        if (isNaN(home) || home < 0) { setError('Enter a valid home score'); return }
+        if (isNaN(away) || away < 0) { setError('Enter a valid away score'); return }
         await placeBet.mutateAsync({ eventId: event.id, prediction: home, predictionAway: away, amount })
-        onClose()
         setPredHome('')
         setPredAway('')
-        setAmount(1)
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Failed to place bet')
-      }
-    } else {
-      const pred = parseInt(prediction, 10)
-      if (isNaN(pred)) { setError('Enter a valid whole number'); return }
-      if (amount < 1 || amount > balance) { setError(`Amount must be between 1 and ${balance}`); return }
-
-      try {
+      } else {
+        const pred = parseInt(prediction, 10)
+        if (isNaN(pred)) { setError('Enter a valid whole number'); return }
         await placeBet.mutateAsync({ eventId: event.id, prediction: pred, amount })
-        onClose()
         setPrediction('')
-        setAmount(1)
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Failed to place bet')
       }
+      onClose()
+      setAmount(1)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to place bet')
     }
   }
 
   const chips = [1, 5, 10, balance].filter((v, i, arr) => v > 0 && arr.indexOf(v) === i)
+
+  const WINNER_OPTIONS: { pick: 1 | 2 | 3; label: string }[] = [
+    { pick: 1, label: event.team_home ?? 'Home' },
+    { pick: 2, label: 'Draw' },
+    { pick: 3, label: event.team_away ?? 'Away' },
+  ]
 
   return (
     <Modal open={open} onClose={onClose} title={`Bet on "${event.event_name}"`}>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm text-slate-400">
           {event.description && <p className="mb-1">{event.description}</p>}
-          {isScore ? (
+          {(isScore || isWinner) ? (
             <p className="font-medium text-slate-200">
               {event.team_home} <span className="text-slate-500 mx-1">vs</span> {event.team_away}
             </p>
@@ -77,7 +82,27 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
           )}
         </div>
 
-        {isScore ? (
+        {isWinner ? (
+          <div>
+            <p className="text-sm font-medium text-slate-300 mb-3">Who wins?</p>
+            <div className="flex flex-col gap-2">
+              {WINNER_OPTIONS.map(({ pick, label }) => (
+                <button
+                  key={pick}
+                  type="button"
+                  onClick={() => setWinnerPick(pick)}
+                  className={`w-full rounded-xl py-3 text-base font-bold border transition-colors ${
+                    winnerPick === pick
+                      ? 'border-orange-500 bg-orange-500/20 text-orange-300'
+                      : 'border-[#333] bg-[#1a1a1a] text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : isScore ? (
           <div>
             <p className="text-sm font-medium text-slate-300 mb-2">Your predicted score</p>
             <div className="flex items-center gap-3">
@@ -153,7 +178,9 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 p-3 text-xs text-slate-400">
-          {isScore
+          {isWinner
+            ? 'Correct pickers split the entire pot — wrong picks get nothing.'
+            : isScore
             ? 'Payout based on how close your predicted score is to the actual result — closest wins the most.'
             : 'Payout is proportional to accuracy and pool size — more precise predictions win bigger.'
           }
@@ -164,9 +191,12 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
           loading={placeBet.isPending}
           className="w-full"
           size="lg"
-          disabled={balance === 0}
+          disabled={balance === 0 || (isWinner && winnerPick === null)}
         >
-          Place bet · {amount} 🪙
+          {isWinner && winnerPick !== null
+            ? `${winnerLabel(winnerPick, event.team_home, event.team_away)} · ${amount} 🪙`
+            : `Place bet · ${amount} 🪙`
+          }
         </Button>
       </form>
     </Modal>
