@@ -48,16 +48,6 @@ export default function EventPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Maradona background video */}
-      <video
-        src="/maradona.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -2 }}
-      />
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: -1 }} />
       {/* Back */}
       <button
         onClick={() => navigate(-1)}

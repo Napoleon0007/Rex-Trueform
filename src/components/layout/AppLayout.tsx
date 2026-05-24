@@ -47,8 +47,18 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen">
+      <video
+        src="/maradona.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="fixed inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
+      />
+      <div className="fixed inset-0 bg-black/50" style={{ zIndex: 1 }} />
       <Header />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-6">
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-6" style={{ zIndex: 2 }}>
         <Outlet />
       </main>
       <BottomNav />

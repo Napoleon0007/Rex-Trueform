@@ -57,16 +57,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      {/* Maradona background video */}
-      <video
-        src="/maradona.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -2 }}
-      />
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: -1 }} />
       {/* Greeting */}
       <div className="flex items-center justify-between">
         <div>
