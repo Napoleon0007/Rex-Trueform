@@ -69,7 +69,7 @@ export default function DashboardPage() {
 
       {/* Search + sort row */}
       <div className="flex items-center gap-3">
-        <div className="relative flex-1">
+        <div className="relative w-40 shrink-0">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
           <input
             type="text"

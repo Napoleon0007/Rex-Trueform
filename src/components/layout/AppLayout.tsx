@@ -5,7 +5,7 @@ import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
 import { cn } from '../../lib/utils'
 
-const BG_VIDEOS = ['/maradona.mp4', '/pele.mp4']
+const BG_VIDEOS = ['/standing-on-chair.mp4', '/pele.mp4']
 
 function BottomNav() {
   const { profile } = useAuthStore()
