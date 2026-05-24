@@ -58,6 +58,7 @@ export default function AdminPage() {
             <EventRow
               key={event.id}
               event={event}
+              onEdit={() => setEditing(event)}
               onSettle={() => setSettling(event)}
             />
           ))}

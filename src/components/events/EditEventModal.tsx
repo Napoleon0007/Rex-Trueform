@@ -64,7 +64,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
 
     const closingDate = new Date(form.closing_time)
 
-    if (eventType === 'score') {
+    if (eventType === 'score' || eventType === 'winner') {
       if (!form.team_home.trim()) { setError('Home team name is required'); return }
       if (!form.team_away.trim()) { setError('Away team name is required'); return }
     } else {
@@ -78,9 +78,9 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
         description: form.description.trim() || undefined,
         category: form.category,
         event_type: eventType,
-        unit: eventType === 'score' ? 'score' : form.unit.trim(),
-        team_home: eventType === 'score' ? form.team_home.trim() : null,
-        team_away: eventType === 'score' ? form.team_away.trim() : null,
+        unit: eventType === 'numeric' ? form.unit.trim() : eventType,
+        team_home: (eventType === 'score' || eventType === 'winner') ? form.team_home.trim() : null,
+        team_away: (eventType === 'score' || eventType === 'winner') ? form.team_away.trim() : null,
         closing_time: closingDate.toISOString(),
       })
       onClose()
@@ -95,7 +95,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
 
         {/* Event type toggle */}
         <div className="flex gap-2 rounded-xl border border-[#222] bg-[#0d0d0d] p-1">
-          {(['score', 'numeric'] as const).map((t) => (
+          {(['score', 'numeric', 'winner'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -106,7 +106,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {t === 'score' ? '🏆 Score prediction' : '🔢 Numeric prediction'}
+              {t === 'score' ? '🏆 Score' : t === 'winner' ? '🥇 Winner' : '🔢 Numeric'}
             </button>
           ))}
         </div>
@@ -151,7 +151,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
           </div>
         </div>
 
-        {eventType === 'score' && (
+        {(eventType === 'score' || eventType === 'winner') && (
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Home team"
