@@ -6,7 +6,7 @@ export default function AuthPage() {
 
       {/* Background video */}
       <video
-        className="absolute inset-0 h-full w-full object-contain"
+        className="absolute inset-0 h-full w-full object-cover"
         src="/hero.mp4"
         autoPlay
         muted
