@@ -77,11 +77,13 @@ export function useUpdateEvent() {
       team_away?: string | null
       closing_time?: string
     }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('events')
         .update(payload)
         .eq('id', id)
+        .select('id')
       if (error) throw error
+      if (!data || data.length === 0) throw new Error('Update blocked — check admin permissions')
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['events'] }),
   })
