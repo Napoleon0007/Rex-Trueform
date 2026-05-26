@@ -50,7 +50,17 @@ export default function AppLayout() {
     const v = videoRef.current
     if (!v) return
     v.muted = true
-    v.play().catch(() => {})
+
+    const tryPlay = () => { if (v.paused) v.play().catch(() => {}) }
+
+    tryPlay()
+    document.addEventListener('touchstart', tryPlay, { once: true })
+    document.addEventListener('visibilitychange', tryPlay)
+
+    return () => {
+      document.removeEventListener('touchstart', tryPlay)
+      document.removeEventListener('visibilitychange', tryPlay)
+    }
   }, [])
 
   return (
