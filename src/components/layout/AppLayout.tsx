@@ -52,9 +52,20 @@ export default function AppLayout() {
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
+
+    const tryPlay = () => v.play().catch(() => {})
+    const onVisibilityChange = () => { if (!document.hidden) tryPlay() }
+
+    v.muted = true
     v.src = BG_VIDEOS[videoIndex]
+    v.addEventListener('canplay', tryPlay, { once: true })
+    document.addEventListener('visibilitychange', onVisibilityChange)
     v.load()
-    v.play().catch(() => {})
+
+    return () => {
+      v.removeEventListener('canplay', tryPlay)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [videoIndex])
 
   return (
@@ -64,6 +75,7 @@ export default function AppLayout() {
         autoPlay
         muted
         playsInline
+        preload="auto"
         onEnded={() => setVideoIndex((i) => (i + 1) % BG_VIDEOS.length)}
         className="fixed inset-0 w-full h-full object-cover"
         style={{ zIndex: 0, filter: 'grayscale(1) brightness(0.65)', pointerEvents: 'none' }}

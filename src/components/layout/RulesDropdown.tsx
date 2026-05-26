@@ -15,7 +15,7 @@ export default function RulesDropdown() {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 pt-20"
+          className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-28"
           onClick={() => setOpen(false)}
         >
           {/* Backdrop */}
