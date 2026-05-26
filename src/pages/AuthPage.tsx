@@ -1,11 +1,22 @@
+import { useEffect, useRef } from 'react'
 import MagicLinkForm from '../components/auth/MagicLinkForm'
 
 export default function AuthPage() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return
+    v.muted = true
+    v.play().catch(() => {})
+  }, [])
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
 
       {/* Background video */}
       <video
+        ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
         src="/hero.mp4"
         autoPlay
