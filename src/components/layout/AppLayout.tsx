@@ -1,11 +1,9 @@
 import { Outlet, NavLink } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
 import { cn } from '../../lib/utils'
-
-const BG_VIDEOS = ['/rassie-bg.mp4']
 
 function BottomNav() {
   const { profile } = useAuthStore()
@@ -42,7 +40,6 @@ function BottomNav() {
 export default function AppLayout() {
   const { user, setProfile } = useAuthStore()
   const { data: profile } = useProfile(user?.id)
-  const [videoIndex, setVideoIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -52,31 +49,19 @@ export default function AppLayout() {
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-
-    const tryPlay = () => v.play().catch(() => {})
-    const onVisibilityChange = () => { if (!document.hidden) tryPlay() }
-
     v.muted = true
-    v.src = BG_VIDEOS[videoIndex]
-    v.addEventListener('canplay', tryPlay, { once: true })
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    v.load()
-
-    return () => {
-      v.removeEventListener('canplay', tryPlay)
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [videoIndex])
+    v.play().catch(() => {})
+  }, [])
 
   return (
     <div className="min-h-screen">
       <video
         ref={videoRef}
+        src="/rassie-bg.mp4"
         autoPlay
         muted
+        loop
         playsInline
-        preload="auto"
-        onEnded={() => setVideoIndex((i) => (i + 1) % BG_VIDEOS.length)}
         className="fixed inset-0 w-full h-full object-cover"
         style={{ zIndex: 0, filter: 'grayscale(1) brightness(0.65)', pointerEvents: 'none' }}
       />
