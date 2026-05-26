@@ -3,12 +3,25 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     background-color: #000000;
     color: #f8fafc;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+  }
+
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  input, select, textarea {
+    font-size: 16px; /* prevent iOS auto-zoom */
   }
 
   ::-webkit-scrollbar { width: 4px; }

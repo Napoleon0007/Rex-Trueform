@@ -110,11 +110,11 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                 <p className="text-xs text-slate-500 mb-1 text-center">{event.team_home}</p>
                 <input
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   placeholder="0"
                   value={predHome}
                   onChange={(e) => setPredHome(e.target.value)}
-                  autoFocus
                   className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
                 />
               </div>
@@ -123,6 +123,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                 <p className="text-xs text-slate-500 mb-1 text-center">{event.team_away}</p>
                 <input
                   type="number"
+                  inputMode="numeric"
                   min={0}
                   placeholder="0"
                   value={predAway}
@@ -167,6 +168,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
           </div>
           <input
             type="number"
+            inputMode="numeric"
             min={1}
             max={balance}
             value={amount}

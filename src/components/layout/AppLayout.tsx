@@ -70,7 +70,7 @@ export default function AppLayout() {
       />
       <div className="fixed inset-0 bg-black/20" style={{ zIndex: 1 }} />
       <Header />
-      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-6" style={{ zIndex: 2 }}>
+      <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-4" style={{ zIndex: 2 }}>
         <Outlet />
       </main>
       <BottomNav />

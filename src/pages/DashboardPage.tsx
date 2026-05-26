@@ -68,21 +68,21 @@ export default function DashboardPage() {
       </div>
 
       {/* Search + sort row */}
-      <div className="flex items-center gap-3">
-        <div className="relative w-40 shrink-0">
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
           <input
             type="text"
             placeholder="Search markets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-[#222] bg-[#111] pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/20 transition-colors"
+            className="w-full rounded-xl border border-[#222] bg-[#111] pl-9 pr-4 py-2.5 text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/20 transition-colors"
           />
         </div>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="rounded-xl border border-[#222] bg-[#111] px-3 py-2.5 text-sm text-slate-300 focus:border-orange-500/50 focus:outline-none transition-colors cursor-pointer"
+          className="shrink-0 rounded-xl border border-[#222] bg-[#111] px-3 py-2.5 text-slate-300 focus:border-orange-500/50 focus:outline-none transition-colors cursor-pointer"
         >
           {SORT_OPTIONS.map((s) => (
             <option key={s.key} value={s.key}>{s.label}</option>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
           <button
             key={tab.key}
             onClick={() => setStatus(tab.key)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border transition-colors ${
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium border transition-colors ${
               status === tab.key
                 ? 'border-orange-500 bg-orange-500/15 text-orange-400'
                 : 'border-[#222] bg-[#111] text-slate-500 hover:text-slate-300 hover:border-[#333]'
@@ -111,7 +111,7 @@ export default function DashboardPage() {
       <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
         <button
           onClick={() => setCategory('All')}
-          className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+          className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
             category === 'All'
               ? 'border-orange-500 bg-orange-500/15 text-orange-400'
               : 'border-[#222] bg-[#111] text-slate-500 hover:text-slate-300'
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           <button
             key={cat.label}
             onClick={() => setCategory(cat.label)}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
               category === cat.label
                 ? 'border-orange-500 bg-orange-500/15 text-orange-400'
                 : 'border-[#222] bg-[#111] text-slate-500 hover:text-slate-300'

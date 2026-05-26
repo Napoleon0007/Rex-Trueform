@@ -52,7 +52,7 @@ export default function LeaderboardPage() {
       {/* Period navigator */}
       {tab === 'monthly' ? (
         <div className="flex items-center justify-between">
-          <button onClick={prevMonth} className="rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
+          <button onClick={prevMonth} className="rounded-xl p-3 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
             ←
           </button>
           <p className="font-semibold text-slate-200">{formatMonth(year, month)}</p>
@@ -66,7 +66,7 @@ export default function LeaderboardPage() {
         </div>
       ) : (
         <div className="flex items-center justify-between">
-          <button onClick={() => setYear((y) => y - 1)} className="rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
+          <button onClick={() => setYear((y) => y - 1)} className="rounded-xl p-3 text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors">
             ←
           </button>
           <p className="font-semibold text-slate-200">{year}</p>
