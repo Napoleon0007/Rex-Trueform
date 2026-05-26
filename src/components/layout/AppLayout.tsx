@@ -66,7 +66,7 @@ export default function AppLayout() {
         playsInline
         onEnded={() => setVideoIndex((i) => (i + 1) % BG_VIDEOS.length)}
         className="fixed inset-0 w-full h-full object-cover"
-        style={{ zIndex: 0, filter: 'grayscale(1) brightness(0.65)' }}
+        style={{ zIndex: 0, filter: 'grayscale(1) brightness(0.65)', pointerEvents: 'none' }}
       />
       <div className="fixed inset-0 bg-black/20" style={{ zIndex: 1 }} />
       <Header />
