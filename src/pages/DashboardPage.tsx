@@ -70,19 +70,19 @@ export default function DashboardPage() {
       {/* Search + sort row */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔍</span>
           <input
             type="text"
             placeholder="Search markets..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-[#222] bg-[#111] pl-9 pr-4 py-2.5 text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/20 transition-colors"
+            className="w-full rounded-lg border border-[#222] bg-[#111] pl-8 pr-3 py-1.5 text-sm text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/20 transition-colors"
           />
         </div>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortOption)}
-          className="shrink-0 rounded-xl border border-[#222] bg-[#111] px-3 py-2.5 text-slate-300 focus:border-orange-500/50 focus:outline-none transition-colors cursor-pointer"
+          className="shrink-0 rounded-lg border border-[#222] bg-[#111] px-2.5 py-1.5 text-sm text-slate-300 focus:border-orange-500/50 focus:outline-none transition-colors cursor-pointer"
         >
           {SORT_OPTIONS.map((s) => (
             <option key={s.key} value={s.key}>{s.label}</option>
