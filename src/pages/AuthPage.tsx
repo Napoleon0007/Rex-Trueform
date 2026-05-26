@@ -26,7 +26,7 @@ function VideoSection({ src, children }: { src: string; children?: React.ReactNo
   }, [])
 
   return (
-    <div className="relative h-screen w-full overflow-hidden snap-start">
+    <div className="relative h-screen w-full overflow-hidden">
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
@@ -50,7 +50,7 @@ function VideoSection({ src, children }: { src: string; children?: React.ReactNo
 
 export default function AuthPage() {
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory">
+    <div>
 
       {/* Section 1: Login */}
       <VideoSection src="/hero-v2.mp4">
