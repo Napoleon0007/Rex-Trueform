@@ -15,7 +15,7 @@ export default function RulesDropdown() {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 pt-20"
           onClick={() => setOpen(false)}
         >
           {/* Backdrop */}
@@ -23,7 +23,7 @@ export default function RulesDropdown() {
 
           {/* Panel */}
           <div
-            className="relative w-full max-w-sm rounded-2xl border border-orange-500/20 bg-[#111] shadow-2xl shadow-black/80 p-5"
+            className="relative w-full max-w-sm rounded-2xl border border-orange-500/20 bg-[#111] shadow-2xl shadow-black/80 p-5 overflow-y-auto max-h-[70vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header row */}
