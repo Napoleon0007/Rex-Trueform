@@ -19,7 +19,7 @@ export default function AuthPage() {
         ref={videoRef}
         className="absolute inset-0 h-full w-full object-cover"
         style={{ pointerEvents: 'none' }}
-        src="/hero.mp4"
+        src="/hero-v2.mp4"
         autoPlay
         muted
         loop

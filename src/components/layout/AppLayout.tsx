@@ -57,7 +57,7 @@ export default function AppLayout() {
     <div className="min-h-screen">
       <video
         ref={videoRef}
-        src="/rassie-bg.mp4"
+        src="/rassie-v2.mp4"
         autoPlay
         muted
         loop
