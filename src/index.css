@@ -27,6 +27,13 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #000000; }
   ::-webkit-scrollbar-thumb { background: #333333; border-radius: 2px; }
+
+  /* Hide native iOS Safari video play button overlay */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-enclosure,
+  video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+  }
 }
 
 @layer utilities {
