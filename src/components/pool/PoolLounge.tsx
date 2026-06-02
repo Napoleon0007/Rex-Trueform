@@ -1,6 +1,7 @@
 import PoolTable from './PoolTable'
 import Bar from './Bar'
 import GamesTable from '../games/GamesTable'
+import VelvetCurtain from './VelvetCurtain'
 
 // Springbok green-and-gold velvet carpet with a gold damask weave + vignette.
 const CARPET: React.CSSProperties = {
@@ -69,6 +70,8 @@ function VelvetRope() {
 export default function PoolLounge() {
   return (
     <section className="relative min-h-screen overflow-hidden" style={{ ...CARPET, zIndex: 2 }}>
+      {/* velvet curtains that part as you scroll into the lounge */}
+      <VelvetCurtain />
       {/* warm spotlight */}
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(255,210,120,0.10), transparent 60%)' }} />
       {/* springbok silhouette tiled across the whole carpet */}

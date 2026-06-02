@@ -27,8 +27,9 @@ const SHELF_BOTTLES = [
   ['#e0b03a', '#8a5a12'], ['#c0392b', '#7a1f17'], ['#8fa9c9', '#3b5572'],
 ]
 
-// The bartender — uses the photo dropped into /public. A subtle weight-shift
-// "sway" while idle, and a quick lean when pouring, to give him some life.
+// The bartender — a background-free cutout (Mike Tyson) standing in the bar so
+// the back-bar shows behind him. Subtle weight-shift sway while idle, quick lean
+// when pouring. The contact shadow on the counter sells him standing there.
 function Barman({ pouring }: { pouring: boolean }) {
   return (
     <div
@@ -36,10 +37,10 @@ function Barman({ pouring }: { pouring: boolean }) {
       style={{ transition: 'transform 0.3s' }}
     >
       <img
-        src="/barman.jpeg"
-        alt="Bartender"
-        className="h-32 w-32 rounded-xl object-cover object-top ring-2 ring-amber-500/40"
-        style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.6))' }}
+        src="/tyson-cut.png"
+        alt="Bartender — Mike Tyson"
+        className="h-44 w-auto object-contain"
+        style={{ filter: 'drop-shadow(0 12px 10px rgba(0,0,0,0.65))' }}
       />
     </div>
   )
@@ -73,43 +74,44 @@ export default function Bar() {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-amber-900/60 shadow-2xl shadow-black/70">
-      {/* ===== Back bar: mirror + lit shelves of bottles ===== */}
-      <div className="relative px-4 pt-4 pb-3" style={{ background: 'linear-gradient(180deg,#2a1206,#1a0c04)' }}>
-        {/* mirror glow */}
-        <div className="pointer-events-none absolute inset-3 rounded-lg" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(255,210,130,0.18), transparent 70%)' }} />
-        <p className="relative text-center text-[11px] font-black uppercase tracking-[0.5em] text-amber-300" style={{ textShadow: '0 0 14px rgba(245,200,80,0.8)' }}>
-          ★ Open Bar ★
-        </p>
-        {/* two shelves */}
-        <div className="relative mt-3 space-y-2">
-          {[0, 1].map((row) => (
-            <div key={row}>
-              <div className="flex items-end justify-center gap-2">
-                {SHELF_BOTTLES.slice(row * 3, row * 3 + 3).concat(SHELF_BOTTLES.slice(row * 3, row * 3 + 3)).map(([f, t], i) => (
-                  <Bottle key={i} from={f} to={t} />
-                ))}
+      {/* ===== 3D bar diorama: receding back wall, Tyson, polished counter ===== */}
+      <div className="stage-3d relative overflow-hidden" style={{ height: 320, background: 'linear-gradient(180deg,#2a1206,#160a04)' }}>
+        {/* back-bar wall, pushed into depth so the shelves recede behind him */}
+        <div className="absolute inset-x-0 top-0 px-6 pt-3" style={{ transform: 'translateZ(-170px) scale(1.12)', transformOrigin: 'top center' }}>
+          <div className="pointer-events-none absolute inset-2 rounded-lg" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(255,210,130,0.22), transparent 70%)' }} />
+          <p className="relative text-center text-[11px] font-black uppercase tracking-[0.5em] text-amber-300" style={{ textShadow: '0 0 14px rgba(245,200,80,0.8)' }}>
+            ★ Open Bar ★
+          </p>
+          <div className="relative mt-3 space-y-2">
+            {[0, 1].map((row) => (
+              <div key={row}>
+                <div className="flex items-end justify-center gap-2">
+                  {SHELF_BOTTLES.slice(row * 3, row * 3 + 3).concat(SHELF_BOTTLES.slice(row * 3, row * 3 + 3)).map(([f, t], i) => (
+                    <Bottle key={i} from={f} to={t} />
+                  ))}
+                </div>
+                <div className="mx-2 h-1 rounded bg-gradient-to-b from-[#5a3a1d] to-[#2e1c0d] shadow" />
               </div>
-              <div className="mx-2 h-1 rounded bg-gradient-to-b from-[#5a3a1d] to-[#2e1c0d] shadow" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ===== Barman behind the counter ===== */}
-      <div className="relative flex h-36 items-end justify-center" style={{ background: 'linear-gradient(180deg,#1a0c04,#241307)' }}>
-        {/* speech bubble */}
-        <div className="absolute left-1/2 top-2 z-10 -translate-x-1/2">
-          <div className="relative rounded-2xl bg-white px-3 py-1.5 text-xs font-bold text-[#160a04] shadow-lg">
-            {pouring ? 'Coming right up! 🍾' : "What'll it be, punk?"}
-            <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white" />
+            ))}
           </div>
         </div>
 
-        <Barman pouring={!!pouring} />
+        {/* Tyson standing behind the bar (mid-depth, in front of the shelves) */}
+        <div className="absolute bottom-[70px] left-1/2 z-10 -translate-x-1/2">
+          <Barman pouring={!!pouring} />
+        </div>
+
+        {/* speech bubble — off to the right so we can see his face, tail points back to his mouth */}
+        <div className="absolute right-3 top-8 z-20 max-w-[165px]">
+          <div className="relative rounded-2xl bg-white px-3.5 py-2 text-xs font-bold leading-snug text-[#160a04] shadow-lg">
+            {pouring ? 'Coming right up! 🍾' : "What'll it be, punk? Step up to my bar."}
+            <span className="absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 bg-white" />
+          </div>
+        </div>
 
         {/* pour animation */}
         {pouring && (
-          <div className="absolute bottom-2 right-6 flex flex-col items-center">
+          <div className="absolute bottom-[80px] right-10 z-20 flex flex-col items-center">
             <span className="text-2xl leading-none origin-bottom animate-[barPour_0.9s_ease-in-out]" style={{ display: 'inline-block' }}>🍾</span>
             <div
               className="origin-top animate-[barStream_0.9s_ease-in-out]"
@@ -118,19 +120,22 @@ export default function Bar() {
             <span className="text-xl leading-none">{pouring.emoji}</span>
           </div>
         )}
-      </div>
 
-      {/* ===== Polished counter with served drinks ===== */}
-      <div className="relative" style={{ background: 'linear-gradient(180deg,#6b4423,#3d2613)' }}>
-        <div className="h-1.5 w-full bg-white/15" />
-        <div className="flex min-h-[40px] items-end gap-1 px-3 pb-2 pt-1.5">
-          {served.length === 0
-            ? <span className="py-1 text-xs italic text-amber-100/40">The counter's empty — call the barman.</span>
-            : served.map((s) => (
-                <span key={s.id} className="text-2xl leading-none animate-[barServe_0.45s_ease-out]" style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}>
-                  {s.emoji}
-                </span>
-              ))}
+        {/* 3D counter: polished top tilting toward the viewer + thick front apron */}
+        <div className="absolute inset-x-0 bottom-0 z-10" style={{ transformStyle: 'preserve-3d' }}>
+          <div className="bar-wood-top bar-gloss relative h-16" style={{ transform: 'rotateX(66deg)', transformOrigin: 'bottom', boxShadow: '0 -10px 24px rgba(0,0,0,0.45)' }}>
+            {/* served drinks resting on the bar, counter-rotated so they stand up */}
+            <div className="absolute inset-x-3 bottom-1 flex items-end justify-center gap-1.5" style={{ transform: 'rotateX(-66deg)', transformOrigin: 'bottom' }}>
+              {served.length === 0
+                ? <span className="text-xs italic text-amber-100/40">The bar's empty — call him over.</span>
+                : served.map((s) => (
+                    <span key={s.id} className="text-2xl leading-none animate-[barServe_0.45s_ease-out]" style={{ filter: 'drop-shadow(0 3px 2px rgba(0,0,0,0.6))' }}>
+                      {s.emoji}
+                    </span>
+                  ))}
+            </div>
+          </div>
+          <div className="bar-wood-face h-7 w-full" />
         </div>
       </div>
 

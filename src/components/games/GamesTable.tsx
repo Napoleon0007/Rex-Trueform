@@ -25,7 +25,7 @@ const BANTER = [
   "Don't spend it all in one hand.",
 ]
 
-// A stylised croupier standing at the table, ready to take your chips.
+// A real croupier (photo cutout) standing at the table, ready to take your chips.
 function Croupier({ line }: { line: string }) {
   return (
     <div className="relative flex flex-col items-center">
@@ -33,43 +33,28 @@ function Croupier({ line }: { line: string }) {
         {line}
         <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white" />
       </div>
-      <svg viewBox="0 0 120 130" className="h-32 w-auto origin-bottom animate-[dealerSway_4s_ease-in-out_infinite]" aria-hidden>
-        {/* arms reaching to the felt */}
-        <path d="M30 70 Q14 86 26 104" fill="none" stroke="#1c130a" strokeWidth="11" strokeLinecap="round" />
-        <path d="M90 70 Q106 86 94 104" fill="none" stroke="#1c130a" strokeWidth="11" strokeLinecap="round" />
-        <circle cx="26" cy="106" r="6" fill="#d8a878" />
-        <circle cx="94" cy="106" r="6" fill="#d8a878" />
-        {/* torso — black vest over white shirt */}
-        <path d="M30 66 Q60 56 90 66 L94 120 L26 120 Z" fill="#15110c" />
-        <path d="M52 60 L60 96 L68 60 Z" fill="#f5f3ec" />
-        {/* bowtie */}
-        <path d="M54 62 L60 66 L54 70 Z M66 62 L60 66 L66 70 Z" fill="#c0182b" />
-        <circle cx="60" cy="66" r="2" fill="#7a1019" />
-        {/* collar */}
-        <path d="M52 60 L60 70 L56 58 Z M68 60 L60 70 L64 58 Z" fill="#fff" />
-        {/* neck + head */}
-        <rect x="55" y="48" width="10" height="10" rx="3" fill="#d8a878" />
-        <circle cx="60" cy="38" r="15" fill="#e7b98a" />
-        {/* hair */}
-        <path d="M45 36 Q47 20 60 20 Q73 20 75 36 Q70 28 60 28 Q50 28 45 36 Z" fill="#241a12" />
-        {/* eyes + smile */}
-        <circle cx="54" cy="38" r="1.6" fill="#1c130a" />
-        <circle cx="66" cy="38" r="1.6" fill="#1c130a" />
-        <path d="M54 45 Q60 49 66 45" fill="none" stroke="#9b5a3c" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
+      <img
+        src="/croupier.png"
+        alt="Croupier"
+        className="h-40 w-auto origin-bottom object-contain animate-[dealerSway_4s_ease-in-out_infinite]"
+        style={{ filter: 'drop-shadow(0 12px 14px rgba(0,0,0,0.6))' }}
+      />
     </div>
   )
 }
 
-// Decorative stacks of casino chips on the felt.
-function ChipStack({ colors, x }: { colors: string[]; x: number }) {
+// A tower of casino chips standing upright on the tilted felt. We counter-rotate
+// the tilt so the stack stands vertically like a real chip tower seen at an angle.
+function ChipStack3D({ colors, x, y }: { colors: string[]; x: number; y: number }) {
   return (
-    <div className="absolute bottom-1" style={{ left: `${x}%` }}>
+    <div className="absolute" style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%,-50%) rotateX(-54deg)', transformOrigin: 'bottom center' }}>
       <div className="flex flex-col-reverse items-center">
         {colors.map((c, i) => (
-          <div key={i} className="h-2 w-9 rounded-full border border-black/30"
-            style={{ background: c, marginTop: -1, boxShadow: 'inset 0 1px rgba(255,255,255,0.4)' }} />
+          <div key={i} className="h-[6px] w-9 rounded-full border border-black/40"
+            style={{ background: c, marginTop: -2, boxShadow: 'inset 0 1px rgba(255,255,255,0.45), 0 1px 1px rgba(0,0,0,0.4)' }} />
         ))}
+        {/* top face of the stack */}
+        <div className="h-2 w-9 rounded-full border border-black/30" style={{ background: colors[colors.length - 1], boxShadow: 'inset 0 0 4px rgba(255,255,255,0.5)' }} />
       </div>
     </div>
   )
@@ -116,19 +101,37 @@ export default function GamesTable() {
         <div className="p-5">
           {!game ? (
             <div>
-              {/* ===== Live table scene: spinning wheel fixture, croupier, chips ===== */}
-              <div className="relative mb-6 flex min-h-[200px] items-end justify-center gap-4 rounded-2xl border border-amber-900/30 bg-black/20 px-4 pb-6 pt-4">
-                {/* idle wheel on the left, forever spinning */}
-                <div className="relative h-28 w-28 shrink-0">
-                  <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 text-amber-300" style={{ fontSize: 14 }}>▼</div>
-                  <RouletteWheel idle className="h-full w-full drop-shadow-[0_6px_12px_rgba(0,0,0,0.5)]" />
+              {/* ===== 3D table platform: tilted felt, brushed-silver rim, recessed wheel ===== */}
+              <div className="stage-3d relative mb-6 overflow-hidden rounded-2xl border border-amber-900/30"
+                style={{ height: 360, background: 'radial-gradient(ellipse at 50% 30%, #1b2a22 0%, #0a0f0c 70%)' }}>
+                {/* ambient floor shadow the table casts */}
+                <div className="pointer-events-none absolute left-1/2 top-[64%] h-24 w-[72%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-2xl" />
+
+                {/* croupier stands behind the table */}
+                <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2">
+                  <Croupier line={line} />
                 </div>
-                {/* croupier centre stage */}
-                <Croupier line={line} />
-                {/* chip stacks on the felt */}
-                <ChipStack colors={['#c0182b', '#c0182b', '#15110c', '#caa14a']} x={20} />
-                <ChipStack colors={['#0f7a3d', '#caa14a', '#caa14a']} x={72} />
-                <ChipStack colors={['#15110c', '#c0182b', '#caa14a', '#15110c', '#c0182b']} x={86} />
+
+                {/* the table laid back into the floor */}
+                <div className="table-3d table-3d--enter absolute left-1/2"
+                  style={{ top: '44%', width: 440, height: 280, marginLeft: -220, transformStyle: 'preserve-3d' }}>
+                  {/* silver edge / apron */}
+                  <div className="metal-silver absolute inset-0 rounded-[50%]"
+                    style={{ boxShadow: '0 30px 55px rgba(0,0,0,0.8), inset 0 2px 6px rgba(255,255,255,0.55)' }} />
+                  {/* felt top */}
+                  <div className="felt-3d absolute overflow-hidden rounded-[50%]"
+                    style={{ inset: 18, boxShadow: 'inset 0 0 80px rgba(0,0,0,0.7)', transformStyle: 'preserve-3d' }}>
+                    {/* recessed chrome wheel bowl at the far end of the felt */}
+                    <div className="metal-silver absolute left-[24%] top-[12%] h-[42%] w-[28%] rounded-full"
+                      style={{ boxShadow: 'inset 0 0 20px rgba(0,0,0,0.75), 0 5px 12px rgba(0,0,0,0.55)' }}>
+                      <RouletteWheel idle className="absolute inset-[10%] h-[80%] w-[80%]" />
+                    </div>
+                    {/* chip towers standing on the felt */}
+                    <ChipStack3D colors={['#c0182b', '#15110c', '#caa14a']} x={60} y={50} />
+                    <ChipStack3D colors={['#0f7a3d', '#caa14a', '#caa14a', '#15110c']} x={73} y={64} />
+                    <ChipStack3D colors={['#15110c', '#c0182b', '#caa14a']} x={38} y={70} />
+                  </div>
+                </div>
               </div>
 
               <div className="text-center">

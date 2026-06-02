@@ -100,3 +100,109 @@
   0%   { transform: translateY(0); }
   100% { transform: translateY(-66%); }
 }
+
+/* ============================================================
+   3D CASINO PLATFORM — a reusable perspective stage.
+   The .stage-3d gives children a real camera; .table-3d is the
+   felt top laid back into the floor; the rim/legs add depth.
+   ============================================================ */
+.stage-3d {
+  perspective: 1100px;
+  perspective-origin: 50% 38%;
+  transform-style: preserve-3d;
+}
+/* The whole table assembly tilts back so we look across it. */
+.table-3d {
+  transform-style: preserve-3d;
+  transform: rotateX(54deg);
+  transition: transform 0.6s ease;
+}
+/* Subtle "settle" so the platform feels physical when it appears. */
+@keyframes tableSettle {
+  0%   { transform: rotateX(64deg) translateY(20px); opacity: 0; }
+  100% { transform: rotateX(54deg) translateY(0);    opacity: 1; }
+}
+.table-3d--enter { animation: tableSettle 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Brushed-silver metal: layered conic + linear sheen. */
+.metal-silver {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 40%),
+    conic-gradient(from 210deg,
+      #6b7280 0deg, #e5e9ef 60deg, #9aa3b2 120deg, #f4f6fa 180deg,
+      #8b94a3 240deg, #d7dce4 300deg, #6b7280 360deg);
+}
+/* Real green felt with a woven micro-texture + center spotlight. */
+.felt-3d {
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(80,255,170,0.10), transparent 55%),
+    radial-gradient(ellipse at 50% 42%, #15945a 0%, #0c6b40 42%, #064a2c 78%, #03301d 100%);
+}
+.felt-3d::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg,  rgba(0,0,0,0.05) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 4px);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The wheel sits in a chrome bowl; this gives it dished depth. */
+@keyframes wheelSpin3d {
+  from { transform: rotateZ(0deg); }
+  to   { transform: rotateZ(360deg); }
+}
+
+/* ============================================================
+   VELVET CURTAIN — two panels that part as you scroll into the
+   lounge. Deep crimson with vertical folds, sheen + gold trim.
+   ============================================================ */
+.velvet-panel {
+  background:
+    /* soft sheen highlights */
+    linear-gradient(90deg, rgba(255,255,255,0.05), transparent 12%, rgba(255,255,255,0.07) 22%, transparent 34%),
+    /* vertical pleats / folds */
+    repeating-linear-gradient(90deg,
+      #3a0a0e 0 10px, #5c1218 10px 22px, #7d1a22 22px 30px,
+      #5c1218 30px 42px, #3a0a0e 42px 56px);
+  box-shadow: inset 0 -40px 60px rgba(0,0,0,0.55), inset 0 0 120px rgba(0,0,0,0.4);
+  will-change: transform;
+}
+/* gold braided trim down the meeting edge */
+.velvet-trim {
+  background: linear-gradient(180deg, #ffe9a8, #c9971f 45%, #7a5a10);
+  box-shadow: 0 0 14px rgba(245,200,80,0.55);
+}
+/* scalloped valance hanging across the top */
+.velvet-valance {
+  background:
+    radial-gradient(circle at 50% 0, rgba(255,255,255,0.08), transparent 60%),
+    repeating-linear-gradient(90deg, #3a0a0e 0 10px, #5c1218 10px 22px, #7d1a22 22px 30px, #5c1218 30px 42px, #3a0a0e 42px 56px);
+  -webkit-mask: radial-gradient(circle at 22px 100%, transparent 0 16px, #000 16px) repeat-x 0 0 / 44px 100%;
+          mask: radial-gradient(circle at 22px 100%, transparent 0 16px, #000 16px) repeat-x 0 0 / 44px 100%;
+}
+
+/* ============================================================
+   3D BAR DIORAMA — receding back wall, polished counter top with
+   a thick front apron, all viewed across a perspective stage.
+   ============================================================ */
+.bar-wood-top {
+  background:
+    linear-gradient(180deg, rgba(255,225,170,0.30), transparent 30%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.10) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #8a5a2b, #6b4423 55%, #4d3017);
+}
+.bar-wood-face {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), transparent 18%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0 4px, transparent 4px 11px),
+    linear-gradient(180deg, #5e3b1e, #3a2412);
+}
+/* glossy reflection band across the counter top */
+.bar-gloss::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.18) 47%, transparent 60%);
+  border-radius: inherit; pointer-events: none;
+}
