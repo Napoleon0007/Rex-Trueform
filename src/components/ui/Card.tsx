@@ -12,7 +12,7 @@ export default function Card({ className, highlight, children, ...props }: CardP
         'rounded-2xl p-4',
         highlight
           ? 'border border-orange-500/30 bg-orange-500/5 shadow-lg shadow-orange-500/10'
-          : 'bg-[#111] border border-[#222]',
+          : 'bg-casino-card border border-casino-border',
         className,
       )}
       {...props}

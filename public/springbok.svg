@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Original leaping-springbok crest in green & gold (not the trademarked SA Rugby emblem). -->
+  <circle cx="100" cy="100" r="96" fill="#0a5c3b" stroke="#c9971f" stroke-width="6"/>
+  <circle cx="100" cy="100" r="83" fill="none" stroke="#c9971f" stroke-width="2"/>
+  <g transform="translate(40,62) scale(1.02)" fill="#e9c46a" stroke="#e9c46a" stroke-linecap="round">
+    <ellipse cx="58" cy="46" rx="26" ry="11" stroke="none"/>
+    <circle cx="36" cy="45" r="13" stroke="none"/>
+    <circle cx="80" cy="45" r="11" stroke="none"/>
+    <path d="M86 40 Q96 30 99 18 L92 16 Q88 31 80 39 Z" stroke="none"/>
+    <ellipse cx="100" cy="15" rx="9" ry="6" transform="rotate(20 100 15)" stroke="none"/>
+    <path d="M105 12 L116 6 L113 13 L107 17 Z" stroke="none"/>
+    <path d="M97 8 Q100 -3 95 -7" fill="none" stroke-width="2.4"/>
+    <path d="M101 8 Q105 -2 101 -7" fill="none" stroke-width="2.4"/>
+    <path d="M30 42 Q21 45 19 51" fill="none" stroke-width="3"/>
+    <path d="M84 50 Q92 64 99 75" fill="none" stroke-width="3.4"/>
+    <path d="M76 52 Q80 67 82 79" fill="none" stroke-width="3.4"/>
+    <path d="M40 52 Q30 64 21 73" fill="none" stroke-width="3.4"/>
+    <path d="M48 54 Q44 69 40 81" fill="none" stroke-width="3.4"/>
+  </g>
+</svg>

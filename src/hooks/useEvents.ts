@@ -5,6 +5,7 @@ import type { EventStatus, EventWithResult } from '../types/database'
 export function useEvents(status?: EventStatus) {
   return useQuery({
     queryKey: ['events', status ?? 'all'],
+    refetchInterval: 60_000,
     queryFn: async () => {
       let query = supabase
         .from('events_with_results')

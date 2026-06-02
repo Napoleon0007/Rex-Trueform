@@ -5,7 +5,7 @@ import type { EventStatus } from '../../types/database'
 const statusConfig: Record<EventStatus, { label: string; className: string; dot: string }> = {
   open:    { label: 'Open',    className: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20', dot: 'bg-emerald-400' },
   closed:  { label: 'Pending', className: 'bg-orange-500/15 text-orange-400 border-orange-500/20',   dot: 'bg-orange-400' },
-  settled: { label: 'Settled', className: 'bg-[#1a1a1a] text-slate-400 border-[#333]',               dot: 'bg-slate-500' },
+  settled: { label: 'Settled', className: 'bg-casino-elevated text-slate-400 border-casino-line',               dot: 'bg-slate-500' },
 }
 
 interface StatusBadgeProps {
@@ -28,7 +28,7 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const badgeVariants = {
-  default: 'bg-[#1a1a1a] text-slate-300 border-[#333]',
+  default: 'bg-casino-elevated text-slate-300 border-casino-line',
   orange:  'bg-orange-500/15 text-orange-400 border-orange-500/20',
   green:   'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
   red:     'bg-rose-500/15 text-rose-400 border-rose-500/20',

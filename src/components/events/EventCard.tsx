@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { StatusBadge } from '../ui/Badge'
-import { timeUntil, formatDateTime, winnerLabel } from '../../lib/utils'
+import { timeUntil, formatDateTime, formatPrediction } from '../../lib/utils'
 import { categoryEmoji } from '../../lib/categories'
 import type { EventWithResult } from '../../types/database'
 import type { Bet } from '../../types/database'
@@ -19,7 +19,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
 
   return (
     <div
-      className="group relative cursor-pointer rounded-2xl border border-[#222] bg-[#111] overflow-hidden transition-all duration-200 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5 active:scale-[0.99]"
+      className="group relative cursor-pointer rounded-2xl border border-casino-border bg-casino-card overflow-hidden transition-all duration-200 hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5 active:scale-[0.99]"
       onClick={() => onBet ? onBet() : navigate(`/events/${event.id}`)}
     >
       {/* Orange top bar for open events */}
@@ -46,7 +46,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
         )}
 
         {/* Divider */}
-        <div className="border-t border-[#1e1e1e] my-3" />
+        <div className="border-t border-casino-hairline my-3" />
 
         {/* Stats row */}
         <div className="flex items-center justify-between text-xs">
@@ -54,13 +54,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
             {isOpen
               ? `⏱ ${timeUntil(event.closing_time)}${endingSoon ? ' — ending soon!' : ' left'}`
               : event.status === 'settled'
-              ? `✓ Result: ${
-                  event.event_type === 'winner'
-                    ? winnerLabel(event.actual_result ?? 0, event.team_home, event.team_away)
-                    : event.event_type === 'score'
-                    ? `${event.actual_result} – ${event.actual_away}`
-                    : `${event.actual_result} ${event.unit}`
-                }`
+              ? `✓ Result: ${formatPrediction(event, event.actual_result ?? 0, event.actual_away)}`
               : `Closed ${formatDateTime(event.closing_time)}`
             }
           </span>
@@ -73,11 +67,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
         {userBet && (
           <div className="mt-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-3 py-2">
             {(() => {
-              const predDisplay = event.event_type === 'winner'
-                ? winnerLabel(userBet.prediction, event.team_home, event.team_away)
-                : event.event_type === 'score'
-                ? `${userBet.prediction}–${userBet.prediction_away ?? 0}`
-                : `${userBet.prediction} ${event.unit}`
+              const predDisplay = formatPrediction(event, userBet.prediction, userBet.prediction_away)
               return event.status === 'settled' && userBet.payout != null ? (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">
@@ -94,7 +84,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
                     {' on '}
                     <span className="text-white font-medium">{predDisplay}</span>
                   </span>
-                  <span className="text-orange-500">🎟</span>
+                  <span className="text-orange-500">{isOpen ? 'Tap to edit ✎' : '🎟'}</span>
                 </div>
               )
             })()}

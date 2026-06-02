@@ -6,11 +6,18 @@ export default {
     extend: {
       colors: {
         casino: {
-          bg:      '#000000',
-          surface: '#0f0f0f',
-          card:    '#111111',
-          border:  '#222222',
-          orange:  '#f97316',
+          bg:       '#000000',
+          night:    '#0a0e1a',
+          surface:  '#0f0f0f',
+          chip:     '#0d0d0d',
+          card:     '#111111',
+          raised:   '#141414',
+          elevated: '#1a1a1a',
+          hairline: '#1e1e1e',
+          border:   '#222222',
+          edge:     '#2a2a2a',
+          line:     '#333333',
+          orange:   '#f97316',
           'orange-dim': 'rgba(249,115,22,0.12)',
           silver:  '#94a3b8',
         },

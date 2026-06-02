@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { formatDistanceToNow, format } from 'date-fns'
+import type { CasinoEvent } from '../types/database'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,4 +34,24 @@ export function winnerLabel(
   if (pick === 2) return 'Draw'
   if (pick === 3) return teamAway ?? 'Away'
   return String(pick)
+}
+
+/**
+ * Human-readable display of a prediction (or actual result) for any event type.
+ *   winner  → "Draw" / team name
+ *   score   → "3–1"
+ *   numeric → "3 goals"
+ */
+export function formatPrediction(
+  event: Pick<CasinoEvent, 'event_type' | 'unit' | 'team_home' | 'team_away'>,
+  primary: number,
+  away?: number | null,
+): string {
+  if (event.event_type === 'winner') {
+    return winnerLabel(primary, event.team_home, event.team_away)
+  }
+  if (event.event_type === 'score') {
+    return `${primary}–${away ?? 0}`
+  }
+  return `${primary} ${event.unit}`.trim()
 }

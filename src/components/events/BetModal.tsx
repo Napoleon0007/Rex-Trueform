@@ -1,25 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
-import { usePlaceBet } from '../../hooks/useBets'
+import { usePlaceBet, useUpdateBet } from '../../hooks/useBets'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useAuthStore } from '../../store/authStore'
-import { winnerLabel } from '../../lib/utils'
-import type { EventWithResult } from '../../types/database'
+import { winnerLabel, formatPrediction } from '../../lib/utils'
+import { toast } from '../../store/toastStore'
+import type { Bet, EventWithResult } from '../../types/database'
 
 interface BetModalProps {
   event: EventWithResult
   open: boolean
   onClose: () => void
+  /** When provided, the modal edits this bet instead of placing a new one. */
+  existingBet?: Bet | null
 }
 
-export default function BetModal({ event, open, onClose }: BetModalProps) {
+export default function BetModal({ event, open, onClose, existingBet }: BetModalProps) {
   const { user } = useAuthStore()
   const { data: balance = 0 } = useTokenBalance(user?.id)
   const placeBet = usePlaceBet()
+  const updateBet = useUpdateBet()
   const isScore  = event.event_type === 'score'
   const isWinner = event.event_type === 'winner'
+  const isEdit   = !!existingBet
+
+  // Editing refunds the old stake first, so that much extra is spendable.
+  const maxSpendable = balance + (existingBet?.amount ?? 0)
+  const mutation = isEdit ? updateBet : placeBet
 
   const [winnerPick, setWinnerPick] = useState<1 | 2 | 3 | null>(null)
   const [predHome, setPredHome] = useState('')
@@ -28,39 +37,70 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
   const [amount, setAmount] = useState(1)
   const [error, setError] = useState('')
 
+  // (Re)seed the form whenever the modal opens — prefilled from the existing bet in edit mode.
+  useEffect(() => {
+    if (!open) return
+    setError('')
+    if (existingBet) {
+      setWinnerPick(isWinner ? (existingBet.prediction as 1 | 2 | 3) : null)
+      setPredHome(isScore ? String(existingBet.prediction) : '')
+      setPredAway(isScore ? String(existingBet.prediction_away ?? '') : '')
+      setPrediction(!isWinner && !isScore ? String(existingBet.prediction) : '')
+      setAmount(existingBet.amount)
+    } else {
+      setWinnerPick(null)
+      setPredHome('')
+      setPredAway('')
+      setPrediction('')
+      setAmount(1)
+    }
+  }, [open, existingBet, isWinner, isScore])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
 
-    if (amount < 1 || amount > balance) { setError(`Amount must be between 1 and ${balance}`); return }
+    if (amount < 1 || amount > maxSpendable) { setError(`Amount must be between 1 and ${maxSpendable}`); return }
 
     try {
+      let chosenPrediction: number
+      let chosenAway: number | undefined
+
       if (isWinner) {
         if (winnerPick === null) { setError('Pick a result first'); return }
-        await placeBet.mutateAsync({ eventId: event.id, prediction: winnerPick, amount })
-        setWinnerPick(null)
+        chosenPrediction = winnerPick
       } else if (isScore) {
         const home = parseInt(predHome, 10)
         const away = parseInt(predAway, 10)
         if (isNaN(home) || home < 0) { setError('Enter a valid home score'); return }
         if (isNaN(away) || away < 0) { setError('Enter a valid away score'); return }
-        await placeBet.mutateAsync({ eventId: event.id, prediction: home, predictionAway: away, amount })
-        setPredHome('')
-        setPredAway('')
+        chosenPrediction = home
+        chosenAway = away
       } else {
         const pred = parseInt(prediction, 10)
         if (isNaN(pred)) { setError('Enter a valid whole number'); return }
-        await placeBet.mutateAsync({ eventId: event.id, prediction: pred, amount })
-        setPrediction('')
+        chosenPrediction = pred
       }
+
+      await mutation.mutateAsync({
+        eventId: event.id,
+        prediction: chosenPrediction,
+        ...(chosenAway !== undefined ? { predictionAway: chosenAway } : {}),
+        amount,
+      })
+
+      const label = formatPrediction(event, chosenPrediction, chosenAway)
+      toast.success(`${isEdit ? 'Bet updated' : 'Bet placed'} · ${amount} 🪙 on ${label}`, '🎟')
       onClose()
-      setAmount(1)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to place bet')
     }
   }
 
-  const chips = [1, 5, 10, balance].filter((v, i, arr) => v > 0 && arr.indexOf(v) === i)
+  // Only offer chips you can actually afford.
+  const chips = [1, 5, 10, maxSpendable].filter(
+    (v, i, arr) => v > 0 && v <= maxSpendable && arr.indexOf(v) === i,
+  )
 
   const WINNER_OPTIONS: { pick: 1 | 2 | 3; label: string }[] = [
     { pick: 1, label: event.team_home ?? 'Home' },
@@ -69,7 +109,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
   ]
 
   return (
-    <Modal open={open} onClose={onClose} title={`Bet on "${event.event_name}"`}>
+    <Modal open={open} onClose={onClose} title={`${isEdit ? 'Edit bet' : 'Bet'} on "${event.event_name}"`}>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm text-slate-400">
           {event.description && <p className="mb-1">{event.description}</p>}
@@ -94,7 +134,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                   className={`w-full rounded-xl py-3 text-base font-bold border transition-colors ${
                     winnerPick === pick
                       ? 'border-orange-500 bg-orange-500/20 text-orange-300'
-                      : 'border-[#333] bg-[#1a1a1a] text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
+                      : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
                   }`}
                 >
                   {label}
@@ -115,7 +155,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                   placeholder="0"
                   value={predHome}
                   onChange={(e) => setPredHome(e.target.value)}
-                  className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+                  className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
                 />
               </div>
               <span className="text-2xl font-black text-slate-600 mt-5">–</span>
@@ -128,7 +168,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                   placeholder="0"
                   value={predAway}
                   onChange={(e) => setPredAway(e.target.value)}
-                  className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+                  className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
                 />
               </div>
             </div>
@@ -148,7 +188,7 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
         <div className="space-y-3">
           <label className="flex items-center justify-between text-sm font-medium text-slate-300">
             <span>How many tokens?</span>
-            <span className="text-xs text-slate-500">{balance} available</span>
+            <span className="text-xs text-slate-500">{maxSpendable} available</span>
           </label>
           <div className="flex gap-2">
             {chips.map((chip) => (
@@ -159,10 +199,10 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
                 className={`flex-1 rounded-xl py-2 text-sm font-semibold border transition-colors ${
                   amount === chip
                     ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                    : 'border-[#333] bg-[#1a1a1a] text-slate-400 hover:border-orange-500/40 hover:text-orange-300'
+                    : 'border-casino-line bg-casino-elevated text-slate-400 hover:border-orange-500/40 hover:text-orange-300'
                 }`}
               >
-                {chip === balance ? 'All' : chip}
+                {chip === maxSpendable ? 'All' : chip}
               </button>
             ))}
           </div>
@@ -170,10 +210,10 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
             type="number"
             inputMode="numeric"
             min={1}
-            max={balance}
+            max={maxSpendable}
             value={amount}
-            onChange={(e) => setAmount(Math.min(Math.max(1, Number(e.target.value)), balance))}
-            className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 text-center text-lg font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+            onChange={(e) => setAmount(Math.min(Math.max(1, Number(e.target.value)), maxSpendable))}
+            className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-2.5 text-center text-lg font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
           />
         </div>
 
@@ -190,12 +230,14 @@ export default function BetModal({ event, open, onClose }: BetModalProps) {
 
         <Button
           type="submit"
-          loading={placeBet.isPending}
+          loading={mutation.isPending}
           className="w-full"
           size="lg"
-          disabled={balance === 0 || (isWinner && winnerPick === null)}
+          disabled={maxSpendable === 0 || (isWinner && winnerPick === null)}
         >
-          {isWinner && winnerPick !== null
+          {isEdit
+            ? `Update bet · ${amount} 🪙`
+            : isWinner && winnerPick !== null
             ? `${winnerLabel(winnerPick, event.team_home, event.team_away)} · ${amount} 🪙`
             : `Place bet · ${amount} 🪙`
           }

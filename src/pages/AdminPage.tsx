@@ -47,7 +47,7 @@ export default function AdminPage() {
 
       {isLoading && (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-[#111] border border-[#1a1a1a]" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-casino-card border border-casino-elevated" />)}
         </div>
       )}
 
@@ -93,7 +93,7 @@ export default function AdminPage() {
       )}
 
       {!isLoading && !allEvents?.length && (
-        <p className="rounded-2xl border border-dashed border-[#222] py-8 text-center text-sm text-slate-600">
+        <p className="rounded-2xl border border-dashed border-casino-border py-8 text-center text-sm text-slate-600">
           No markets yet. Create one!
         </p>
       )}
@@ -158,10 +158,10 @@ function EventRow({
     : null
 
   return (
-    <div className="rounded-2xl border border-[#1e1e1e] bg-[#111] overflow-hidden">
+    <div className="rounded-2xl border border-casino-hairline bg-casino-card overflow-hidden">
       {/* Main row */}
       <div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#141414] transition-colors"
+        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-casino-raised transition-colors"
         onClick={() => navigate(`/events/${event.id}`)}
       >
         <span className="text-lg shrink-0">{emoji}</span>
@@ -222,7 +222,7 @@ function EventRow({
 
       {/* Void confirmation */}
       {confirmVoid && (
-        <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] px-4 py-3 flex items-center justify-between gap-3">
+        <div className="border-t border-casino-hairline bg-casino-chip px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
             {isSettled
               ? <>Payouts will be <span className="text-rose-400">reversed</span> and bets <span className="text-amber-400">refunded</span>.</>
@@ -247,7 +247,7 @@ function EventRow({
 
       {/* Delete confirmation */}
       {confirmDelete && (
-        <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] px-4 py-3 flex items-center justify-between gap-3">
+        <div className="border-t border-casino-hairline bg-casino-chip px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-xs text-slate-400">
             Delete permanently?{' '}
             {isSettled
@@ -275,7 +275,7 @@ function EventRow({
 
       {/* Error */}
       {actionError && (
-        <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] px-4 py-2">
+        <div className="border-t border-casino-hairline bg-casino-chip px-4 py-2">
           <p className="text-xs text-rose-400">{actionError}</p>
         </div>
       )}

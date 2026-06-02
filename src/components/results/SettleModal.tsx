@@ -157,7 +157,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                   className={`w-full rounded-xl py-3 text-base font-bold border transition-colors ${
                     winnerResult === pick
                       ? 'border-orange-500 bg-orange-500/20 text-orange-300'
-                      : 'border-[#333] bg-[#1a1a1a] text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
+                      : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
                   }`}
                 >
                   {label}
@@ -178,7 +178,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                   value={homeResult}
                   onChange={(e) => { setHomeResult(e.target.value); setConfirmed(false) }}
                   autoFocus
-                  className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+                  className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
                 />
               </div>
               <span className="text-2xl font-black text-slate-600 mt-5">–</span>
@@ -190,7 +190,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                   placeholder="0"
                   value={awayResult}
                   onChange={(e) => { setAwayResult(e.target.value); setConfirmed(false) }}
-                  className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+                  className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-3 text-center text-2xl font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
                 />
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
               onChange={(e) => { setHomeResult(e.target.value); setConfirmed(false) }}
               step="1"
               autoFocus
-              className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 text-base text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+              className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-2.5 text-base text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
             />
           </div>
         )}
@@ -218,10 +218,10 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
             <p className="text-xs font-semibold uppercase tracking-widest text-orange-500">
               Auto-calculated payouts
             </p>
-            <div className="rounded-xl border border-[#1e1e1e] bg-[#0d0d0d] overflow-hidden">
+            <div className="rounded-xl border border-casino-hairline bg-casino-chip overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1e1e1e]">
+                  <tr className="border-b border-casino-hairline">
                     <th className="text-left px-3 py-2 text-xs text-slate-600 font-medium">Player</th>
                     <th className="text-center px-3 py-2 text-xs text-slate-600 font-medium">Predicted</th>
                     <th className="text-center px-3 py-2 text-xs text-slate-600 font-medium">
@@ -232,7 +232,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                 </thead>
                 <tbody>
                   {preview.map((row, i) => (
-                    <tr key={row.id} className={i < preview.length - 1 ? 'border-b border-[#1a1a1a]' : ''}>
+                    <tr key={row.id} className={i < preview.length - 1 ? 'border-b border-casino-elevated' : ''}>
                       <td className="px-3 py-2 font-medium text-slate-300">
                         {i === 0 && <span className="mr-1">🥇</span>}
                         {i === 1 && preview.length > 1 && <span className="mr-1">🥈</span>}

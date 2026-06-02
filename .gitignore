@@ -8,3 +8,8 @@ dist
 # Original media files (served from public/ instead)
 IMG_7194.JPG
 Jono lumu.mp4
+Pele.mp4
+Standing on chair.mp4
+
+# Supabase CLI local cache
+supabase/.temp/

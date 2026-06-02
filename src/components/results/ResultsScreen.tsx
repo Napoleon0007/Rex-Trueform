@@ -2,7 +2,8 @@ import { useAuthStore } from '../../store/authStore'
 import { useEventBets } from '../../hooks/useBets'
 import Confetti from './Confetti'
 import Card from '../ui/Card'
-import type { EventWithResult } from '../../types/database'
+import { formatPrediction } from '../../lib/utils'
+import type { EventWithResult, BetWithProfile } from '../../types/database'
 
 interface ResultsScreenProps {
   event: EventWithResult
@@ -15,6 +16,29 @@ function rankLabel(i: number) {
 export default function ResultsScreen({ event }: ResultsScreenProps) {
   const { user } = useAuthStore()
   const { data: bets, isLoading } = useEventBets(event.id)
+
+  const isWinner = event.event_type === 'winner'
+  const isScore  = event.event_type === 'score'
+  const actualHome = event.actual_result ?? 0
+  const actualAway = event.actual_away ?? 0
+
+  // How far off a prediction was (winner is correct/incorrect, not a distance).
+  const offBy = (b: Pick<BetWithProfile, 'prediction' | 'prediction_away'>) =>
+    isScore
+      ? Math.abs(b.prediction - actualHome) + Math.abs((b.prediction_away ?? 0) - actualAway)
+      : Math.abs(b.prediction - actualHome)
+
+  // Accuracy descriptor shared by "your result" and the ranking rows.
+  const accuracy = (b: BetWithProfile) => {
+    if (isWinner) {
+      return b.prediction === actualHome
+        ? <span className="text-emerald-400">Correct ✓</span>
+        : <span className="text-slate-600">Wrong ✗</span>
+    }
+    return offBy(b) === 0
+      ? <span className="text-emerald-400">Exact! 🎯</span>
+      : <span>off by {offBy(b)}</span>
+  }
 
   // Sort by payout descending (already ordered by DB, but client-side fallback)
   const sorted = [...(bets ?? [])].sort((a, b) => (b.payout ?? 0) - (a.payout ?? 0))
@@ -29,8 +53,13 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
       {/* Result hero */}
       <Card highlight className="text-center space-y-1 py-6">
         <p className="text-sm uppercase tracking-widest text-orange-500/70">Actual result</p>
-        <p className="text-6xl font-black text-orange-400">{event.actual_result}</p>
-        <p className="text-lg text-slate-400">{event.unit}</p>
+        <p className={`font-black text-orange-400 ${isWinner ? 'text-4xl' : 'text-6xl'}`}>
+          {formatPrediction(event, actualHome, actualAway)}
+        </p>
+        {!isWinner && !isScore && <p className="text-lg text-slate-400">{event.unit}</p>}
+        {(isScore || isWinner) && (event.team_home || event.team_away) && (
+          <p className="text-sm text-slate-500">{event.team_home} vs {event.team_away}</p>
+        )}
       </Card>
 
       {/* Your outcome */}
@@ -40,8 +69,8 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-200">
-                You predicted <span className="text-white font-bold">{userBet.prediction}</span>
-                <span className="text-slate-400"> ({Math.abs(userBet.prediction - event.actual_result!)} off)</span>
+                You predicted <span className="text-white font-bold">{formatPrediction(event, userBet.prediction, userBet.prediction_away)}</span>
+                <span className="text-slate-400"> · {accuracy(userBet)}</span>
               </p>
               <p className="text-xs text-slate-500 mt-0.5">Wagered {userBet.amount} tokens</p>
             </div>
@@ -70,7 +99,6 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
 
         {sorted.map((bet, i) => {
           const isMe = bet.user_id === user?.id
-          const distance = Math.abs(bet.prediction - event.actual_result!)
           const payout = Math.round(bet.payout ?? 0)
 
           return (
@@ -88,12 +116,9 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
                   {isMe && <span className="ml-1.5 text-xs text-orange-500">you</span>}
                 </p>
                 <p className="text-xs text-slate-500">
-                  Predicted <span className="text-slate-300">{bet.prediction}</span>
+                  Predicted <span className="text-slate-300">{formatPrediction(event, bet.prediction, bet.prediction_away)}</span>
                   <span className="mx-1">·</span>
-                  {distance === 0
-                    ? <span className="text-emerald-400">Exact! 🎯</span>
-                    : <span>off by {distance}</span>
-                  }
+                  {accuracy(bet)}
                 </p>
               </div>
 

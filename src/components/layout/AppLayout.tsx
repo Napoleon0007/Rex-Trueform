@@ -3,6 +3,9 @@ import { useEffect, useRef } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
+import VideoSection from '../ui/VideoSection'
+import Toaster from '../ui/Toast'
+import PoolLounge from '../pool/PoolLounge'
 import { cn } from '../../lib/utils'
 
 function BottomNav() {
@@ -15,7 +18,7 @@ function BottomNav() {
   ]
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-[#1a1a1a] bg-black/95 backdrop-blur-md">
+    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-casino-elevated bg-black/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-around px-2 pb-safe py-2">
         {navItems.map(({ to, icon, label }) => (
           <NavLink
@@ -80,7 +83,10 @@ export default function AppLayout() {
       <main className="relative mx-auto max-w-7xl px-4 sm:px-6 pb-28 pt-4" style={{ zIndex: 2 }}>
         <Outlet />
       </main>
+      <PoolLounge />
+      <VideoSection src="/pele-v2.mp4" overlayClassName="bg-black/30" showGradient={false} sectionStyle={{ zIndex: 2 }} />
       <BottomNav />
+      <Toaster />
     </div>
   )
 }

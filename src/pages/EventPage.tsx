@@ -9,7 +9,7 @@ import Button from '../components/ui/Button'
 import BetModal from '../components/events/BetModal'
 import ResultsScreen from '../components/results/ResultsScreen'
 import SettleModal from '../components/results/SettleModal'
-import { timeUntil, formatDateTime } from '../lib/utils'
+import { timeUntil, formatDateTime, formatPrediction } from '../lib/utils'
 
 export default function EventPage() {
   const { id } = useParams<{ id: string }>()
@@ -89,12 +89,17 @@ export default function EventPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-bold text-slate-50">
-                    {userBet.prediction} <span className="text-slate-400 text-sm font-normal">{event.unit}</span>
+                    {formatPrediction(event, userBet.prediction, userBet.prediction_away)}
                   </p>
                   <p className="text-xs text-slate-500">{userBet.amount} tokens wagered</p>
                 </div>
                 <span className="text-3xl">🎟</span>
               </div>
+              {isOpen && (
+                <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => setBetOpen(true)}>
+                  Edit bet
+                </Button>
+              )}
             </div>
           ) : isOpen && balance > 0 ? (
             <Button onClick={() => setBetOpen(true)} className="w-full" size="lg">
@@ -122,7 +127,7 @@ export default function EventPage() {
         </>
       )}
 
-      <BetModal event={event} open={betOpen} onClose={() => setBetOpen(false)} />
+      <BetModal event={event} existingBet={userBet} open={betOpen} onClose={() => setBetOpen(false)} />
       <SettleModal event={event} open={settleOpen} onClose={() => setSettleOpen(false)} />
     </div>
   )

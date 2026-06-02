@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils'
 
 const variants = {
   primary:   'bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-semibold shadow-lg shadow-orange-500/20',
-  secondary: 'bg-[#1a1a1a] hover:bg-[#222] text-slate-50 border border-[#333]',
+  secondary: 'bg-casino-elevated hover:bg-casino-border text-slate-50 border border-casino-line',
   danger:    'bg-rose-600 hover:bg-rose-500 text-white font-semibold',
   ghost:     'hover:bg-white/5 text-slate-400 hover:text-slate-50',
   outline:   'border border-orange-500/50 text-orange-400 hover:bg-orange-500/10',

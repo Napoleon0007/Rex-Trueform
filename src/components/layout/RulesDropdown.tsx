@@ -7,7 +7,7 @@ export default function RulesDropdown() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 rounded-lg border border-[#2a2a2a] bg-[#111] px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:border-orange-500/40 hover:text-orange-400 transition-colors"
+        className="flex items-center gap-1 rounded-lg border border-casino-edge bg-casino-card px-2.5 py-1.5 text-xs font-medium text-slate-400 hover:border-orange-500/40 hover:text-orange-400 transition-colors"
       >
         <span>📋</span>
         <span>Rules</span>
@@ -23,7 +23,7 @@ export default function RulesDropdown() {
 
           {/* Panel */}
           <div
-            className="relative w-full max-w-sm rounded-2xl border border-orange-500/20 bg-[#111] shadow-2xl shadow-black/80 p-5 overflow-y-auto max-h-[70vh]"
+            className="relative w-full max-w-sm rounded-2xl border border-orange-500/20 bg-casino-card shadow-2xl shadow-black/80 p-5 overflow-y-auto max-h-[70vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header row */}
@@ -38,13 +38,12 @@ export default function RulesDropdown() {
             </div>
 
             <ul className="space-y-2.5 text-sm text-slate-300">
-              <li><span className="text-orange-400 font-semibold">50 tokens</span> added to your account every month</li>
-              <li>Tokens <span className="text-white font-semibold">roll over</span> — unused tokens carry into next month</li>
-              <li><span className="text-rose-400 font-semibold">−20 penalty</span> if you still have tokens at month end</li>
+              <li><span className="text-orange-400 font-semibold">1,000 tokens</span> every month — a fresh stack on the 1st</li>
+              <li><span className="text-rose-400 font-semibold">No carry-over</span> — unused tokens are wiped at month end. Use them or lose them.</li>
               <li>Predict outcomes before markets close</li>
-              <li>Payouts are <span className="text-white font-semibold">proportional</span> — closer predictions win bigger shares</li>
-              <li>Winner markets: correct pickers <span className="text-white font-semibold">split the pot</span></li>
+              <li><span className="text-white font-semibold">Closest predictions</span> win the big prizes</li>
               <li>Nobody correct → all bets refunded</li>
+              <li><span className="text-orange-400 font-semibold">No crybabies</span></li>
             </ul>
           </div>
         </div>

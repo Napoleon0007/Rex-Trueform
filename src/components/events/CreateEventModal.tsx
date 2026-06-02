@@ -85,7 +85,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
       <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* Event type toggle */}
-        <div className="flex gap-1.5 rounded-xl border border-[#222] bg-[#0d0d0d] p-1">
+        <div className="flex gap-1.5 rounded-xl border border-casino-border bg-casino-chip p-1">
           {EVENT_TYPES.map(({ type, label }) => (
             <button
               key={type}
@@ -127,7 +127,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-300">Description <span className="text-slate-600">(optional)</span></label>
           <textarea
-            className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] px-4 py-2.5 text-base text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none transition-colors"
+            className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-2.5 text-base text-white placeholder:text-slate-600 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none transition-colors"
             placeholder="Extra context for players..."
             rows={2}
             value={form.description}
@@ -147,7 +147,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
                 className={`rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
                   form.category === cat.label
                     ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                    : 'border-[#333] bg-[#1a1a1a] text-slate-400 hover:border-orange-500/40 hover:text-orange-400'
+                    : 'border-casino-line bg-casino-elevated text-slate-400 hover:border-orange-500/40 hover:text-orange-400'
                 }`}
               >
                 {cat.emoji} {cat.label}
@@ -189,7 +189,7 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
                   key={u}
                   type="button"
                   onClick={() => set('unit', u)}
-                  className="rounded-full border border-[#333] bg-[#1a1a1a] px-2.5 py-0.5 text-xs text-slate-400 hover:border-orange-500/50 hover:text-orange-400 transition-colors"
+                  className="rounded-full border border-casino-line bg-casino-elevated px-2.5 py-0.5 text-xs text-slate-400 hover:border-orange-500/50 hover:text-orange-400 transition-colors"
                 >
                   {u}
                 </button>

@@ -1,59 +1,12 @@
-import { useEffect, useRef } from 'react'
 import MagicLinkForm from '../components/auth/MagicLinkForm'
-
-function VideoSection({ src, children }: { src: string; children?: React.ReactNode }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const v = videoRef.current
-    if (!v) return
-    v.muted = true
-
-    const tryPlay = () => { if (v.paused) v.play().catch(() => {}) }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) tryPlay(); else v.pause() },
-      { threshold: 0.4 }
-    )
-    observer.observe(v)
-
-    document.addEventListener('visibilitychange', tryPlay)
-
-    return () => {
-      observer.disconnect()
-      document.removeEventListener('visibilitychange', tryPlay)
-    }
-  }, [])
-
-  return (
-    <div style={{ height: '100dvh', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
-      <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ pointerEvents: 'none' }}
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-      />
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="pointer-events-none absolute bottom-0 inset-x-0 h-64 bg-gradient-to-t from-orange-900/20 to-transparent" />
-      {children && (
-        <div className="relative z-10 flex h-full flex-col items-center justify-center px-4">
-          {children}
-        </div>
-      )}
-    </div>
-  )
-}
+import VideoSection from '../components/ui/VideoSection'
 
 export default function AuthPage() {
   return (
-    <div style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+    <div>
 
       {/* Section 1: Login */}
-      <VideoSection src="/hero-v2.mp4">
+      <VideoSection src="/hero-v2.mp4" objectPosition="top">
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center space-y-4">
             <div className="mx-auto h-28 w-28 overflow-hidden rounded-2xl ring-2 ring-orange-500/40 shadow-[0_0_40px_rgba(249,115,22,0.35)]">
@@ -80,10 +33,45 @@ export default function AuthPage() {
       </VideoSection>
 
       {/* Section 2: Maradona */}
-      <VideoSection src="/maradona-v2.mp4" />
+      <VideoSection src="/maradona-v2.mp4">
+        <div className="flex flex-col items-center gap-4">
+          <h2
+            className="text-center font-black uppercase leading-tight"
+            style={{
+              fontSize: 'clamp(2.8rem, 12vw, 6rem)',
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(160deg, #ffe066 0%, #ffd700 20%, #fff8a0 40%, #ffd700 55%, #c8960c 75%, #ffd700 90%, #ffe566 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter: 'drop-shadow(0 0 18px rgba(255,210,0,0.85)) drop-shadow(0 0 40px rgba(255,180,0,0.5))',
+            }}
+          >
+            Hand of God
+          </h2>
+          <p className="text-orange-500 text-2xl font-black uppercase tracking-[0.25em] drop-shadow-[0_0_18px_rgba(249,115,22,0.6)]">Coming Soon</p>
+        </div>
+      </VideoSection>
 
       {/* Section 3: Pelé */}
-      <VideoSection src="/pele-v2.mp4" />
+      <VideoSection
+        src="/pele-v2.mp4"
+        sectionStyle={{ height: '110vw', minHeight: 0, background: '#000' }}
+        videoStyle={{
+          width: 'auto',
+          height: 'auto',
+          maxWidth: '70%',
+          maxHeight: '70%',
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          transform: 'translate(-50%, -50%)',
+          objectFit: 'unset',
+        }}
+      >
+        <p className="text-orange-500 text-3xl font-black uppercase tracking-[0.25em] drop-shadow-[0_0_20px_rgba(249,115,22,0.6)]">Coming Soon</p>
+      </VideoSection>
 
     </div>
   )
