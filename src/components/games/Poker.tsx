@@ -2,12 +2,14 @@ import { useRef, useState } from 'react'
 import { makeDeck, shuffle, evaluate, compareScore, type Card } from '../../lib/cards'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
+import { sfx } from '../../lib/sfx'
+import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
 import PlayingCard from './PlayingCard'
 
 // Casino Hold'em: heads-up vs the house. Ante, see the flop, then Call (2× ante)
 // or Fold. Dealer qualifies with a pair of 4s or better.
 type Phase = 'bet' | 'decision' | 'showdown' | 'done'
-const CHIPS = [2, 5, 10, 25]
+const CHIPS = [2, 5, 10, 25, 50, 100]
 
 function qualifies(score: number[]) {
   return score[0] >= 2 || (score[0] === 1 && score[1] >= 4)
@@ -15,6 +17,7 @@ function qualifies(score: number[]) {
 
 export default function Poker() {
   const wallet = useWallet()
+  const kids = useKidsWarning()
   const deck = useRef<Card[]>([])
   const [ante, setAnte] = useState(5)
   const [callBet, setCallBet] = useState(0)
@@ -28,18 +31,19 @@ export default function Poker() {
 
   function deal() {
     if (!wallet.canBet(ante)) { toast.error('Not enough tokens'); return }
-    wallet.bet(ante); setCallBet(0)
+    wallet.bet(ante, 'poker'); setCallBet(0)
     deck.current = shuffle(makeDeck())
     setHole([draw(), draw()]); setDealer([draw(), draw()]); setBoard([draw(), draw(), draw()])
     setPhase('decision'); setMsg('Call (2× ante) or fold?')
   }
 
-  function fold() { setMsg('Folded — ante lost.'); setPhase('done') }
+  function fold() { sfx.lose(); setMsg('Folded — ante lost.'); setPhase('done') }
 
   function call() {
     const c = ante * 2
     if (!wallet.canBet(c)) { toast.error('Not enough tokens to call'); return }
-    wallet.bet(c); setCallBet(c)
+    sfx.clink()
+    wallet.bet(c, 'poker'); setCallBet(c)
     const full = [...board, draw(), draw()]   // turn + river
     setBoard(full)
     setPhase('showdown')
@@ -61,7 +65,9 @@ export default function Poker() {
     } else {
       text = dq ? `Dealer's ${dl.name} beats your ${me.name}.` : `Dealer wins with ${dl.name}.`
     }
-    if (win > 0) wallet.payout(win)
+    if (win > 0) wallet.payout(win, 'poker')
+    if (cmp > 0) sfx.win()
+    else if (cmp < 0) sfx.lose()
     setMsg(text)
     setPhase('done')
   }
@@ -70,8 +76,11 @@ export default function Poker() {
 
   const reveal = phase === 'showdown' || phase === 'done'
 
+  function pickAnte(c: number) { sfx.clink(); kids.check(c); setAnte(c) }
+
   return (
     <div className="space-y-4 text-center">
+      <KidsAtHomeModal open={kids.open} onClose={kids.close} />
       {/* dealer */}
       <div>
         <p className="mb-1.5 text-xs uppercase tracking-widest text-emerald-300/70">Dealer</p>
@@ -108,7 +117,7 @@ export default function Poker() {
         <div className="space-y-3">
           <div className="flex justify-center gap-2">
             {CHIPS.map((c) => (
-              <button key={c} onClick={() => setAnte(c)} className={`h-9 w-9 rounded-full border-2 text-xs font-black transition ${ante === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
+              <button key={c} onClick={() => pickAnte(c)} className={`h-9 w-9 rounded-full border-2 text-xs font-black transition ${ante === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
             ))}
           </div>
           <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95">Ante · {ante} 🪙</button>

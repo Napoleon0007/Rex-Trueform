@@ -85,3 +85,18 @@
   20%  { opacity: 0.55; }
   100% { transform: translate(var(--drift, 6px), -42px) scale(1.7); opacity: 0; }
 }
+/* Idle roulette wheel on the games table — endless slow spin */
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+/* Croupier idle weight-shift at the table */
+@keyframes dealerSway {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50%      { transform: rotate(1.5deg); }
+}
+/* Slot reel spin blur */
+@keyframes reelSpin {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-66%); }
+}

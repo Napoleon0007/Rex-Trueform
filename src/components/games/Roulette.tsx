@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
+import { sfx } from '../../lib/sfx'
+import { useKidsWarning, KidsAtHomeModal, TABLE_MAX } from './KidsWarning'
+import RouletteWheel, { isRouletteRed as isRed, WHEEL_STEP as STEP } from './RouletteWheel'
 
-const RED = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36])
-const isRed = (n: number) => RED.has(n)
-const STEP = 360 / 37
-const CHIPS = [2, 5, 10, 25]
+const CHIPS = [2, 5, 10, 25, 50, 100]
 
 type Phase = 'bet' | 'spinning' | 'done'
 
@@ -24,6 +24,7 @@ const OUTSIDE: { key: string; label: string; mult: number; hit: (n: number) => b
 
 export default function Roulette() {
   const wallet = useWallet()
+  const kids = useKidsWarning()
   const [chip, setChip] = useState(5)
   const [bets, setBets] = useState<Record<string, number>>({})
   const [phase, setPhase] = useState<Phase>('bet')
@@ -36,7 +37,11 @@ export default function Roulette() {
 
   function place(key: string) {
     if (phase !== 'bet') return
-    if (!wallet.canBet(total + chip)) { toast.error('Not enough tokens'); return }
+    const next = total + chip
+    if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} 🪙`); return }
+    if (!wallet.canBet(next)) { toast.error('Not enough tokens'); return }
+    sfx.clink()
+    kids.check(next)
     setBets((b) => ({ ...b, [key]: (b[key] ?? 0) + chip }))
   }
   function clearBets() { if (phase === 'bet') setBets({}) }
@@ -44,7 +49,7 @@ export default function Roulette() {
   function spin() {
     if (total === 0) { toast.error('Place a bet first'); return }
     if (!wallet.canBet(total)) { toast.error('Not enough tokens'); return }
-    wallet.bet(total)
+    wallet.bet(total, 'roulette')
     const n = Math.floor(Math.random() * 37)
     setResult(n)
     setPhase('spinning')
@@ -67,8 +72,9 @@ export default function Roulette() {
         if (o && o.hit(n)) win += amt * o.mult
       }
     }
-    if (win > 0) { wallet.payout(win); setMsg(`${n} ${n === 0 ? '🟢' : isRed(n) ? '🔴' : '⚫'} — you win ${win} 🪙! 🎉`) }
-    else setMsg(`${n} ${n === 0 ? '🟢' : isRed(n) ? '🔴' : '⚫'} — house takes it.`)
+    const dot = n === 0 ? '🟢' : isRed(n) ? '🔴' : '⚫'
+    if (win > 0) { wallet.payout(win, 'roulette'); sfx.win(); setMsg(`${n} ${dot} — you win ${win} 🪙! 🎉`) }
+    else { sfx.lose(); setMsg(`${n} ${dot} — house takes it.`) }
     setPhase('done')
   }
 
@@ -76,25 +82,16 @@ export default function Roulette() {
 
   return (
     <div className="space-y-4">
+      <KidsAtHomeModal open={kids.open} onClose={kids.close} />
+
       {/* Wheel */}
       <div className="relative mx-auto h-52 w-52">
         <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 text-amber-300" style={{ fontSize: 18 }}>▼</div>
-        <svg viewBox="0 0 200 200" className="h-full w-full" style={{ transform: `rotate(${rotation}deg)`, transition: phase === 'spinning' ? 'transform 3.3s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none' }}>
-          <circle cx="100" cy="100" r="98" fill="#2a1206" />
-          <circle cx="100" cy="100" r="92" fill="#0b3d28" />
-          {Array.from({ length: 37 }, (_, n) => {
-            const a = (n * STEP - 90) * (Math.PI / 180)
-            const x = 100 + Math.cos(a) * 82, y = 100 + Math.sin(a) * 82
-            const fill = n === 0 ? '#0f7a3d' : isRed(n) ? '#c0182b' : '#15110c'
-            return (
-              <g key={n}>
-                <circle cx={x} cy={y} r="9.2" fill={fill} stroke="#caa14a" strokeWidth="0.6" />
-                <text x={x} y={y} fill="#fff" fontSize="7" fontWeight="bold" textAnchor="middle" dominantBaseline="central" transform={`rotate(${n * STEP} ${x} ${y})`}>{n}</text>
-              </g>
-            )
-          })}
-          <circle cx="100" cy="100" r="30" fill="#3a2210" stroke="#caa14a" strokeWidth="1.5" />
-        </svg>
+        <RouletteWheel
+          className="h-full w-full"
+          rotation={rotation}
+          transition={phase === 'spinning' ? 'transform 3.3s cubic-bezier(0.17,0.67,0.12,0.99)' : 'none'}
+        />
         {result !== null && phase === 'done' && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="rounded-full bg-black/70 px-3 py-1 text-2xl font-black text-amber-300">{result}</span>
@@ -105,7 +102,7 @@ export default function Roulette() {
       <p className="text-center text-sm font-semibold text-amber-100">{msg}</p>
 
       {/* Chip selector + total */}
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2">
         {CHIPS.map((c) => (
           <button key={c} onClick={() => setChip(c)} className={`h-9 w-9 rounded-full border-2 text-xs font-black transition ${chip === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
         ))}

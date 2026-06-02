@@ -2,13 +2,16 @@ import { useRef, useState } from 'react'
 import { makeDeck, shuffle, blackjackValue, type Card } from '../../lib/cards'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
+import { sfx } from '../../lib/sfx'
+import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
 import PlayingCard from './PlayingCard'
 
 type Phase = 'bet' | 'player' | 'dealer' | 'done'
-const CHIPS = [2, 5, 10, 25]
+const CHIPS = [2, 5, 10, 25, 50, 100]
 
 export default function Blackjack() {
   const wallet = useWallet()
+  const kids = useKidsWarning()
   const deck = useRef<Card[]>([])
   const [bet, setBet] = useState(5)
   const [phase, setPhase] = useState<Phase>('bet')
@@ -30,7 +33,9 @@ export default function Blackjack() {
     else if (dv > 21 || pv > dv) { win = bet * 2; text = 'You win! ✊' }
     else if (pv === dv) { win = bet; text = 'Push — bet returned.' }
     else text = 'House wins.'
-    if (win > 0) wallet.payout(Math.round(win))
+    if (win > 0) wallet.payout(Math.round(win), 'blackjack')
+    if (win > bet) sfx.win()
+    else if (win === 0) sfx.lose()
     setMsg(text)
     setPhase('done')
   }
@@ -44,7 +49,7 @@ export default function Blackjack() {
 
   function deal() {
     if (!wallet.canBet(bet)) { toast.error('Not enough tokens'); return }
-    wallet.bet(bet)
+    wallet.bet(bet, 'blackjack')
     const p = [draw(), draw()], d = [draw(), draw()]
     setPlayer(p); setDealer(d)
     if (blackjackValue(p).total === 21) { setPhase('dealer'); setMsg('Blackjack!'); setTimeout(() => dealerPlay(p, d), 600) }
@@ -59,7 +64,8 @@ export default function Blackjack() {
   const stand = () => { setPhase('dealer'); dealerPlay(player, dealer) }
   function double() {
     if (!wallet.canBet(bet)) { toast.error('Not enough to double'); return }
-    wallet.bet(bet); setBet(bet * 2)
+    sfx.clink()
+    wallet.bet(bet, 'blackjack'); setBet(bet * 2)
     const p = [...player, draw()]
     setPlayer(p)
     if (blackjackValue(p).total > 21) settle(p, dealer)
@@ -71,8 +77,11 @@ export default function Blackjack() {
   const pv = blackjackValue(player).total
   const dv = blackjackValue(hideHole ? dealer.slice(0, 1) : dealer).total
 
+  function pickBet(c: number) { sfx.clink(); kids.check(c); setBet(c) }
+
   return (
     <div className="space-y-5 text-center">
+      <KidsAtHomeModal open={kids.open} onClose={kids.close} />
       {/* dealer */}
       <div>
         <p className="mb-2 text-xs uppercase tracking-widest text-emerald-300/70">Dealer {dealer.length > 0 && `· ${hideHole ? dv + '+' : dv}`}</p>
@@ -98,7 +107,7 @@ export default function Blackjack() {
         <div className="space-y-3">
           <div className="flex justify-center gap-2">
             {CHIPS.map((c) => (
-              <button key={c} onClick={() => setBet(c)} className={`h-10 w-10 rounded-full border-2 text-xs font-black transition ${bet === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
+              <button key={c} onClick={() => pickBet(c)} className={`h-10 w-10 rounded-full border-2 text-xs font-black transition ${bet === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
             ))}
           </div>
           <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95 transition">Deal · {bet} 🪙</button>
