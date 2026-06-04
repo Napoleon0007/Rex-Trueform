@@ -85,8 +85,8 @@ export default function PoolLounge() {
         <div className="mt-2 text-center">
           <img src="/springbok-logo.jpeg" alt="Springbok" className="mx-auto mb-3 h-24 w-auto rounded-xl drop-shadow-[0_4px_16px_rgba(201,151,31,0.4)]" />
 
-          {/* Bok Fixtures — sits just below the SA Rugby logo, above "Members Only" */}
-          <div className="mx-auto mb-4 max-w-xs">
+          {/* Fixtures — sit just below the SA Rugby logo, above "Members Only" */}
+          <div className="mx-auto mb-4 max-w-md">
             <FixturesModal />
           </div>
 

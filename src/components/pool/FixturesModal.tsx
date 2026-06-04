@@ -147,14 +147,23 @@ export default function FixturesModal() {
 
   return (
     <>
-      {/* Action button — push to open the fixtures (no auto-popup) */}
-      <button
-        onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-gradient-to-b from-emerald-800/80 to-emerald-950/80 px-4 py-3 text-sm font-black uppercase tracking-wider text-amber-200 shadow-[0_0_20px_rgba(245,200,80,0.2)] transition-all hover:border-amber-300 hover:text-amber-100"
-      >
-        <span className="text-lg leading-none">🏉</span>
-        <span>Bok Fixtures 2025/2026</span>
-      </button>
+      {/* Two action buttons — each opens the hub on its own tab (no auto-popup) */}
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <button
+          onClick={() => { setTab('boks'); setOpen(true) }}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-gradient-to-b from-emerald-800/80 to-emerald-950/80 px-3 py-3 text-[11px] font-black uppercase tracking-wider text-amber-200 shadow-[0_0_20px_rgba(245,200,80,0.2)] transition-all hover:border-amber-300 hover:text-amber-100"
+        >
+          <span className="text-base leading-none">🏉</span>
+          <span>Bok Fixtures 2025/2026</span>
+        </button>
+        <button
+          onClick={() => { setTab('world-cup'); setOpen(true) }}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-gradient-to-b from-emerald-800/80 to-emerald-950/80 px-3 py-3 text-[11px] font-black uppercase tracking-wider text-amber-200 shadow-[0_0_20px_rgba(245,200,80,0.2)] transition-all hover:border-amber-300 hover:text-amber-100"
+        >
+          <span className="text-base leading-none">⚽</span>
+          <span>World Cup Soccer Fixtures</span>
+        </button>
+      </div>
 
       {open && createPortal(
         <div
