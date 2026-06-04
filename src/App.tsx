@@ -6,6 +6,7 @@ import { PREVIEW_ENABLED, previewUser, previewProfile } from './lib/devPreview'
 import AppLayout from './components/layout/AppLayout'
 import AuthPage from './pages/AuthPage'
 import OnboardingAvatar from './components/auth/OnboardingAvatar'
+import { startTimeTracker } from './lib/timeTracker'
 import DashboardPage from './pages/DashboardPage'
 import EventPage from './pages/EventPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -81,6 +82,8 @@ function AuthGate() {
 }
 
 export default function App() {
+  useEffect(() => { startTimeTracker() }, [])
+
   return (
     <BrowserRouter>
       {PREVIEW_ENABLED ? <PreviewGate /> : <AuthGate />}

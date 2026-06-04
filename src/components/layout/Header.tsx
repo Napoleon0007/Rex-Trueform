@@ -1,19 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
-import { useAuthStore } from '../../store/authStore'
+import { Link } from 'react-router-dom'
 import TokenBadge from './TokenBadge'
 import RulesDropdown from './RulesDropdown'
+import ProfileMenu from './ProfileMenu'
 
 export default function Header() {
-  const { profile, clear } = useAuthStore()
-  const navigate = useNavigate()
-
-  async function handleSignOut() {
-    await supabase.auth.signOut()
-    clear()
-    navigate('/auth')
-  }
-
   return (
     <header className="sticky top-0 z-40 border-b border-casino-elevated bg-black/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3.5">
@@ -28,13 +18,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <RulesDropdown />
           <TokenBadge />
-          <button
-            onClick={handleSignOut}
-            title={`Signed in as ${profile?.display_name}`}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-casino-elevated border border-casino-line text-xs font-bold text-slate-300 hover:border-orange-500/50 hover:text-white transition-colors uppercase"
-          >
-            {profile?.display_name?.[0] ?? '?'}
-          </button>
+          <ProfileMenu />
         </div>
       </div>
     </header>
