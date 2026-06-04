@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthListener, useProfile } from './hooks/useAuth'
+import { useMonthlyClaim } from './hooks/useMonthlyClaim'
 import { useAuthStore } from './store/authStore'
 import { PREVIEW_ENABLED, previewUser, previewProfile } from './lib/devPreview'
 import AppLayout from './components/layout/AppLayout'
@@ -66,6 +67,8 @@ function OnboardingGate() {
 function AuthGate() {
   useAuthListener()
   const { user, isLoading } = useAuthStore()
+  // Open the app → claim this month's 1,000 (once a month, server-enforced).
+  useMonthlyClaim(user?.id)
 
   if (isLoading) return <Spinner />
 
