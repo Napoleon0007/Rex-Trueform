@@ -1,5 +1,4 @@
 import PoolTable from './PoolTable'
-import Bar from './Bar'
 import TrophyWall from './TrophyWall'
 import FixturesModal from './FixturesModal'
 import GamesTable from '../games/GamesTable'
@@ -96,19 +95,15 @@ export default function PoolLounge() {
           <h2 className="mt-3 font-black uppercase tracking-tight text-amber-50" style={{ fontSize: 'clamp(1.8rem, 7vw, 3.5rem)', textShadow: '0 0 22px rgba(245,200,80,0.45)' }}>
             The Boys' Quarters
           </h2>
-          <p className="mt-1 text-sm text-amber-200/70">Rack 'em up. House rules. Drinks on your tab.</p>
+          <p className="mt-1 text-sm text-amber-200/70">Rack 'em up. House rules. Place your bets.</p>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <PoolTable />
-          </div>
-          <div>
-            <Bar />
-          </div>
-        </div>
-
+        {/* Games table up front — the bar's been retired */}
         <GamesTable />
+
+        <div className="mt-10">
+          <PoolTable />
+        </div>
 
         <TrophyWall />
       </div>
