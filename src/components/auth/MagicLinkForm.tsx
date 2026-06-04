@@ -4,6 +4,7 @@ import Button from '../ui/Button'
 import Input from '../ui/Input'
 
 export default function MagicLinkForm() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -16,7 +17,10 @@ export default function MagicLinkForm() {
 
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { display_name: name.trim() },
+      },
     })
 
     setLoading(false)
@@ -50,6 +54,16 @@ export default function MagicLinkForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
+        label="Your name"
+        type="text"
+        placeholder="e.g. Devon"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        autoFocus
+        autoComplete="name"
+      />
+      <Input
         label="Email address"
         type="email"
         placeholder="you@example.com"
@@ -57,7 +71,6 @@ export default function MagicLinkForm() {
         onChange={(e) => setEmail(e.target.value)}
         error={error}
         required
-        autoFocus
         autoComplete="email"
       />
       <Button type="submit" loading={loading} className="w-full" size="lg">
