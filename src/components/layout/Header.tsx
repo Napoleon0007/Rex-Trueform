@@ -8,8 +8,6 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3.5">
         <a
           href="https://keyside-production.up.railway.app"
-          target="_blank"
-          rel="noopener noreferrer"
           className="flex items-center gap-2.5"
           title="Visit Keyside"
         >
