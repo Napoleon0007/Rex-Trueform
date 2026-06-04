@@ -1,6 +1,7 @@
 import PoolTable from './PoolTable'
 import Bar from './Bar'
 import TrophyWall from './TrophyWall'
+import FixturesModal from './FixturesModal'
 import GamesTable from '../games/GamesTable'
 import VelvetCurtain from './VelvetCurtain'
 
@@ -83,6 +84,12 @@ export default function PoolLounge() {
 
         <div className="mt-2 text-center">
           <img src="/springbok-logo.jpeg" alt="Springbok" className="mx-auto mb-3 h-24 w-auto rounded-xl drop-shadow-[0_4px_16px_rgba(201,151,31,0.4)]" />
+
+          {/* Bok Fixtures — sits just below the SA Rugby logo, above "Members Only" */}
+          <div className="mx-auto mb-4 max-w-xs">
+            <FixturesModal />
+          </div>
+
           <p className="inline-block rounded-md border border-amber-400/50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.4em] text-amber-300 shadow-[0_0_24px_rgba(245,200,80,0.35)]">
             ★ Members Only ★
           </p>

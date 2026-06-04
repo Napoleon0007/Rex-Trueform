@@ -3,7 +3,6 @@ import { useEvents } from '../hooks/useEvents'
 import { useAuthStore } from '../store/authStore'
 import { SPORT_CATEGORIES } from '../lib/categories'
 import EventList from '../components/events/EventList'
-import FixturesModal from '../components/pool/FixturesModal'
 
 export default function DashboardPage() {
   const { profile } = useAuthStore()
@@ -55,7 +54,6 @@ export default function DashboardPage() {
             and have fun. <span className="font-semibold text-orange-400">No crybabies.</span>
           </p>
         </div>
-        <FixturesModal />
       </div>
 
       {/* Search row */}
