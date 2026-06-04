@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useOrderDrink, type Drink } from '../../hooks/useBar'
+import { useSessionPnl } from '../../store/sessionPnl'
 import { toast } from '../../store/toastStore'
+import { GREET, WIN, LOSS, BEER, TEQUILA, BROKE, POURING, pickLine } from '../../lib/tysonLines'
 
 interface DrinkDef { key: Drink; label: string; emoji: string; cost: number; stream: string }
 const DRINKS: DrinkDef[] = [
@@ -56,17 +58,41 @@ export default function Bar() {
   const [pouring, setPouring] = useState<DrinkDef | null>(null)
   const [spent, setSpent] = useState(0)
 
+  // Tyson's mouth: a quip that reacts to wins, losses, drinks and idle time.
+  const [quip, setQuip] = useState(() => pickLine(GREET))
+  const [quipKey, setQuipKey] = useState(0)
+  const say = (lines: string[]) => { setQuip(pickLine(lines)); setQuipKey((k) => k + 1) }
+
+  // React to your live session P&L (updated by every bet/payout, anywhere).
+  const net = useSessionPnl((s) => s.net)
+  const prevNet = useRef(net)
+  useEffect(() => {
+    if (net > prevNet.current) say(WIN)
+    else if (net < prevNet.current) say(LOSS)
+    prevNet.current = net
+  }, [net])
+
+  // Idle banter while he's got nothing else to say.
+  useEffect(() => {
+    const id = setInterval(() => { if (!pouring) say(GREET) }, 9000)
+    return () => clearInterval(id)
+  }, [pouring])
+
   async function buy(d: DrinkDef) {
     if (balance < d.cost || order.isPending || pouring) return
     setPouring(d)
+    say(POURING)
     try {
       await order.mutateAsync(d.key)
       await sleep(650) // let the barman finish the pour
       setServed((s) => [...s, { id: nextId.current++, emoji: d.emoji }].slice(-8))
       setSpent((v) => v + d.cost)
+      say(d.key === 'beer' ? BEER : TEQUILA)
       toast.success(`${d.label} poured · −${d.cost} 🪙`, d.emoji)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'The bar is closed')
+      const msg = err instanceof Error ? err.message : 'The bar is closed'
+      if (/not enough|insufficient/i.test(msg)) say(BROKE)
+      toast.error(msg)
     } finally {
       setPouring(null)
     }
@@ -103,8 +129,8 @@ export default function Bar() {
 
         {/* speech bubble — off to the right so we can see his face, tail points back to his mouth */}
         <div className="absolute right-3 top-8 z-20 max-w-[165px]">
-          <div className="relative rounded-2xl bg-white px-3.5 py-2 text-xs font-bold leading-snug text-[#160a04] shadow-lg">
-            {pouring ? 'Coming right up! 🍾' : "What'll it be, punk? Step up to my bar."}
+          <div key={quipKey} className="relative animate-fade-in rounded-2xl bg-white px-3.5 py-2 text-xs font-bold leading-snug text-[#160a04] shadow-lg">
+            {quip}
             <span className="absolute -left-1.5 bottom-3 h-3 w-3 rotate-45 bg-white" />
           </div>
         </div>
