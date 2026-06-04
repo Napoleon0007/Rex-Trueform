@@ -4,45 +4,23 @@ import { useAuthStore } from '../store/authStore'
 import { SPORT_CATEGORIES } from '../lib/categories'
 import EventList from '../components/events/EventList'
 
-type StatusFilter = 'all' | 'open' | 'ending' | 'closed' | 'settled'
-type SortOption  = 'ending' | 'newest' | 'tokens'
-
-const STATUS_TABS: { key: StatusFilter; label: string }[] = [
-  { key: 'all',     label: 'All'         },
-  { key: 'open',    label: 'Open'        },
-  { key: 'ending',  label: 'Ending Soon' },
-  { key: 'closed',  label: 'Closed'      },
-  { key: 'settled', label: 'Settled'     },
-]
-
-const SORT_OPTIONS: { key: SortOption; label: string }[] = [
-  { key: 'newest', label: 'Newest'      },
-  { key: 'ending', label: 'Ending soon' },
-  { key: 'tokens', label: 'Most Tokens' },
-]
-
 export default function DashboardPage() {
   const { profile } = useAuthStore()
   const { data: allEvents = [], isLoading, isError, refetch } = useEvents()
 
-  const [search,       setSearch]       = useState('')
-  const [status,       setStatus]       = useState<StatusFilter>('all')
-  const [category,     setCategory]     = useState('All')
-  const [sort,         setSort]         = useState<SortOption>('newest')
-  const [catOpen,    setCatOpen]    = useState(false)
-  const [statusOpen, setStatusOpen] = useState(false)
-  const catRef    = useRef<HTMLDivElement>(null)
-  const statusRef = useRef<HTMLDivElement>(null)
+  const [search,   setSearch]   = useState('')
+  const [category, setCategory] = useState('All')
+  const [catOpen,  setCatOpen]  = useState(false)
+  const catRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!catOpen && !statusOpen) return
+    if (!catOpen) return
     const handler = (e: MouseEvent) => {
       if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false)
-      if (statusRef.current && !statusRef.current.contains(e.target as Node)) setStatusOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [catOpen, statusOpen])
+  }, [catOpen])
 
   // Ticking clock so "ending soon" / time-left labels stay live without a refetch.
   const [now, setNow] = useState(() => Date.now())
@@ -50,31 +28,17 @@ export default function DashboardPage() {
     const id = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(id)
   }, [])
-  const sixHours = 6 * 60 * 60 * 1000
-
   const filtered = useMemo(() => {
     return allEvents
       .filter((e) => {
         if (category !== 'All') return e.category === category
         return true
       })
-      .filter((e) => {
-        const closing = new Date(e.closing_time).getTime()
-        if (status === 'open')    return e.status === 'open' && closing > now
-        if (status === 'ending')  return e.status === 'open' && closing > now && closing <= now + sixHours
-        if (status === 'closed')  return e.status === 'closed' || (e.status === 'open' && closing <= now)
-        if (status === 'settled') return e.status === 'settled'
-        return true
-      })
       .filter((e) =>
         !search || e.event_name.toLowerCase().includes(search.toLowerCase()),
       )
-      .sort((a, b) => {
-        if (sort === 'ending') return new Date(a.closing_time).getTime() - new Date(b.closing_time).getTime()
-        if (sort === 'tokens') return (b.total_tokens_bet ?? 0) - (a.total_tokens_bet ?? 0)
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      })
-  }, [allEvents, category, status, search, sort, now, sixHours])
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  }, [allEvents, category, search, now])
 
   return (
     <div className="space-y-5">
@@ -100,53 +64,6 @@ export default function DashboardPage() {
             className="w-full rounded-lg border border-casino-border bg-casino-card pl-8 pr-3 py-1.5 text-sm text-white placeholder:text-slate-600 focus:border-orange-500/50 focus:outline-none focus:ring-1 focus:ring-orange-500/20 transition-colors"
           />
         </div>
-      </div>
-
-      {/* Status filter picker + sort */}
-      <div className="flex items-center gap-2">
-      <div ref={statusRef} className="relative">
-        <button
-          onClick={() => setStatusOpen((o) => !o)}
-          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border transition-colors ${
-            status !== 'all'
-              ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-              : 'border-casino-border bg-casino-card text-slate-400 hover:text-slate-200 hover:border-casino-line'
-          }`}
-        >
-          <span>{STATUS_TABS.find(t => t.key === status)?.label ?? 'All'}</span>
-          <span className={`text-xs transition-transform duration-200 ${statusOpen ? 'rotate-180' : ''}`}>▾</span>
-        </button>
-
-        {statusOpen && (
-          <div
-            className="absolute left-0 top-full mt-2 z-30 flex gap-2 overflow-x-auto hide-scrollbar pb-1 pr-4"
-            style={{ maxWidth: 'calc(100vw - 2rem)' }}
-          >
-            {STATUS_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => { setStatus(tab.key); setStatusOpen(false) }}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium border transition-colors ${
-                  status === tab.key
-                    ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                    : 'border-casino-border bg-casino-chip text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortOption)}
-          className="shrink-0 rounded-lg border border-casino-border bg-casino-card px-2.5 py-1.5 text-sm text-slate-300 focus:border-orange-500/50 focus:outline-none transition-colors cursor-pointer"
-        >
-          {SORT_OPTIONS.map((s) => (
-            <option key={s.key} value={s.key}>{s.label}</option>
-          ))}
-        </select>
       </div>
 
       {/* Category picker */}

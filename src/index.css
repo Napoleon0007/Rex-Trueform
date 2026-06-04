@@ -58,6 +58,29 @@
   }
 }
 
+/* ---- Print / "Save as PDF" — isolate the fixtures sheet ---- */
+@media print {
+  body * { visibility: hidden !important; }
+  .schedule-print-root,
+  .schedule-print-root * { visibility: visible !important; }
+  .schedule-print-root {
+    position: absolute !important;
+    left: 0; top: 0;
+    width: 100%;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .schedule-print-root .overflow-y-auto {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .no-print { display: none !important; }
+}
+
 /* ---- Bar pour animations (used via Tailwind arbitrary animate-[...]) ---- */
 @keyframes barPour {
   0%   { transform: rotate(0deg); }
@@ -181,6 +204,46 @@
     repeating-linear-gradient(90deg, #3a0a0e 0 10px, #5c1218 10px 22px, #7d1a22 22px 30px, #5c1218 30px 42px, #3a0a0e 42px 56px);
   -webkit-mask: radial-gradient(circle at 22px 100%, transparent 0 16px, #000 16px) repeat-x 0 0 / 44px 100%;
           mask: radial-gradient(circle at 22px 100%, transparent 0 16px, #000 16px) repeat-x 0 0 / 44px 100%;
+}
+
+/* ============================================================
+   TROPHY WALL — Hall of Fame & Wall of Shame, mounted as
+   physical plaques on the lounge's dark-wood back wall and
+   viewed across the .stage-3d camera as you scroll down.
+   ============================================================ */
+.lounge-wall {
+  background:
+    radial-gradient(ellipse at 30% -10%, rgba(245,200,80,0.16), transparent 55%),
+    radial-gradient(ellipse at 72% -10%, rgba(225,80,80,0.10), transparent 55%),
+    repeating-linear-gradient(90deg, #2a1c10 0 44px, #20150b 44px 46px, #30220f 46px 90px, #20150b 90px 92px),
+    linear-gradient(180deg, #1d1308 0%, #120c06 60%, #0a0603 100%);
+  box-shadow: inset 0 -70px 110px rgba(0,0,0,0.7), inset 0 30px 70px rgba(0,0,0,0.55);
+}
+/* gilded picture frame */
+.frame-gold {
+  background: linear-gradient(150deg, #fff3c8, #d9a72a 28%, #8a6612 52%, #e7bd4a 78%, #5c4410);
+  box-shadow:
+    0 26px 40px rgba(0,0,0,0.65),
+    inset 0 2px 3px rgba(255,255,255,0.6),
+    inset 0 -4px 8px rgba(0,0,0,0.45);
+}
+/* tarnished, blood-red shame frame */
+.frame-shame {
+  background: linear-gradient(150deg, #8a4a2a, #3a1414 42%, #5a1d1d 68%, #2a0e0e);
+  box-shadow:
+    0 26px 40px rgba(0,0,0,0.75),
+    inset 0 2px 3px rgba(255,255,255,0.14),
+    inset 0 -4px 8px rgba(0,0,0,0.55);
+}
+/* engraved brass nameplate */
+.brass-plate {
+  background: linear-gradient(180deg, #ffe9a8, #c9971f 48%, #6b4e0a);
+  color: #1a1206;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+}
+/* picture-light glow spilling down over a board */
+.picture-light {
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,225,150,0.5), rgba(255,210,120,0.12) 45%, transparent 72%);
 }
 
 /* ============================================================

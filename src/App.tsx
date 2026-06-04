@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthListener } from './hooks/useAuth'
+import { useAuthListener, useProfile } from './hooks/useAuth'
 import { useAuthStore } from './store/authStore'
 import { PREVIEW_ENABLED, previewUser, previewProfile } from './lib/devPreview'
 import AppLayout from './components/layout/AppLayout'
 import AuthPage from './pages/AuthPage'
+import OnboardingAvatar from './components/auth/OnboardingAvatar'
 import DashboardPage from './pages/DashboardPage'
 import EventPage from './pages/EventPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -45,17 +46,27 @@ function PreviewGate() {
   return <AuthedRoutes />
 }
 
+const Spinner = () => (
+  <div className="flex h-screen items-center justify-center bg-casino-night">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+  </div>
+)
+
+// Mandatory first-run gate: no profile picture → must pick one before entering.
+function OnboardingGate() {
+  const { user } = useAuthStore()
+  const { data: profile, isLoading } = useProfile(user?.id)
+
+  if (isLoading || !profile) return <Spinner />
+  if (!profile.avatar_url) return <OnboardingAvatar />
+  return <AuthedRoutes />
+}
+
 function AuthGate() {
   useAuthListener()
   const { user, isLoading } = useAuthStore()
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-casino-night">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
-      </div>
-    )
-  }
+  if (isLoading) return <Spinner />
 
   if (!user) {
     return (
@@ -66,7 +77,7 @@ function AuthGate() {
     )
   }
 
-  return <AuthedRoutes />
+  return <OnboardingGate />
 }
 
 export default function App() {

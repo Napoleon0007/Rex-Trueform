@@ -42,7 +42,7 @@ export default function RulesDropdown() {
               <li><span className="text-rose-400 font-semibold">No carry-over</span> — unused tokens are wiped at month end. Use them or lose them.</li>
               <li>Predict outcomes before markets close</li>
               <li><span className="text-white font-semibold">Closest predictions</span> win the big prizes</li>
-              <li>Nobody correct → all bets refunded</li>
+              <li>You're allowed to <span className="text-orange-400 font-semibold">gamble your tokens</span> for bigger payouts or bigger bets on games. The risk is you could <span className="text-rose-400 font-semibold">lose everything</span> — play at your own risk.</li>
               <li><span className="text-orange-400 font-semibold">No crybabies</span></li>
             </ul>
           </div>

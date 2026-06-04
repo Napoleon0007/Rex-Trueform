@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
-import VideoSection from '../ui/VideoSection'
 import Toaster from '../ui/Toast'
 import PoolLounge from '../pool/PoolLounge'
 import { cn } from '../../lib/utils'
@@ -84,7 +83,6 @@ export default function AppLayout() {
         <Outlet />
       </main>
       <PoolLounge />
-      <VideoSection src="/pele-v2.mp4" overlayClassName="bg-black/30" showGradient={false} sectionStyle={{ zIndex: 2 }} />
       <BottomNav />
       <Toaster />
     </div>

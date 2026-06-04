@@ -1,5 +1,6 @@
 import { useAuthStore } from '../../store/authStore'
 import type { LeaderboardEntry, YearlyLeaderboardEntry } from '../../types/database'
+import Avatar from '../ui/Avatar'
 
 type Entry = LeaderboardEntry | YearlyLeaderboardEntry
 
@@ -56,11 +57,12 @@ export default function LeaderboardTable({ entries, isLoading }: LeaderboardTabl
             </span>
 
             {/* Avatar */}
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold uppercase ${
-              isMe ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-700 text-slate-300'
-            }`}>
-              {entry.display_name?.[0] ?? '?'}
-            </div>
+            <Avatar
+              url={entry.avatar_url}
+              name={entry.display_name}
+              size={36}
+              className={isMe ? 'ring-2 ring-orange-500/50' : ''}
+            />
 
             {/* Name + stats */}
             <div className="flex-1 min-w-0">
