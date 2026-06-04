@@ -3,6 +3,7 @@ import { useEvents } from '../hooks/useEvents'
 import { useAuthStore } from '../store/authStore'
 import { SPORT_CATEGORIES } from '../lib/categories'
 import EventList from '../components/events/EventList'
+import FixturesModal from '../components/pool/FixturesModal'
 
 export default function DashboardPage() {
   const { profile } = useAuthStore()
@@ -42,14 +43,19 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      {/* Greeting */}
-      <div className="flex items-center justify-between">
+      {/* Welcome */}
+      <div className="space-y-3">
         <div>
           <h1 className="text-xl font-black text-white">
             Hey, <span className="text-orange-500">{profile?.display_name ?? 'Player'}</span>
           </h1>
-          <p className="mt-0.5 text-sm text-white">Place your predictions before the time runs out, boys.</p>
+          <p className="mt-1 text-sm leading-relaxed text-slate-300">
+            Welcome to <span className="font-bold text-white">Rex Casino</span> — a place where friends come
+            together for a bit of friendly gambling. The events are below. Place your bets, enjoy yourself,
+            and have fun. <span className="font-semibold text-orange-400">No crybabies.</span>
+          </p>
         </div>
+        <FixturesModal />
       </div>
 
       {/* Search row */}

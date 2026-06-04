@@ -1,6 +1,5 @@
 import PoolTable from './PoolTable'
 import Bar from './Bar'
-import FixturesModal from './FixturesModal'
 import TrophyWall from './TrophyWall'
 import GamesTable from '../games/GamesTable'
 import VelvetCurtain from './VelvetCurtain'
@@ -74,8 +73,6 @@ export default function PoolLounge() {
     <section className="relative min-h-screen overflow-hidden" style={{ ...CARPET, zIndex: 2 }}>
       {/* velvet curtains that part as you scroll into the lounge */}
       <VelvetCurtain />
-      {/* Springbok / World Cup fixtures — action button (top-left) + auto-popup */}
-      <FixturesModal />
       {/* warm spotlight */}
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(255,210,120,0.10), transparent 60%)' }} />
       {/* springbok silhouette tiled across the whole carpet */}

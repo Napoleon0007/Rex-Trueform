@@ -134,14 +134,6 @@ export default function FixturesModal() {
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<Tab>('boks')
 
-  // Auto-pop once per browser session.
-  useEffect(() => {
-    if (sessionStorage.getItem('rex_fixtures_seen')) return
-    sessionStorage.setItem('rex_fixtures_seen', '1')
-    const t = setTimeout(() => setOpen(true), 900)
-    return () => clearTimeout(t)
-  }, [])
-
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
@@ -155,13 +147,13 @@ export default function FixturesModal() {
 
   return (
     <>
-      {/* Action button — sits top-left of the lounge, by the Springbok crest */}
+      {/* Action button — push to open the fixtures (no auto-popup) */}
       <button
         onClick={() => setOpen(true)}
-        className="absolute left-3 top-3 z-30 flex items-center gap-1.5 rounded-full border border-amber-400/60 bg-gradient-to-b from-emerald-800/90 to-emerald-950/90 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-200 shadow-[0_0_20px_rgba(245,200,80,0.3)] backdrop-blur-sm transition-all hover:scale-105 hover:border-amber-300 hover:text-amber-100 sm:left-5 sm:top-5"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-gradient-to-b from-emerald-800/80 to-emerald-950/80 px-4 py-3 text-sm font-black uppercase tracking-wider text-amber-200 shadow-[0_0_20px_rgba(245,200,80,0.2)] transition-all hover:border-amber-300 hover:text-amber-100"
       >
-        <span className="text-base leading-none">🏉</span>
-        <span>2026 Fixtures</span>
+        <span className="text-lg leading-none">🏉</span>
+        <span>Bok Fixtures 2025/2026</span>
       </button>
 
       {open && createPortal(

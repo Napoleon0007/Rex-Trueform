@@ -269,3 +269,103 @@
   background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.18) 47%, transparent 60%);
   border-radius: inherit; pointer-events: none;
 }
+
+/* ============================================================
+   GAMES-TABLE DIORAMA — rainforest backdrop, pendant lamp, fireflies,
+   metal sheen sweeps, and the staged entrance reveal.
+   ============================================================ */
+/* Painted jungle: instant, zero-cost backdrop + fallback for the AI photo. */
+.jungle-css {
+  background:
+    radial-gradient(circle at 28% 16%, rgba(150,225,150,0.22), transparent 42%),
+    radial-gradient(circle at 70% 20%, rgba(120,200,130,0.16), transparent 40%),
+    radial-gradient(ellipse at 50% 6%, rgba(255,225,150,0.14), transparent 55%),
+    linear-gradient(180deg, #0a2417 0%, #0f3b23 40%, #0a2a18 72%, #04160d 100%);
+}
+.jungle-css::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(86deg, rgba(0,0,0,0.18) 0 6px, transparent 6px 22px),
+    repeating-linear-gradient(94deg, rgba(0,0,0,0.14) 0 5px, transparent 5px 26px);
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+}
+/* Golden shafts of light raking down through the canopy. */
+.god-rays {
+  background: repeating-linear-gradient(102deg,
+    rgba(255,226,150,0) 0 26px,
+    rgba(255,223,150,0.07) 26px 40px,
+    rgba(255,226,150,0) 40px 92px);
+  mix-blend-mode: screen;
+  animation: rayDrift 16s linear infinite;
+}
+@keyframes rayDrift { from { background-position: 0 0; } to { background-position: 280px 0; } }
+/* Mist drifting along the forest floor. */
+.jungle-mist {
+  background: linear-gradient(0deg, rgba(190,215,195,0.22), transparent);
+  filter: blur(9px);
+  animation: mistDrift 20s ease-in-out infinite alternate;
+}
+@keyframes mistDrift { from { transform: translateX(-3%); } to { transform: translateX(3%); } }
+
+/* Gold proscenium frame ringing the stage window. */
+.proscenium {
+  box-shadow:
+    inset 0 0 0 3px rgba(245,210,120,0.55),
+    inset 0 0 0 8px rgba(120,80,15,0.65),
+    inset 0 0 0 9px rgba(0,0,0,0.5),
+    inset 0 0 46px rgba(0,0,0,0.6);
+}
+
+/* Pendant-lamp light cone — a soft, screen-blended beam onto the felt. */
+.light-cone {
+  width: 250px; height: 270px;
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, rgba(255,226,150,0.34), rgba(255,214,130,0.06) 68%, transparent);
+  filter: blur(6px);
+  mix-blend-mode: screen;
+  animation: coneGlow 5.5s ease-in-out infinite;
+}
+@keyframes coneGlow { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+
+/* Fireflies / light motes. */
+.firefly {
+  position: absolute;
+  width: 4px; height: 4px; border-radius: 9999px;
+  background: radial-gradient(circle, #fff8cd, #ffd54a 50%, transparent 72%);
+  box-shadow: 0 0 8px 2px rgba(255,213,74,0.7);
+  opacity: 0;
+  animation-name: fireflyFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes fireflyFloat {
+  0%   { transform: translate(0, 10px) scale(0.6); opacity: 0; }
+  15%  { opacity: 1; }
+  50%  { transform: translate(8px, -30px) scale(1); }
+  85%  { opacity: 1; }
+  100% { transform: translate(-6px, -72px) scale(0.6); opacity: 0; }
+}
+
+/* Slow specular glint travelling across silver/chrome. */
+.sheen {
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.5) 48%, transparent 58%);
+  background-size: 300% 100%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: sheenSweep 6s ease-in-out infinite;
+}
+@keyframes sheenSweep { 0% { background-position: 150% 0; } 60%, 100% { background-position: -50% 0; } }
+
+/* Entrance reveal choreography: backdrop fades up, croupier rises, chips drop in. */
+@keyframes revealIn { 0% { opacity: 0; transform: translateY(16px); } 100% { opacity: 1; transform: translateY(0); } }
+.reveal { animation: revealIn 0.7s ease-out both; }
+.backdrop-fade { animation: backdropIn 0.9s ease-out both; }
+@keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes chipDrop {
+  0%   { opacity: 0; transform: rotateX(-54deg) translateY(-26px); }
+  70%  { opacity: 1; transform: rotateX(-54deg) translateY(3px); }
+  100% { opacity: 1; transform: rotateX(-54deg) translateY(0); }
+}
+.reveal-chip { animation: chipDrop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
