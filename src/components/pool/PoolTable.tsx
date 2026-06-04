@@ -10,6 +10,7 @@ const POWER_MAX = 360 // px of drag for full power
 
 type Mode = 'ai' | 'practice'
 type Phase = 'idle' | 'rolling' | 'over'
+type Group = 'solids' | 'stripes' | null
 
 interface Aim { active: boolean; angle: number; power: number; px: number; py: number }
 
@@ -21,6 +22,7 @@ export default function PoolTable() {
   const scratchRef = useRef(false)
   const phaseRef = useRef<Phase>('idle')
   const turnRef = useRef<'you' | 'ai'>('you')
+  const groupsRef = useRef<{ you: Group; ai: Group }>({ you: null, ai: null })
   const modeRef = useRef<Mode>('ai')
   const aiTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastT = useRef(0)
@@ -29,6 +31,7 @@ export default function PoolTable() {
   const [phase, setPhase] = useState<Phase>('idle')
   const [turn, setTurn] = useState<'you' | 'ai'>('you')
   const [scores, setScores] = useState({ you: 0, ai: 0 })
+  const [groups, setGroups] = useState<{ you: Group; ai: Group }>({ you: null, ai: null })
   const [message, setMessage] = useState('Drag from the cue ball to aim — release to break.')
 
   useEffect(() => { modeRef.current = mode }, [mode])
@@ -40,6 +43,7 @@ export default function PoolTable() {
     scratchRef.current = false
     phaseRef.current = 'idle'; setPhase('idle')
     turnRef.current = 'you'; setTurn('you')
+    groupsRef.current = { you: null, ai: null }; setGroups({ you: null, ai: null })
     setScores({ you: 0, ai: 0 })
     setMessage(nextMode === 'practice' ? 'Practice — pot as many as you can.' : 'Your break. Drag from the cue ball and release.')
   }
@@ -66,6 +70,19 @@ export default function PoolTable() {
     const scorer = turnRef.current
     if (!scratch && objectPotted > 0) {
       setScores((s) => ({ ...s, [scorer]: s[scorer] + objectPotted }))
+    }
+
+    // Assign solids/stripes on the first object ball legally potted (open table).
+    let announce = ''
+    if (modeRef.current === 'ai' && !scratch && groupsRef.current.you === null) {
+      const firstObj = potted.find((b) => b.id !== 0 && b.number !== 8)
+      if (firstObj) {
+        const sg: Group = firstObj.striped ? 'stripes' : 'solids'
+        const og: Group = firstObj.striped ? 'solids' : 'stripes'
+        const ng = scorer === 'you' ? { you: sg, ai: og } : { you: og, ai: sg }
+        groupsRef.current = ng; setGroups(ng)
+        announce = `You're ${ng.you}.`
+      }
     }
 
     const remaining = ballsRef.current.filter((b) => b.id !== 0 && !b.potted).length
@@ -98,9 +115,11 @@ export default function PoolTable() {
     const next = keepTurn ? scorer : (scorer === 'you' ? 'ai' : 'you')
     turnRef.current = next; setTurn(next)
     phaseRef.current = 'idle'; setPhase('idle')
-    if (scratch) setMessage(next === 'you' ? 'Scratch! Your shot.' : 'Scratch — house to shoot.')
-    else if (keepTurn) setMessage(scorer === 'you' ? `Nice — ${objectPotted} down. Again!` : 'House pots and continues…')
-    else setMessage(next === 'you' ? 'Your shot.' : 'House lining up…')
+    let msg: string
+    if (scratch) msg = next === 'you' ? 'Scratch! Your shot.' : 'Scratch — house to shoot.'
+    else if (keepTurn) msg = scorer === 'you' ? `Nice — ${objectPotted} down. Again!` : 'House pots and continues…'
+    else msg = next === 'you' ? 'Your shot.' : 'House lining up…'
+    setMessage(announce ? `${announce} ${msg}` : msg)
 
     if (next === 'ai') aiTimer.current = setTimeout(aiShoot, 900)
   }
@@ -231,10 +250,12 @@ export default function PoolTable() {
         <div className="mb-3 grid grid-cols-2 gap-2 text-center">
           <div className={`rounded-xl border px-3 py-2 ${turn === 'you' ? 'border-amber-400/60 bg-amber-400/10' : 'border-white/10'}`}>
             <p className="text-[10px] uppercase tracking-widest text-slate-400">You</p>
+            <GroupBadge g={groups.you} />
             <p className="text-xl font-black text-amber-300">{scores.you}</p>
           </div>
           <div className={`rounded-xl border px-3 py-2 ${turn === 'ai' ? 'border-amber-400/60 bg-amber-400/10' : 'border-white/10'}`}>
             <p className="text-[10px] uppercase tracking-widest text-slate-400">House 🤖</p>
+            <GroupBadge g={groups.ai} />
             <p className="text-xl font-black text-amber-300">{scores.ai}</p>
           </div>
         </div>
@@ -255,6 +276,23 @@ export default function PoolTable() {
         {phase === 'rolling' ? '…' : message}
       </p>
     </div>
+  )
+}
+
+// Small badge under each player showing their assigned suit (solids/stripes/open).
+function GroupBadge({ g }: { g: Group }) {
+  if (!g) return <p className="text-[10px] font-bold tracking-wide text-slate-500">Open</p>
+  const solid = g === 'solids'
+  return (
+    <p className="flex items-center justify-center gap-1 text-[10px] font-bold tracking-wide">
+      <span
+        className="inline-block h-2.5 w-2.5 rounded-full"
+        style={solid
+          ? { background: '#fcd34d' }
+          : { background: 'repeating-linear-gradient(90deg,#fcd34d 0 2px,#0b1220 2px 4px)', boxShadow: 'inset 0 0 0 1px #fcd34d' }}
+      />
+      <span className={solid ? 'text-amber-300' : 'text-sky-300'}>{solid ? 'Solids' : 'Stripes'}</span>
+    </p>
   )
 }
 

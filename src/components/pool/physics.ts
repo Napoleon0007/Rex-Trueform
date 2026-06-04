@@ -16,8 +16,8 @@ export interface Ball {
 }
 
 export const TABLE = { W: 900, H: 450 }
-export const BALL_R = 11
-export const POCKET_R = 21
+export const BALL_R = 16          // bigger balls so they read on a phone (rack auto-rebalances)
+export const POCKET_R = 24
 const MOUTH = POCKET_R + 2          // cushion gap half-width around each pocket
 const CUSHION_REST = 0.92           // energy kept on a cushion bounce
 const STOP_SPEED = 4                // px/s below which a ball is parked
