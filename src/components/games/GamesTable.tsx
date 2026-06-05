@@ -21,8 +21,8 @@ const BANTER = [
   'Fuck, I need a new home. They stole my old place.',
 ]
 
-// The house dealer is a baboon (real photo cutout) — arms folded, judging your bets.
-function BaboonDealer({ line }: { line: string }) {
+// The house dealer — a glamorous woman (real photo cutout) at the table.
+function Dealer({ line }: { line: string }) {
   return (
     <div className="relative flex flex-col items-center">
       <div className="relative mb-2 max-w-[150px] rounded-2xl bg-white px-3 py-1.5 text-center text-[11px] font-bold text-[#160a04] shadow-lg">
@@ -30,10 +30,10 @@ function BaboonDealer({ line }: { line: string }) {
         <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white" />
       </div>
       <img
-        src="/baboon-dealer.png"
-        alt="The baboon dealer"
-        className="h-44 w-auto origin-bottom object-contain animate-[dealerSway_4s_ease-in-out_infinite]"
-        style={{ filter: 'drop-shadow(0 12px 14px rgba(0,0,0,0.6))' }}
+        src="/dealer-woman.png"
+        alt="The dealer"
+        className="h-52 w-auto origin-bottom object-contain animate-[dealerSway_4s_ease-in-out_infinite]"
+        style={{ filter: 'drop-shadow(0 12px 16px rgba(0,0,0,0.65))' }}
       />
     </div>
   )
@@ -87,21 +87,21 @@ function PnlChip() {
 // feel. Reads --mx/--my (set on the stage by the pointer handler below).
 const PARALLAX_BG = 'translate(calc(var(--mx, 0) * -14px), calc(var(--my, 0) * -9px)) scale(1.16)'
 
-// Dark casino-room backdrop: a deep, smoky gradient with out-of-focus warm bokeh
-// lights drifting behind the table, so the baboon dealer reads as standing in a real
-// low-lit casino. Pure CSS — no image needed.
+// Real rainforest backdrop: a photo of dense jungle that drifts slightly against the
+// cursor, with a warm canopy glow up top and a vignette so the lit table + dealer stay
+// the focus. A hidden gaming table deep in the jungle.
 function Backdrop() {
   return (
     <div className="backdrop-fade pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <div className="absolute inset-0" style={{ transform: PARALLAX_BG, background:
-        'radial-gradient(ellipse at 50% 16%, rgba(150,95,35,0.35), transparent 55%),'
-        + 'radial-gradient(ellipse at 50% 122%, rgba(10,70,46,0.45), transparent 60%),'
-        + 'linear-gradient(180deg, #0c0e11 0%, #0a0b0d 48%, #050607 100%)' }} />
-      {/* out-of-focus casino lights in the room behind */}
-      <div className="casino-bokeh absolute inset-0" />
+      <div className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: 'url(/rainforest.jpg)', transform: PARALLAX_BG }} />
+      {/* warm canopy light up top + deep green forest-floor glow */}
+      <div className="absolute inset-0" style={{ background:
+        'radial-gradient(ellipse at 50% 10%, rgba(140,105,40,0.30), transparent 55%),'
+        + 'radial-gradient(ellipse at 50% 122%, rgba(8,50,30,0.55), transparent 60%)' }} />
       {/* vignette: hug the edges, focus the centre */}
       <div className="absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0.92) 100%)' }} />
+        style={{ background: 'radial-gradient(ellipse at 50% 42%, transparent 28%, rgba(0,0,0,0.5) 73%, rgba(0,0,0,0.92) 100%)' }} />
     </div>
   )
 }
@@ -217,7 +217,7 @@ export default function GamesTable() {
                 className="stage-3d games-stage relative mb-6 overflow-hidden rounded-2xl"
                 style={{ height: 440, background: '#05100a' }}>
 
-                {/* the dark casino room behind everything */}
+                {/* the real rainforest behind everything */}
                 <Backdrop />
 
                 {/* gold proscenium framing the scene like a lit stage window */}
@@ -232,10 +232,10 @@ export default function GamesTable() {
                 {/* ambient floor shadow the table casts */}
                 <div className="pointer-events-none absolute left-1/2 top-[72%] z-[6] h-24 w-[72%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-2xl" />
 
-                {/* the baboon dealer sits up at the table — lowered so he reads as seated, not hovering */}
-                <div className="absolute left-1/2 top-[58px] z-20 -translate-x-1/2">
+                {/* the dealer stands at the table — lowered so her gown trails behind the rim */}
+                <div className="absolute left-1/2 top-[44px] z-20 -translate-x-1/2">
                   <div className="reveal" style={{ animationDelay: '0.35s' }}>
-                    <BaboonDealer line={line} />
+                    <Dealer line={line} />
                   </div>
                 </div>
 
