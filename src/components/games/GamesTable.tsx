@@ -236,8 +236,8 @@ export default function GamesTable() {
                 {/* ambient floor shadow the table casts */}
                 <div className="pointer-events-none absolute left-1/2 top-[72%] z-[6] h-24 w-[72%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-2xl" />
 
-                {/* the baboon dealer stands behind the table — sharp against the dark room */}
-                <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
+                {/* the baboon dealer sits up at the table — lowered so he reads as seated, not hovering */}
+                <div className="absolute left-1/2 top-[58px] z-20 -translate-x-1/2">
                   <div className="reveal" style={{ animationDelay: '0.35s' }}>
                     <BaboonDealer line={line} />
                   </div>

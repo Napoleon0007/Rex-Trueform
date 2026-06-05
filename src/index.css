@@ -305,18 +305,28 @@
    past the bouncer. Gentle idle sway, tail dangling over the rope. */
 .baboon-perch {
   position: absolute;
-  width: clamp(58px, 11%, 104px);
+  width: clamp(54px, 10%, 96px);
   height: auto;
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.45));
   transform-origin: bottom center;
-  animation: perchSway 5s ease-in-out infinite;
+  animation: ropeWalk 9s ease-in-out infinite;
   z-index: 20;
 }
-@keyframes perchSway {
-  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
-  50%      { transform: rotate(2.5deg) translateY(-2px); }
+/* He paces up and down the velvet rope: walks left, turns at the post, walks
+   back. scaleX flips him to face the way he's going; translateY follows the
+   rope's sag (lower in the middle); the turns happen at each end of the loop. */
+@keyframes ropeWalk {
+  0%   { transform: translateX(0)      translateY(0)   scaleX(-1) rotate(0deg); }
+  4%   { transform: translateX(-8px)   translateY(-1px) scaleX(-1) rotate(-3deg); }
+  25%  { transform: translateX(-85px)  translateY(5px)  scaleX(-1) rotate(0deg); }
+  46%  { transform: translateX(-165px) translateY(0)   scaleX(-1) rotate(0deg); }
+  50%  { transform: translateX(-165px) translateY(0)   scaleX(1)  rotate(0deg); }
+  54%  { transform: translateX(-157px) translateY(-1px) scaleX(1)  rotate(3deg); }
+  75%  { transform: translateX(-85px)  translateY(5px)  scaleX(1)  rotate(0deg); }
+  96%  { transform: translateX(-8px)   translateY(-1px) scaleX(1)  rotate(-3deg); }
+  100% { transform: translateX(0)      translateY(0)   scaleX(1)  rotate(0deg); }
 }
 
 /* Out-of-focus casino lights behind the games table — drifting warm bokeh. */

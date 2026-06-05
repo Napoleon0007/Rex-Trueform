@@ -36,19 +36,28 @@ export default function PoolTable() {
 
   useEffect(() => { modeRef.current = mode }, [mode])
 
-  // A cheeky baboon perches on the felt while the table's idle. The instant a shot
-  // is fired (balls rolling) it bolts off and vanishes; once the table settles it
-  // ambles back and sits down again.
+  // A cheeky baboon perches on the felt at the START. The instant the first shot is
+  // fired he bolts off — and then he stays away for at least 10 minutes (the cooldown
+  // resets on every shot). He's a beginning-only guest, not a between-shots regular.
+  const COOLDOWN_MS = 10 * 60 * 1000
   const [monkey, setMonkey] = useState<'sit' | 'flee' | 'hidden'>('sit')
+  const cooldownUntil = useRef(0)
   useEffect(() => {
     if (phase === 'rolling') {
+      cooldownUntil.current = Date.now() + COOLDOWN_MS  // a shot was taken — he's gone for 10 min
       setMonkey('flee')
       const t = setTimeout(() => setMonkey('hidden'), 650)
       return () => clearTimeout(t)
     }
     if (phase === 'over') { setMonkey('hidden'); return }
-    // idle — creep back once the dust settles
-    const t = setTimeout(() => setMonkey('sit'), 450)
+    // idle: only let him amble back once the 10-minute cooldown has fully elapsed
+    const remaining = cooldownUntil.current - Date.now()
+    if (remaining <= 0) {
+      const t = setTimeout(() => setMonkey('sit'), 450)
+      return () => clearTimeout(t)
+    }
+    setMonkey('hidden')
+    const t = setTimeout(() => setMonkey('sit'), remaining + 300)
     return () => clearTimeout(t)
   }, [phase])
 

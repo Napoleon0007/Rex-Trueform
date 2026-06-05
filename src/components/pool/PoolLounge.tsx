@@ -70,7 +70,7 @@ function VelvetRope() {
 
 export default function PoolLounge() {
   return (
-    <section className="relative min-h-screen overflow-hidden" style={{ ...CARPET, zIndex: 2 }}>
+    <section className="relative overflow-hidden" style={{ ...CARPET, zIndex: 2 }}>
       {/* velvet curtains that part as you scroll into the lounge */}
       <VelvetCurtain />
       {/* warm spotlight */}
@@ -78,7 +78,7 @@ export default function PoolLounge() {
       {/* springbok silhouette tiled across the whole carpet */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.13]" style={{ backgroundImage: SPRINGBOK_TILE, backgroundSize: '132px 106px' }} />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-14 pt-28">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-28">
         {/* a cheeky baboon snuck past the bouncer and perched on the velvet rope */}
         <div className="relative mx-auto max-w-sm">
           <VelvetRope />
