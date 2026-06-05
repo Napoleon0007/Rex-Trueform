@@ -275,11 +275,11 @@
    ============================================================ */
 .baboon {
   position: absolute;
-  font-size: 30px;
-  line-height: 1;
+  width: clamp(46px, 7%, 78px);
+  height: auto;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 5px 4px rgba(0, 0, 0, 0.55));
   z-index: 5;
 }
 .baboon.sit {
@@ -299,6 +299,24 @@
 @keyframes baboonFlee {
   0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
   100% { opacity: 0; transform: translate(260px, -34px) scale(0.45) rotate(22deg); }
+}
+
+/* Surprise baboon perched on the velvet rope at the lounge entrance — he snuck
+   past the bouncer. Gentle idle sway, tail dangling over the rope. */
+.baboon-perch {
+  position: absolute;
+  width: clamp(58px, 11%, 104px);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.45));
+  transform-origin: bottom center;
+  animation: perchSway 5s ease-in-out infinite;
+  z-index: 20;
+}
+@keyframes perchSway {
+  0%, 100% { transform: rotate(-2.5deg) translateY(0); }
+  50%      { transform: rotate(2.5deg) translateY(-2px); }
 }
 
 /* Out-of-focus casino lights behind the games table — drifting warm bokeh. */
@@ -414,7 +432,7 @@
 }
 @keyframes sheenSweep { 0% { background-position: 150% 0; } 60%, 100% { background-position: -50% 0; } }
 
-/* Entrance reveal choreography: backdrop fades up, croupier rises, chips drop in. */
+/* Entrance reveal choreography: backdrop fades up, the baboon dealer rises, chips drop in. */
 @keyframes revealIn { 0% { opacity: 0; transform: translateY(16px); } 100% { opacity: 1; transform: translateY(0); } }
 .reveal { animation: revealIn 0.7s ease-out both; }
 .backdrop-fade { animation: backdropIn 0.9s ease-out both; }

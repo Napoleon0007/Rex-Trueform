@@ -288,8 +288,8 @@ export default function PoolTable() {
           className="w-full rounded-2xl shadow-2xl shadow-black/60"
           style={{ touchAction: 'none', cursor: yourTurn ? 'crosshair' : 'default' }}
         />
-        {/* the resident baboon — sits on the felt, bolts the instant a shot is taken */}
-        <div className={`baboon ${monkey}`} style={{ left: '14%', top: '20%' }} aria-hidden>🐒</div>
+        {/* the resident baboon — perched on the top-left corner, bolts the instant a shot is taken */}
+        <img src="/baboon-pool.png" alt="" aria-hidden className={`baboon ${monkey}`} style={{ left: '1.5%', top: '-3%' }} />
       </div>
 
       <p className="mt-3 text-center text-sm text-amber-100/80">

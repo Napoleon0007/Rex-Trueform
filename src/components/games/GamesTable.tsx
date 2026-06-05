@@ -25,8 +25,8 @@ const BANTER = [
   "Don't spend it all in one hand.",
 ]
 
-// A real croupier (photo cutout) standing at the table, ready to take your chips.
-function Croupier({ line }: { line: string }) {
+// The house dealer is a baboon (real photo cutout) — arms folded, judging your bets.
+function BaboonDealer({ line }: { line: string }) {
   return (
     <div className="relative flex flex-col items-center">
       <div className="relative mb-2 max-w-[150px] rounded-2xl bg-white px-3 py-1.5 text-center text-[11px] font-bold text-[#160a04] shadow-lg">
@@ -34,9 +34,9 @@ function Croupier({ line }: { line: string }) {
         <span className="absolute -bottom-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 bg-white" />
       </div>
       <img
-        src="/croupier.png"
-        alt="Croupier"
-        className="h-40 w-auto origin-bottom object-contain animate-[dealerSway_4s_ease-in-out_infinite]"
+        src="/baboon-dealer.png"
+        alt="The baboon dealer"
+        className="h-44 w-auto origin-bottom object-contain animate-[dealerSway_4s_ease-in-out_infinite]"
         style={{ filter: 'drop-shadow(0 12px 14px rgba(0,0,0,0.6))' }}
       />
     </div>
@@ -92,7 +92,7 @@ function PnlChip() {
 const PARALLAX_BG = 'translate(calc(var(--mx, 0) * -14px), calc(var(--my, 0) * -9px)) scale(1.16)'
 
 // Dark casino-room backdrop: a deep, smoky gradient with out-of-focus warm bokeh
-// lights drifting behind the table, so the croupier reads as standing in a real
+// lights drifting behind the table, so the baboon dealer reads as standing in a real
 // low-lit casino. Pure CSS — no image needed.
 function Backdrop() {
   return (
@@ -236,10 +236,10 @@ export default function GamesTable() {
                 {/* ambient floor shadow the table casts */}
                 <div className="pointer-events-none absolute left-1/2 top-[72%] z-[6] h-24 w-[72%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-2xl" />
 
-                {/* croupier stands behind the table — sharp against the dark room */}
+                {/* the baboon dealer stands behind the table — sharp against the dark room */}
                 <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
                   <div className="reveal" style={{ animationDelay: '0.35s' }}>
-                    <Croupier line={line} />
+                    <BaboonDealer line={line} />
                   </div>
                 </div>
 

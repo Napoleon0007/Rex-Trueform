@@ -78,8 +78,13 @@ export default function PoolLounge() {
       {/* springbok silhouette tiled across the whole carpet */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.13]" style={{ backgroundImage: SPRINGBOK_TILE, backgroundSize: '132px 106px' }} />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-14">
-        <VelvetRope />
+      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-14 pt-28">
+        {/* a cheeky baboon snuck past the bouncer and perched on the velvet rope */}
+        <div className="relative mx-auto max-w-sm">
+          <VelvetRope />
+          <img src="/baboon-perch.png" alt="" aria-hidden
+            className="baboon-perch" style={{ right: '15%', bottom: '16%' }} />
+        </div>
 
         <div className="mt-2 text-center">
           <img src="/springbok-logo.jpeg" alt="Springbok" className="mx-auto mb-3 h-24 w-auto rounded-xl drop-shadow-[0_4px_16px_rgba(201,151,31,0.4)]" />
