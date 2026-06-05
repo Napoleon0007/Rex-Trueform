@@ -18,7 +18,7 @@ const GAMES: { key: Game; label: string; emoji: string; blurb: string }[] = [
 ]
 
 const BANTER = [
-  'Fuck, I need a new home. They stole my old place.',
+  'Welcome, boys. Place your bets.',
 ]
 
 // The house dealer — a glamorous woman (real photo cutout) at the table.
