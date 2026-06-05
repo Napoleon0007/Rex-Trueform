@@ -78,22 +78,9 @@ export default function PoolLounge() {
       {/* springbok silhouette tiled across the whole carpet */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.13]" style={{ backgroundImage: SPRINGBOK_TILE, backgroundSize: '132px 106px' }} />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-28">
-        {/* a cheeky baboon snuck past the bouncer and perched on the velvet rope */}
-        <div className="relative mx-auto max-w-sm">
-          <VelvetRope />
-          <img src="/baboon-perch.png" alt="" aria-hidden
-            className="baboon-perch" style={{ right: '15%', bottom: '16%' }} />
-        </div>
-
-        <div className="mt-2 text-center">
-          <img src="/springbok-logo.jpeg" alt="Springbok" className="mx-auto mb-3 h-24 w-auto rounded-xl drop-shadow-[0_4px_16px_rgba(201,151,31,0.4)]" />
-
-          {/* Fixtures — sit just below the SA Rugby logo, above "Members Only" */}
-          <div className="mx-auto mb-4 max-w-md">
-            <FixturesModal />
-          </div>
-
+      <div className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-16">
+        {/* Title block — at the very top, above the rope and the baboon */}
+        <div className="text-center">
           <p className="inline-block rounded-md border border-amber-400/50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.4em] text-amber-300 shadow-[0_0_24px_rgba(245,200,80,0.35)]">
             ★ Members Only ★
           </p>
@@ -101,6 +88,21 @@ export default function PoolLounge() {
             The Boys' Quarters
           </h2>
           <p className="mt-1 text-sm text-amber-200/70">Rack 'em up. House rules. Place your bets.</p>
+        </div>
+
+        {/* the baboon snuck past the bouncer and paces the velvet rope — below the title now */}
+        <div className="relative mx-auto mt-36 max-w-sm">
+          <VelvetRope />
+          <img src="/baboon-perch.png" alt="" aria-hidden
+            className="baboon-perch" style={{ right: '15%', bottom: '16%' }} />
+        </div>
+
+        {/* SA Rugby logo + fixtures — brought down below the rope */}
+        <div className="mt-6 text-center">
+          <img src="/springbok-logo.jpeg" alt="Springbok" className="mx-auto mb-3 h-24 w-auto rounded-xl drop-shadow-[0_4px_16px_rgba(201,151,31,0.4)]" />
+          <div className="mx-auto max-w-md">
+            <FixturesModal />
+          </div>
         </div>
 
         {/* Pool table first — right where it's always been */}
