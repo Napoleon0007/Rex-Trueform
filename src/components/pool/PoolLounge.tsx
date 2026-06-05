@@ -98,12 +98,13 @@ export default function PoolLounge() {
           <p className="mt-1 text-sm text-amber-200/70">Rack 'em up. House rules. Place your bets.</p>
         </div>
 
-        {/* Games table up front — the bar's been retired */}
-        <GamesTable />
-
+        {/* Pool table first — right where it's always been */}
         <div className="mt-10">
           <PoolTable />
         </div>
+
+        {/* Games table comes after the pool table */}
+        <GamesTable />
 
         <TrophyWall />
       </div>

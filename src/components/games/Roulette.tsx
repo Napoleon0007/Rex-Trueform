@@ -38,8 +38,8 @@ export default function Roulette() {
   function place(key: string) {
     if (phase !== 'bet') return
     const next = total + chip
-    if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} 🪙`); return }
-    if (!wallet.canBet(next)) { toast.error('Not enough tokens'); return }
+    if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} ₿`); return }
+    if (!wallet.canBet(next)) { toast.error('Not enough Bitcoin'); return }
     sfx.clink()
     kids.check(next)
     setBets((b) => ({ ...b, [key]: (b[key] ?? 0) + chip }))
@@ -48,7 +48,7 @@ export default function Roulette() {
 
   function spin() {
     if (total === 0) { toast.error('Place a bet first'); return }
-    if (!wallet.canBet(total)) { toast.error('Not enough tokens'); return }
+    if (!wallet.canBet(total)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(total, 'roulette')
     const n = Math.floor(Math.random() * 37)
     setResult(n)
@@ -73,7 +73,7 @@ export default function Roulette() {
       }
     }
     const dot = n === 0 ? '🟢' : isRed(n) ? '🔴' : '⚫'
-    if (win > 0) { wallet.payout(win, 'roulette'); sfx.win(); setMsg(`${n} ${dot} — you win ${win} 🪙! 🎉`) }
+    if (win > 0) { wallet.payout(win, 'roulette'); sfx.win(); setMsg(`${n} ${dot} — you win ${win} ₿! 🎉`) }
     else { sfx.lose(); setMsg(`${n} ${dot} — house takes it.`) }
     setPhase('done')
   }
@@ -106,7 +106,7 @@ export default function Roulette() {
         {CHIPS.map((c) => (
           <button key={c} onClick={() => setChip(c)} className={`h-9 w-9 rounded-full border-2 text-xs font-black transition ${chip === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
         ))}
-        <span className="ml-2 text-xs text-amber-200/70">Staked: {total} 🪙</span>
+        <span className="ml-2 text-xs text-amber-200/70">Staked: {total} ₿</span>
       </div>
 
       {/* Number grid */}

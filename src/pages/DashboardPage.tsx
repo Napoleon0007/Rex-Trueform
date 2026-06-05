@@ -28,6 +28,25 @@ export default function DashboardPage() {
     const id = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(id)
   }, [])
+
+  // The big welcome only shows on a player's first day. After that it's a casual
+  // returning greeting — we remember the first-seen date in localStorage so the
+  // welcome never comes back once that first day has passed. (null = not yet
+  // determined, so we render nothing rather than flash the wrong line.)
+  const [firstDay, setFirstDay] = useState<boolean | null>(null)
+  useEffect(() => {
+    try {
+      const today = new Date().toISOString().slice(0, 10)
+      let firstSeen = localStorage.getItem('rex_first_seen')
+      if (!firstSeen) {
+        firstSeen = today
+        localStorage.setItem('rex_first_seen', today)
+      }
+      setFirstDay(firstSeen === today)
+    } catch {
+      setFirstDay(false)
+    }
+  }, [])
   const filtered = useMemo(() => {
     return allEvents
       .filter((e) => {
@@ -48,11 +67,18 @@ export default function DashboardPage() {
           <h1 className="text-xl font-black text-white">
             Hey, <span className="text-orange-500">{profile?.display_name ?? 'Player'}</span>
           </h1>
-          <p className="mt-1 text-sm leading-relaxed text-slate-300">
-            Welcome to <span className="font-bold text-white">Rex Casino</span> — a place where friends come
-            together for a bit of friendly gambling. The events are below. Place your bets, enjoy yourself,
-            and have fun. <span className="font-semibold text-orange-400">No crybabies.</span>
-          </p>
+          {firstDay !== null && (
+            <p className="mt-1 text-sm leading-relaxed text-slate-300">
+              {firstDay ? (
+                <>
+                  Welcome to <span className="font-bold text-white">Rex Casino</span> — a place where we gamble like men.{' '}
+                  <span className="font-semibold text-orange-400">Welcome to the skulls.</span>
+                </>
+              ) : (
+                <>What are we betting on today? <span className="font-semibold text-orange-400">🎲</span></>
+              )}
+            </p>
+          )}
         </div>
       </div>
 

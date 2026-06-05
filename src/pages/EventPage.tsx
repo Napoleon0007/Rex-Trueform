@@ -91,7 +91,7 @@ export default function EventPage() {
                   <p className="text-lg font-bold text-slate-50">
                     {formatPrediction(event, userBet.prediction, userBet.prediction_away)}
                   </p>
-                  <p className="text-xs text-slate-500">{userBet.amount} tokens wagered</p>
+                  <p className="text-xs text-slate-500">{userBet.amount} Bitcoin wagered</p>
                 </div>
                 <span className="text-3xl">🎟</span>
               </div>
@@ -107,7 +107,7 @@ export default function EventPage() {
             </Button>
           ) : isOpen && balance === 0 ? (
             <div className="rounded-2xl border border-white/10 p-4 text-center text-sm text-slate-500">
-              You have no tokens left this month.
+              You have no Bitcoin left this month.
             </div>
           ) : (
             <div className="rounded-2xl border border-white/10 p-4 text-center text-sm text-slate-500">

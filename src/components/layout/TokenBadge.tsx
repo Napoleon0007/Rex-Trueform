@@ -17,9 +17,9 @@ export default function TokenBadge() {
   return (
     <div
       className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 ${tone}`}
-      title={isEmpty ? 'Out of tokens for this month' : isLow ? 'Running low on tokens' : 'Your token balance'}
+      title={isEmpty ? 'Out of Bitcoin for this month' : isLow ? 'Running low on Bitcoin' : 'Your Bitcoin balance'}
     >
-      <span className="text-base leading-none">🪙</span>
+      <span className="text-base font-bold leading-none" style={{ color: '#f7931a' }}>₿</span>
       <span className="text-sm font-bold">{balance ?? '—'}</span>
       {(isLow || isEmpty) && (
         <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">

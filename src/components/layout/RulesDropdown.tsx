@@ -38,11 +38,11 @@ export default function RulesDropdown() {
             </div>
 
             <ul className="space-y-2.5 text-sm text-slate-300">
-              <li><span className="text-orange-400 font-semibold">1,000 tokens</span> every month — a fresh stack on the 1st</li>
-              <li><span className="text-rose-400 font-semibold">No carry-over</span> — unused tokens are wiped at month end. Use them or lose them.</li>
+              <li><span className="text-orange-400 font-semibold">1,000 Bitcoin</span> every month — a fresh stack on the 1st</li>
+              <li><span className="text-rose-400 font-semibold">No carry-over</span> — unused Bitcoin are wiped at month end. Use them or lose them.</li>
               <li>Predict outcomes before markets close</li>
               <li><span className="text-white font-semibold">Closest predictions</span> win the big prizes</li>
-              <li>You're allowed to <span className="text-orange-400 font-semibold">gamble your tokens</span> for bigger payouts or bigger bets on games. The risk is you could <span className="text-rose-400 font-semibold">lose everything</span> — play at your own risk.</li>
+              <li>You're allowed to <span className="text-orange-400 font-semibold">gamble your Bitcoin</span> for bigger payouts or bigger bets on games. The risk is you could <span className="text-rose-400 font-semibold">lose everything</span> — play at your own risk.</li>
               <li><span className="text-orange-400 font-semibold">No crybabies</span></li>
             </ul>
           </div>

@@ -46,14 +46,14 @@ export default function Slots() {
     const { mult, label } = evaluate(final)
     const winnings = mult * stake
     if (winnings > 0) wallet.payout(winnings, 'slots')
-    if (mult > 1) { sfx.win(); setMsg(`${label} +${winnings} 🪙 🎉`) }
+    if (mult > 1) { sfx.win(); setMsg(`${label} +${winnings} ₿ 🎉`) }
     else if (mult === 1) setMsg(label)
     else { sfx.lose(); setMsg(label) }
   }
 
   function pull() {
     if (spinning) return
-    if (!wallet.canBet(stake)) { toast.error('Not enough tokens'); return }
+    if (!wallet.canBet(stake)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(stake, 'slots')
     setSpinning(true)
     setMsg('Spinning…')
@@ -109,7 +109,7 @@ export default function Slots() {
 
       <button onClick={pull} disabled={spinning}
         className="rounded-full bg-amber-500 px-10 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 transition hover:bg-amber-400 active:scale-95 disabled:opacity-60">
-        {spinning ? 'Spinning…' : `Pull · ${stake} 🪙`}
+        {spinning ? 'Spinning…' : `Pull · ${stake} ₿`}
       </button>
 
       {/* Paytable */}

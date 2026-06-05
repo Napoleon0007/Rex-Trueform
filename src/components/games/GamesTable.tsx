@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useSessionPnl } from '../../store/sessionPnl'
@@ -13,7 +13,7 @@ type Game = 'roulette' | 'blackjack' | 'poker' | 'slots'
 const GAMES: { key: Game; label: string; emoji: string; blurb: string }[] = [
   { key: 'roulette',  label: 'Roulette',  emoji: '🎡', blurb: 'Spin the wheel' },
   { key: 'blackjack', label: 'Blackjack', emoji: '🃏', blurb: 'Beat the dealer to 21' },
-  { key: 'poker',     label: 'Poker',     emoji: '♠️', blurb: "Casino Hold'em vs the house" },
+  { key: 'poker',     label: 'Poker',     emoji: '♠️', blurb: "Texas Hold'em vs the house" },
   { key: 'slots',     label: 'Slots',     emoji: '🎰', blurb: 'Pull for the jackpot' },
 ]
 
@@ -82,7 +82,7 @@ function PnlChip() {
            : 'border-rose-400/50 bg-rose-500/15 text-rose-300'
       }`}
     >
-      {up ? '▲' : '▼'} {up ? '+' : ''}{net} 🪙 tonight
+      {up ? '▲' : '▼'} {up ? '+' : ''}{net} ₿ tonight
     </button>
   )
 }
@@ -91,27 +91,41 @@ function PnlChip() {
 // feel. Reads --mx/--my (set on the stage by the pointer handler below).
 const PARALLAX_BG = 'translate(calc(var(--mx, 0) * -14px), calc(var(--my, 0) * -9px)) scale(1.16)'
 
-// Rainforest backdrop: an AI render pushed back + blurred for depth of field and
-// graded to the emerald/gold theme, so the sharp croupier pops in front. A painted
-// CSS jungle sits behind it as an instant, zero-cost fallback until /rainforest.png
-// exists — then the photo takes over automatically.
+// Dark casino-room backdrop: a deep, smoky gradient with out-of-focus warm bokeh
+// lights drifting behind the table, so the croupier reads as standing in a real
+// low-lit casino. Pure CSS — no image needed.
 function Backdrop() {
-  const [hasPhoto, setHasPhoto] = useState(true)
   return (
     <div className="backdrop-fade pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      <div className="jungle-css absolute inset-0" style={{ transform: PARALLAX_BG }} />
-      {hasPhoto && (
-        <img src="/rainforest.png" alt="" onError={() => setHasPhoto(false)}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ transform: PARALLAX_BG, filter: 'blur(3px) brightness(0.6) saturate(1.08)' }} />
-      )}
-      {/* golden god-rays filtering down through the canopy */}
-      <div className="god-rays absolute inset-0" />
-      {/* mist creeping along the forest floor */}
-      <div className="jungle-mist absolute inset-x-0 bottom-0 h-2/5" />
+      <div className="absolute inset-0" style={{ transform: PARALLAX_BG, background:
+        'radial-gradient(ellipse at 50% 16%, rgba(150,95,35,0.35), transparent 55%),'
+        + 'radial-gradient(ellipse at 50% 122%, rgba(10,70,46,0.45), transparent 60%),'
+        + 'linear-gradient(180deg, #0c0e11 0%, #0a0b0d 48%, #050607 100%)' }} />
+      {/* out-of-focus casino lights in the room behind */}
+      <div className="casino-bokeh absolute inset-0" />
       {/* vignette: hug the edges, focus the centre */}
       <div className="absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 28%, rgba(2,12,7,0.5) 70%, rgba(0,0,0,0.92) 100%)' }} />
+        style={{ background: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0.92) 100%)' }} />
+    </div>
+  )
+}
+
+// A playing card lying flat on the felt (or a small deck). Sits in the felt's tilted
+// plane, so it reads as resting on the table; rot fans it in-plane.
+function FeltCard({ x, y, rot, faceDown = false, deck = false, rank, suit }:
+  { x: number; y: number; rot: number; faceDown?: boolean; deck?: boolean; rank?: string; suit?: string }) {
+  const back = faceDown || deck
+  const red = suit === '♥' || suit === '♦'
+  return (
+    <div className="absolute" style={{ left: `${x}%`, top: `${y}%`, transform: `translate(-50%,-50%) rotate(${rot}deg)` }}>
+      {deck && [4, 3, 2, 1].map((d) => (
+        <div key={d} className="absolute rounded-[3px]" style={{ left: 0, top: -d, width: 20, height: 28, background: '#5a0c18', border: '1px solid rgba(0,0,0,0.35)' }} />
+      ))}
+      <div className="relative rounded-[3px]" style={{ width: 20, height: 28,
+        background: back ? 'repeating-linear-gradient(45deg,#8a1322 0 3px,#5a0c18 3px 6px)' : '#fbf7ee',
+        border: '1px solid rgba(0,0,0,0.28)', boxShadow: '0 3px 5px rgba(0,0,0,0.5)' }}>
+        {!back && <span style={{ position: 'absolute', top: 1.5, left: 2.5, fontSize: 7, fontWeight: 800, lineHeight: 1, color: red ? '#c0182b' : '#15110b' }}>{rank}{suit}</span>}
+      </div>
     </div>
   )
 }
@@ -161,6 +175,14 @@ export default function GamesTable() {
   const [game, setGame] = useState<Game | null>(null)
   const [line] = useState(() => BANTER[Math.floor(Math.random() * BANTER.length)])
   const stageRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  // Choosing a game collapses the tall 3D table to the compact game view. Without
+  // this the page keeps its old scroll offset and ends up on the Hall of Fame
+  // below — so bring the table back to the top and open the game in place.
+  useEffect(() => {
+    if (game) rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [game])
 
   // Subtle pointer parallax: store the cursor offset as CSS vars on the stage so the
   // jungle and fireflies can drift against it — no React re-render.
@@ -179,7 +201,7 @@ export default function GamesTable() {
   }
 
   return (
-    <div className="mt-10">
+    <div ref={rootRef} className="mt-10 scroll-mt-4">
       <div className="overflow-hidden rounded-3xl border-4 border-[#3a2210] shadow-2xl shadow-black/60"
         style={{ background: 'radial-gradient(ellipse at 50% 35%, #0f7a47 0%, #0a5e38 45%, #064027 100%)' }}>
         {/* felt header */}
@@ -187,19 +209,19 @@ export default function GamesTable() {
           <h3 className="font-black uppercase tracking-[0.2em] text-amber-300 text-sm">🎰 The Games Table</h3>
           <div className="flex items-center gap-2">
             <PnlChip />
-            <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} 🪙</span>
+            <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} ₿</span>
           </div>
         </div>
 
         <div className="p-5">
           {!game ? (
             <div>
-              {/* ===== 3D table diorama: rainforest backdrop, pendant lamp, fireflies ===== */}
+              {/* ===== 3D table diorama: dark casino backdrop, pendant lamp, dealt cards ===== */}
               <div ref={stageRef} onPointerMove={onStageMove} onPointerLeave={onStageLeave}
                 className="stage-3d games-stage relative mb-6 overflow-hidden rounded-2xl"
                 style={{ height: 440, background: '#05100a' }}>
 
-                {/* the rainforest, pushed back and blurred behind everything */}
+                {/* the dark casino room behind everything */}
                 <Backdrop />
 
                 {/* gold proscenium framing the scene like a lit stage window */}
@@ -208,13 +230,13 @@ export default function GamesTable() {
                 {/* pendant lamp + its volumetric cone of light */}
                 <PendantLamp />
 
-                {/* fireflies drifting through the air */}
+                {/* dust motes drifting in the lamp light */}
                 <Fireflies />
 
                 {/* ambient floor shadow the table casts */}
                 <div className="pointer-events-none absolute left-1/2 top-[72%] z-[6] h-24 w-[72%] -translate-x-1/2 rounded-[50%] bg-black/70 blur-2xl" />
 
-                {/* croupier stands behind the table — sharp against the soft jungle */}
+                {/* croupier stands behind the table — sharp against the dark room */}
                 <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
                   <div className="reveal" style={{ animationDelay: '0.35s' }}>
                     <Croupier line={line} />
@@ -248,6 +270,16 @@ export default function GamesTable() {
                     <ChipStack3D colors={['#c0182b', '#15110c', '#caa14a']} x={60} y={50} delay={0.7} />
                     <ChipStack3D colors={['#0f7a3d', '#caa14a', '#caa14a', '#15110c']} x={73} y={64} delay={0.85} />
                     <ChipStack3D colors={['#15110c', '#c0182b', '#caa14a']} x={38} y={70} delay={1} />
+                    <ChipStack3D colors={['#caa14a', '#c0182b', '#15110c', '#caa14a', '#0f7a3d']} x={86} y={50} delay={1.1} />
+
+                    {/* the deck + a couple of cards mid-deal */}
+                    <FeltCard x={80} y={33} rot={-6} deck />
+                    <FeltCard x={48} y={58} rot={-9} faceDown />
+                    <FeltCard x={54} y={60} rot={7} faceDown />
+                    {/* the hand you've just been dealt, fanned face-up at the rail */}
+                    <FeltCard x={42} y={78} rot={-20} rank="A" suit="♠" />
+                    <FeltCard x={49} y={79} rot={-4} rank="K" suit="♥" />
+                    <FeltCard x={56} y={78} rot={12} rank="Q" suit="♦" />
                   </div>
                 </div>
               </div>

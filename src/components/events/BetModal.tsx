@@ -90,7 +90,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
       })
 
       const label = formatPrediction(event, chosenPrediction, chosenAway)
-      toast.success(`${isEdit ? 'Bet updated' : 'Bet placed'} · ${amount} 🪙 on ${label}`, '🎟')
+      toast.success(`${isEdit ? 'Bet updated' : 'Bet placed'} · ${amount} ₿ on ${label}`, '🎟')
       onClose()
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to place bet')
@@ -187,7 +187,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
 
         <div className="space-y-3">
           <label className="flex items-center justify-between text-sm font-medium text-slate-300">
-            <span>How many tokens?</span>
+            <span>How many Bitcoin?</span>
             <span className="text-xs text-slate-500">{maxSpendable} available</span>
           </label>
           <div className="flex gap-2">
@@ -236,10 +236,10 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
           disabled={maxSpendable === 0 || (isWinner && winnerPick === null)}
         >
           {isEdit
-            ? `Update bet · ${amount} 🪙`
+            ? `Update bet · ${amount} ₿`
             : isWinner && winnerPick !== null
-            ? `${winnerLabel(winnerPick, event.team_home, event.team_away)} · ${amount} 🪙`
-            : `Place bet · ${amount} 🪙`
+            ? `${winnerLabel(winnerPick, event.team_home, event.team_away)} · ${amount} ₿`
+            : `Place bet · ${amount} ₿`
           }
         </Button>
       </form>

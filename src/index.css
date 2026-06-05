@@ -269,6 +269,62 @@
   background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.18) 47%, transparent 60%);
   border-radius: inherit; pointer-events: none;
 }
+/* ============================================================
+   POOL-TABLE BABOON — perches on the felt while idle, bolts off the
+   instant a shot is fired, ambles back once the table settles.
+   ============================================================ */
+.baboon {
+  position: absolute;
+  font-size: 30px;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.5));
+  z-index: 5;
+}
+.baboon.sit {
+  opacity: 1;
+  animation: baboonAppear 0.4s ease-out, baboonSit 2.6s ease-in-out 0.4s infinite;
+}
+.baboon.flee { animation: baboonFlee 0.6s ease-in forwards; }
+.baboon.hidden { opacity: 0; transform: translate(260px, -34px) scale(0.45); }
+@keyframes baboonAppear {
+  from { opacity: 0; transform: scale(0.35) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes baboonSit {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-3px) rotate(3deg); }
+}
+@keyframes baboonFlee {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(260px, -34px) scale(0.45) rotate(22deg); }
+}
+
+/* Out-of-focus casino lights behind the games table — drifting warm bokeh. */
+.casino-bokeh {
+  background:
+    radial-gradient(circle at 18% 30%, rgba(245,200,120,0.20), transparent 9%),
+    radial-gradient(circle at 80% 24%, rgba(255,170,90,0.16), transparent 8%),
+    radial-gradient(circle at 32% 16%, rgba(255,220,150,0.13), transparent 6%),
+    radial-gradient(circle at 66% 34%, rgba(120,200,160,0.11), transparent 7%),
+    radial-gradient(circle at 50% 22%, rgba(255,200,120,0.12), transparent 10%),
+    radial-gradient(circle at 8% 12%, rgba(255,190,110,0.10), transparent 6%);
+  filter: blur(7px);
+  animation: bokehDrift 26s ease-in-out infinite alternate;
+}
+@keyframes bokehDrift { from { transform: translate(-2%, 0); } to { transform: translate(2%, -1%); } }
+
+/* Back-bar mirror behind the bartender: silvered glass, diagonal sheen, gold frame. */
+.bar-mirror {
+  background:
+    linear-gradient(118deg, rgba(255,255,255,0.14) 0 5%, transparent 16%, rgba(255,255,255,0.06) 30%, transparent 46%, rgba(255,255,255,0.05) 62%, transparent 76%),
+    linear-gradient(180deg, #39424b 0%, #232b32 45%, #161b21 100%);
+  box-shadow:
+    inset 0 0 0 3px rgba(201,151,31,0.55),
+    inset 0 0 0 5px rgba(60,40,12,0.8),
+    inset 0 14px 40px rgba(0,0,0,0.55);
+}
 
 /* ============================================================
    GAMES-TABLE DIORAMA — rainforest backdrop, pendant lamp, fireflies,

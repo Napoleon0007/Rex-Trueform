@@ -36,6 +36,22 @@ export default function PoolTable() {
 
   useEffect(() => { modeRef.current = mode }, [mode])
 
+  // A cheeky baboon perches on the felt while the table's idle. The instant a shot
+  // is fired (balls rolling) it bolts off and vanishes; once the table settles it
+  // ambles back and sits down again.
+  const [monkey, setMonkey] = useState<'sit' | 'flee' | 'hidden'>('sit')
+  useEffect(() => {
+    if (phase === 'rolling') {
+      setMonkey('flee')
+      const t = setTimeout(() => setMonkey('hidden'), 650)
+      return () => clearTimeout(t)
+    }
+    if (phase === 'over') { setMonkey('hidden'); return }
+    // idle — creep back once the dust settles
+    const t = setTimeout(() => setMonkey('sit'), 450)
+    return () => clearTimeout(t)
+  }, [phase])
+
   function newGame(nextMode: Mode = mode) {
     if (aiTimer.current) clearTimeout(aiTimer.current)
     ballsRef.current = createRack()
@@ -261,16 +277,20 @@ export default function PoolTable() {
         </div>
       )}
 
-      <canvas
-        ref={canvasRef}
-        width={TABLE.W + RAIL * 2}
-        height={TABLE.H + RAIL * 2}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        className="w-full rounded-2xl shadow-2xl shadow-black/60"
-        style={{ touchAction: 'none', cursor: yourTurn ? 'crosshair' : 'default' }}
-      />
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          width={TABLE.W + RAIL * 2}
+          height={TABLE.H + RAIL * 2}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          className="w-full rounded-2xl shadow-2xl shadow-black/60"
+          style={{ touchAction: 'none', cursor: yourTurn ? 'crosshair' : 'default' }}
+        />
+        {/* the resident baboon — sits on the felt, bolts the instant a shot is taken */}
+        <div className={`baboon ${monkey}`} style={{ left: '14%', top: '20%' }} aria-hidden>🐒</div>
+      </div>
 
       <p className="mt-3 text-center text-sm text-amber-100/80">
         {phase === 'rolling' ? '…' : message}

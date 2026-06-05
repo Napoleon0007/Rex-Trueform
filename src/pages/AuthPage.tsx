@@ -6,7 +6,7 @@ export default function AuthPage() {
     <div>
 
       {/* Section 1: Login */}
-      <VideoSection src="/hero-v2.mp4" objectPosition="top">
+      <VideoSection src="/hero-v2.mp4" objectPosition="top" objectFit="contain">
         <div className="w-full max-w-sm space-y-8">
           <div className="text-center space-y-4">
             <div className="mx-auto h-28 w-28 overflow-hidden rounded-2xl ring-2 ring-orange-500/40 shadow-[0_0_40px_rgba(249,115,22,0.35)]">

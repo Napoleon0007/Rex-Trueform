@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 
 export interface ProfileStats {
-  received: number   // total tokens granted over time (welcome + monthly)
-  spent: number      // total tokens wagered + spent at the bar
+  received: number   // total Bitcoin granted over time (welcome + monthly)
+  spent: number      // total Bitcoin wagered + spent at the bar
   gamesWon: number   // number of winning payouts (casino + predictions)
   fame: number       // months finished in the top 3
   shame: number      // months finished down (negative net)

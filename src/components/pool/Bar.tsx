@@ -14,19 +14,71 @@ const DRINKS: DrinkDef[] = [
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-// A little glass bottle for the back-bar shelves.
-function Bottle({ from, to }: { from: string; to: string }) {
+// A single back-bar bottle, drawn to evoke a real spirit brand: signature glass
+// tint, cap/foil and label colour, with the brand on the label (full name on hover).
+interface BottleDef {
+  name: string         // short label printed on the bottle
+  full: string         // full brand name (hover tooltip)
+  body: string         // glass colour
+  body2?: string       // glass gradient end
+  cap: string          // cap / foil colour
+  label: string        // label background
+  ink?: string         // label text colour
+  square?: boolean     // square-shouldered bottle (Jack Daniel's etc.)
+}
+
+function Bottle({ b }: { b: BottleDef }) {
+  const body2 = b.body2 ?? b.body
   return (
-    <div className="flex flex-col items-center">
-      <div style={{ width: 3, height: 7, background: to, borderRadius: 1 }} />
-      <div style={{ width: 11, height: 26, borderRadius: 3, background: `linear-gradient(180deg, ${from}, ${to})`, boxShadow: 'inset -2px 0 rgba(255,255,255,0.25), inset 2px 0 rgba(0,0,0,0.25)' }} />
+    <div className="flex flex-col items-center" title={b.full}>
+      <div style={{ width: 4, height: 4, background: b.cap, borderRadius: '1.5px 1.5px 0 0' }} />
+      <div style={{ width: 4, height: 6, background: `linear-gradient(90deg, ${b.body}, ${body2})` }} />
+      <div style={{
+        position: 'relative', width: 15, height: 28,
+        borderRadius: b.square ? '2px' : '3px 3px 4px 4px',
+        background: `linear-gradient(95deg, rgba(255,255,255,0.4), ${b.body} 28%, ${body2} 78%, rgba(0,0,0,0.35))`,
+        boxShadow: 'inset -2px 0 rgba(0,0,0,0.32), inset 2px 0 rgba(255,255,255,0.28)',
+      }}>
+        <div style={{
+          position: 'absolute', left: 1.5, right: 1.5, top: 9, height: 12,
+          background: b.label, borderRadius: 1.5, overflow: 'hidden',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.25)',
+        }}>
+          <span style={{ fontSize: 4.6, lineHeight: 1, fontWeight: 800, letterSpacing: '-0.03em', color: b.ink ?? '#1a1206', whiteSpace: 'nowrap' }}>{b.name}</span>
+        </div>
+      </div>
     </div>
   )
 }
 
-const SHELF_BOTTLES = [
-  ['#caa14a', '#7a4d12'], ['#d9e6f2', '#9fb3c8'], ['#3f8f5a', '#185c2f'],
-  ['#e0b03a', '#8a5a12'], ['#c0392b', '#7a1f17'], ['#8fa9c9', '#3b5572'],
+// Three shelves of real, recognisable brands — whisky up top, vodka & gin in the
+// middle, rum/tequila/cognac & liqueurs on the bottom.
+const SHELVES: BottleDef[][] = [
+  [
+    { name: 'JACK',     full: "Jack Daniel's",   body: '#3a2a16', body2: '#170f07', cap: '#0c0c0c', label: '#0c0c0c', ink: '#f4f4f4', square: true },
+    { name: 'JAMESON',  full: 'Jameson',         body: '#1f5c2e', body2: '#0f3a1d', cap: '#d4af37', label: '#ece6c8', ink: '#1f5c2e' },
+    { name: 'WALKER',   full: 'Johnnie Walker',  body: '#6b3f12', body2: '#3a2208', cap: '#0c0c0c', label: '#c8a14a', ink: '#160a04', square: true },
+    { name: 'CHIVAS',   full: 'Chivas Regal',    body: '#7a4a12', body2: '#46290a', cap: '#1f3a6b', label: '#1f3a6b', ink: '#d4af37' },
+    { name: 'GLEN',     full: 'Glenfiddich',     body: '#3a7a3a', body2: '#1f4a1f', cap: '#d4af37', label: '#ece6c8', ink: '#2f5f2f' },
+    { name: 'BEAM',     full: 'Jim Beam',        body: '#6b3f12', body2: '#3a2208', cap: '#f4f4f4', label: '#f4f4f4', ink: '#b00020', square: true },
+  ],
+  [
+    { name: 'ABSOLUT',  full: 'Absolut Vodka',   body: '#cfe0ea', body2: '#9fb3c8', cap: '#8a8f96', label: '#dbe8f2', ink: '#1f4a8a' },
+    { name: 'SMIRNOFF', full: 'Smirnoff',        body: '#e0e8f0', body2: '#b8c4d0', cap: '#c0392b', label: '#c0392b', ink: '#f4f4f4' },
+    { name: 'GOOSE',    full: 'Grey Goose',      body: '#dfeaf2', body2: '#aebfce', cap: '#1f3a6b', label: '#e8eef5', ink: '#1f3a6b' },
+    { name: 'BELV',     full: 'Belvedere',       body: '#e6eef4', body2: '#bcccd8', cap: '#1a3a2a', label: '#dbe8f2', ink: '#1a3a2a' },
+    { name: 'TANQ',     full: 'Tanqueray',       body: '#1f5c4a', body2: '#0f3a2e', cap: '#c8102e', label: '#c8102e', ink: '#f4f4f4' },
+    { name: 'BOMBAY',   full: 'Bombay Sapphire', body: '#2a6bb0', body2: '#16407a', cap: '#d4af37', label: '#cfe0ea', ink: '#16407a' },
+  ],
+  [
+    { name: 'BACARDI',  full: 'Bacardi',         body: '#e6ead0', body2: '#c4c8a8', cap: '#0c0c0c', label: '#f4f4f4', ink: '#111111' },
+    { name: 'CAPTAIN',  full: 'Captain Morgan',  body: '#8a5a2b', body2: '#4d3017', cap: '#0c0c0c', label: '#9c1b1b', ink: '#f4d77a' },
+    { name: 'HAVANA',   full: 'Havana Club',     body: '#6b4423', body2: '#3a2412', cap: '#0c0c0c', label: '#ece6c8', ink: '#7a1f17' },
+    { name: 'PATRON',   full: 'Patrón',          body: '#e6ead0', body2: '#bcc0a0', cap: '#222222', label: '#d4af37', ink: '#160a04' },
+    { name: 'HENNESSY', full: 'Hennessy',        body: '#7a3f12', body2: '#46220a', cap: '#0c0c0c', label: '#1a120a', ink: '#d4af37' },
+    { name: 'JÄGER',    full: 'Jägermeister',    body: '#10200f', body2: '#050a05', cap: '#d4af37', label: '#e8a020', ink: '#160a04' },
+  ],
 ]
 
 // The bartender — a background-free cutout (Mike Tyson) standing in the bar so
@@ -88,7 +140,7 @@ export default function Bar() {
       setServed((s) => [...s, { id: nextId.current++, emoji: d.emoji }].slice(-8))
       setSpent((v) => v + d.cost)
       say(d.key === 'beer' ? BEER : TEQUILA)
-      toast.success(`${d.label} poured · −${d.cost} 🪙`, d.emoji)
+      toast.success(`${d.label} poured · −${d.cost} ₿`, d.emoji)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'The bar is closed'
       if (/not enough|insufficient/i.test(msg)) say(BROKE)
@@ -101,22 +153,27 @@ export default function Bar() {
   return (
     <div className="overflow-hidden rounded-2xl border border-amber-900/60 shadow-2xl shadow-black/70">
       {/* ===== 3D bar diorama: receding back wall, Tyson, polished counter ===== */}
-      <div className="stage-3d relative overflow-hidden" style={{ height: 320, background: 'linear-gradient(180deg,#2a1206,#160a04)' }}>
-        {/* back-bar wall, pushed into depth so the shelves recede behind him */}
-        <div className="absolute inset-x-0 top-0 px-6 pt-3" style={{ transform: 'translateZ(-170px) scale(1.12)', transformOrigin: 'top center' }}>
-          <div className="pointer-events-none absolute inset-2 rounded-lg" style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(255,210,130,0.22), transparent 70%)' }} />
-          <p className="relative text-center text-[11px] font-black uppercase tracking-[0.5em] text-amber-300" style={{ textShadow: '0 0 14px rgba(245,200,80,0.8)' }}>
+      <div className="stage-3d relative overflow-hidden" style={{ height: 360, background: 'linear-gradient(180deg,#2a1206,#160a04)' }}>
+        {/* back-bar wall, pushed into depth: a big bar mirror with three shelves of
+            real-brand spirits, all receding behind the bartender */}
+        <div className="absolute inset-x-0 top-0 px-5 pt-2" style={{ transform: 'translateZ(-170px) scale(1.12)', transformOrigin: 'top center' }}>
+          {/* the mirror */}
+          <div className="bar-mirror pointer-events-none absolute inset-1 rounded-lg" />
+          {/* warm light pooling on the glass */}
+          <div className="pointer-events-none absolute inset-2 rounded-lg" style={{ background: 'radial-gradient(ellipse at 50% 22%, rgba(255,210,130,0.20), transparent 70%)' }} />
+          {/* etched header */}
+          <p className="relative text-center text-[10px] font-black uppercase tracking-[0.5em] text-amber-200/90" style={{ textShadow: '0 0 10px rgba(245,200,80,0.75)' }}>
             ★ Open Bar ★
           </p>
-          <div className="relative mt-3 space-y-2">
-            {[0, 1].map((row) => (
-              <div key={row}>
-                <div className="flex items-end justify-center gap-2">
-                  {SHELF_BOTTLES.slice(row * 3, row * 3 + 3).concat(SHELF_BOTTLES.slice(row * 3, row * 3 + 3)).map(([f, t], i) => (
-                    <Bottle key={i} from={f} to={t} />
-                  ))}
+          {/* three glass shelves of real brands */}
+          <div className="relative mt-2 space-y-1.5">
+            {SHELVES.map((shelf, r) => (
+              <div key={r}>
+                <div className="flex items-end justify-center gap-1.5">
+                  {shelf.map((b, i) => <Bottle key={i} b={b} />)}
                 </div>
-                <div className="mx-2 h-1 rounded bg-gradient-to-b from-[#5a3a1d] to-[#2e1c0d] shadow" />
+                {/* glass shelf with a gold lip */}
+                <div className="mx-1 mt-0.5 h-[3px] rounded-sm" style={{ background: 'linear-gradient(180deg, rgba(255,235,180,0.55), rgba(201,151,31,0.5) 45%, rgba(60,40,12,0.65))', boxShadow: '0 2px 5px rgba(0,0,0,0.55)' }} />
               </div>
             ))}
           </div>
@@ -169,7 +226,7 @@ export default function Bar() {
       <div className="bg-[#160a04] p-3">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-widest text-amber-300">Order a round</span>
-          <span className="text-xs text-amber-200/60">Tab: {spent} 🪙</span>
+          <span className="text-xs text-amber-200/60">Tab: {spent} ₿</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {DRINKS.map((d) => {
@@ -187,13 +244,13 @@ export default function Bar() {
               >
                 <span className="text-2xl leading-none">{d.emoji}</span>
                 <span className="text-xs font-semibold text-amber-100">{d.label}</span>
-                <span className="text-[11px] font-bold text-amber-400">{d.cost} 🪙</span>
+                <span className="text-[11px] font-bold text-amber-400">{d.cost} ₿</span>
               </button>
             )
           })}
         </div>
         <p className="mt-2 text-center text-[11px] text-amber-200/50">
-          {pouring ? 'Pouring…' : `Paid from your balance · ${balance} 🪙 left`}
+          {pouring ? 'Pouring…' : `Paid from your balance · ${balance} ₿ left`}
         </p>
       </div>
     </div>
