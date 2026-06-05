@@ -10,6 +10,7 @@ import Slots from './Slots'
 import MuteButton from './MuteButton'
 import Modal from '../ui/Modal'
 import CasinoStats from './CasinoStats'
+import CasinoPresence from './CasinoPresence'
 import { bubbleLine } from '../../lib/dealerLines'
 
 type Game = 'roulette' | 'blackjack' | 'poker' | 'slots'
@@ -294,6 +295,8 @@ export default function GamesTable() {
                   </div>
                 </div>
               </div>
+
+              <CasinoPresence />
 
               <div className="text-center">
                 <p className="text-lg font-bold text-amber-50">What do you want to play?</p>
