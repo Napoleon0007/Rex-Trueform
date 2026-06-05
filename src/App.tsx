@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthListener, useProfile } from './hooks/useAuth'
 import { useMonthlyClaim } from './hooks/useMonthlyClaim'
@@ -14,7 +14,9 @@ import LeaderboardPage from './pages/LeaderboardPage'
 import AdminPage from './pages/AdminPage'
 import MaradonaPage from './pages/MaradonaPage'
 import PelePage from './pages/PelePage'
-import RacesPage from './pages/RacesPage'
+// The Races page pulls in three.js / react-three-fiber (the 3D Racing Ring), so
+// it is code-split: that bundle only loads when someone actually visits /races.
+const RacesPage = lazy(() => import('./pages/RacesPage'))
 
 function AuthedRoutes() {
   return (
@@ -24,7 +26,14 @@ function AuthedRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/events/:id" element={<EventPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/races" element={<RacesPage />} />
+        <Route
+          path="/races"
+          element={
+            <Suspense fallback={<Spinner />}>
+              <RacesPage />
+            </Suspense>
+          }
+        />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/maradona" element={<MaradonaPage />} />
         <Route path="/pele" element={<PelePage />} />
