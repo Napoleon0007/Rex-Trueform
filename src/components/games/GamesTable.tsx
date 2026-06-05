@@ -8,6 +8,8 @@ import Blackjack from './Blackjack'
 import Poker from './Poker'
 import Slots from './Slots'
 import MuteButton from './MuteButton'
+import Modal from '../ui/Modal'
+import CasinoStats from './CasinoStats'
 import { bubbleLine } from '../../lib/dealerLines'
 
 type Game = 'roulette' | 'blackjack' | 'poker' | 'slots'
@@ -169,6 +171,7 @@ export default function GamesTable() {
   const { user } = useAuthStore()
   const { data: balance = 0 } = useTokenBalance(user?.id)
   const [game, setGame] = useState<Game | null>(null)
+  const [statsOpen, setStatsOpen] = useState(false)
   const net = useSessionPnl((s) => s.net)
   // The dealer's bubble reflects how your night is going (up = needle, down = console).
   const line = useMemo(() => bubbleLine(net), [net])
@@ -200,6 +203,9 @@ export default function GamesTable() {
 
   return (
     <div ref={rootRef} className="mt-10 scroll-mt-4">
+      <Modal open={statsOpen} onClose={() => setStatsOpen(false)} title="Your casino stats">
+        <CasinoStats />
+      </Modal>
       <div className="overflow-hidden rounded-3xl border-4 border-[#3a2210] shadow-2xl shadow-black/60"
         style={{ background: 'radial-gradient(ellipse at 50% 35%, #0f7a47 0%, #0a5e38 45%, #064027 100%)' }}>
         {/* felt header */}
@@ -209,6 +215,12 @@ export default function GamesTable() {
             <PnlChip />
             <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} ₿</span>
             <MuteButton />
+            <button
+              type="button"
+              onClick={() => setStatsOpen(true)}
+              title="Your casino stats"
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-400/30 bg-black/30 text-sm text-amber-300 transition hover:border-amber-400/70 active:scale-90"
+            >📊</button>
           </div>
         </div>
 

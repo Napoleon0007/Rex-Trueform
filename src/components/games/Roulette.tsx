@@ -35,6 +35,7 @@ export default function Roulette() {
   const [result, setResult] = useState<number | null>(null)
   const [msg, setMsg] = useState('Place your chips, then spin.')
   const spinTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastBets = useRef<Record<string, number>>({})
 
   const total = Object.values(bets).reduce((s, n) => s + n, 0)
 
@@ -52,6 +53,7 @@ export default function Roulette() {
   function spin() {
     if (total === 0) { toast.error('Place a bet first'); return }
     if (!wallet.canBet(total)) { toast.error('Not enough Bitcoin'); return }
+    lastBets.current = bets
     wallet.bet(total, 'roulette')
     sfx.spin()
     const n = Math.floor(Math.random() * 37)
@@ -83,6 +85,12 @@ export default function Roulette() {
   }
 
   function clear() { setBets({}); setResult(null); setPhase('bet'); setMsg('Place your chips, then spin.') }
+
+  function rebet() {
+    const prev = lastBets.current
+    if (!prev || Object.keys(prev).length === 0) return
+    setResult(null); setBets(prev); setPhase('bet'); setMsg('Same bets loaded — spin again.')
+  }
 
   return (
     <div className="space-y-4">
@@ -143,7 +151,10 @@ export default function Roulette() {
       {/* Actions */}
       <div className="flex justify-center gap-2">
         {phase === 'done'
-          ? <button onClick={clear} className="rounded-full border-2 border-amber-400 px-8 py-2.5 text-sm font-black uppercase tracking-widest text-amber-300 hover:bg-amber-400/10">New bet</button>
+          ? <>
+              <button onClick={rebet} className="rounded-full bg-amber-500 px-6 py-2.5 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95">↻ Rebet</button>
+              <button onClick={clear} className="rounded-full border-2 border-amber-400 px-6 py-2.5 text-sm font-black uppercase tracking-widest text-amber-300 hover:bg-amber-400/10">New bet</button>
+            </>
           : <>
               <button onClick={clearBets} disabled={phase !== 'bet'} className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-bold text-slate-300 disabled:opacity-40">Clear</button>
               <button onClick={spin} disabled={phase === 'spinning'} className="rounded-full bg-amber-500 px-8 py-2.5 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95 disabled:opacity-60">Spin</button>
