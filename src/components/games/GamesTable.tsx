@@ -18,11 +18,7 @@ const GAMES: { key: Game; label: string; emoji: string; blurb: string }[] = [
 ]
 
 const BANTER = [
-  'Place your bets, gentlemen.',
-  'House always wins… eventually.',
-  'Feeling lucky tonight?',
-  'Chips on the felt, please.',
-  "Don't spend it all in one hand.",
+  'Fuck, I need a new home. They stole my old place.',
 ]
 
 // The house dealer is a baboon (real photo cutout) — arms folded, judging your bets.
