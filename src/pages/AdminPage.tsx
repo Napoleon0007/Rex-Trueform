@@ -194,8 +194,9 @@ function EventRow({
             </Button>
           )}
 
-          {/* Closed + Settled: Void */}
-          {(isClosed || isSettled) && !confirmVoid && (
+          {/* Any status: Void (refunds bets). Needed for open events too — you
+              can't delete an open event that has bets without voiding first. */}
+          {!confirmVoid && (
             <Button
               size="sm"
               variant="outline"
