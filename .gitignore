@@ -13,3 +13,6 @@ Standing on chair.mp4
 
 # Supabase CLI local cache
 supabase/.temp/
+
+# Python script caches
+__pycache__/

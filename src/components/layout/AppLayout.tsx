@@ -14,6 +14,7 @@ function BottomNav() {
   const navItems = [
     { to: '/dashboard',   icon: '🎯', label: 'Markets'   },
     { to: '/leaderboard', icon: '🏆', label: 'Board'     },
+    { to: '/races',       icon: '🏇', label: 'Races'     },
     ...(profile?.is_admin ? [{ to: '/admin', icon: '⚙️', label: 'Admin' }] : []),
   ]
 

@@ -14,6 +14,7 @@ import LeaderboardPage from './pages/LeaderboardPage'
 import AdminPage from './pages/AdminPage'
 import MaradonaPage from './pages/MaradonaPage'
 import PelePage from './pages/PelePage'
+import RacesPage from './pages/RacesPage'
 
 function AuthedRoutes() {
   return (
@@ -23,6 +24,7 @@ function AuthedRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/events/:id" element={<EventPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/races" element={<RacesPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/maradona" element={<MaradonaPage />} />
         <Route path="/pele" element={<PelePage />} />
