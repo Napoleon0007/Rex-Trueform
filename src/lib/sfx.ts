@@ -81,4 +81,58 @@ export function lose() {
   osc.stop(t + 0.52)
 }
 
-export const sfx = { clink, win, lose }
+// White-noise burst through a band-pass — the body of a card "snap".
+function noise(ac: AudioContext, start: number, dur: number, freq: number, gain: number) {
+  const len = Math.floor(ac.sampleRate * dur)
+  const buf = ac.createBuffer(1, len, ac.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len)
+  const src = ac.createBufferSource()
+  src.buffer = buf
+  const bp = ac.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.value = freq
+  bp.Q.value = 0.8
+  const g = ac.createGain()
+  g.gain.value = gain
+  src.connect(bp).connect(g).connect(ac.destination)
+  src.start(start)
+  src.stop(start + dur + 0.02)
+}
+
+// A card dealt — short bright snap.
+export function deal() {
+  const ac = audio()
+  if (!ac) return
+  noise(ac, ac.currentTime, 0.07, 2600, 0.45)
+}
+
+// Wheel / reel start — a rising whoosh.
+export function spin() {
+  const ac = audio()
+  if (!ac) return
+  const t = ac.currentTime
+  const osc = ac.createOscillator()
+  const g = ac.createGain()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(180, t)
+  osc.frequency.exponentialRampToValueAtTime(680, t + 0.5)
+  g.gain.setValueAtTime(0.0001, t)
+  g.gain.exponentialRampToValueAtTime(0.07, t + 0.05)
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55)
+  osc.connect(g).connect(ac.destination)
+  osc.start(t)
+  osc.stop(t + 0.57)
+}
+
+// Big win — a longer ascending fanfare with a sparkle tail.
+export function jackpot() {
+  const ac = audio()
+  if (!ac) return
+  const t = ac.currentTime
+  const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568.0]
+  notes.forEach((f, i) => tone(ac, f, t + i * 0.09, 0.26, 'square', 0.15))
+  ;[2093, 2637, 3136].forEach((f, i) => tone(ac, f, t + 0.6 + i * 0.06, 0.18, 'triangle', 0.08))
+}
+
+export const sfx = { clink, win, lose, deal, spin, jackpot }

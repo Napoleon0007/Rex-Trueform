@@ -329,6 +329,27 @@
   100% { transform: translateX(0)      translateY(0)   scaleX(1)  rotate(0deg); }
 }
 
+/* Win/lose juice — quick full-screen tints + a popping dealer one-liner. */
+.juice-flash-win, .juice-flash-big, .juice-flash-lose { position: absolute; inset: 0; }
+.juice-flash-win {
+  background: radial-gradient(ellipse at 50% 55%, rgba(20, 170, 90, 0.22), transparent 62%);
+  animation: juiceFade 0.9s ease-out forwards;
+}
+.juice-flash-big {
+  background: radial-gradient(ellipse at 50% 55%, rgba(247, 147, 26, 0.30), transparent 65%);
+  animation: juiceFade 1.4s ease-out forwards;
+}
+.juice-flash-lose {
+  background: radial-gradient(ellipse at 50% 55%, rgba(200, 40, 50, 0.16), transparent 60%);
+  animation: juiceFade 0.7s ease-out forwards;
+}
+@keyframes juiceFade { from { opacity: 1; } to { opacity: 0; } }
+.juice-pop { animation: juicePop 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes juicePop {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
 /* Out-of-focus casino lights behind the games table — drifting warm bokeh. */
 .casino-bokeh {
   background:

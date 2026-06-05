@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useSessionPnl } from '../../store/sessionPnl'
@@ -7,6 +7,8 @@ import Roulette from './Roulette'
 import Blackjack from './Blackjack'
 import Poker from './Poker'
 import Slots from './Slots'
+import MuteButton from './MuteButton'
+import { bubbleLine } from '../../lib/dealerLines'
 
 type Game = 'roulette' | 'blackjack' | 'poker' | 'slots'
 
@@ -17,9 +19,7 @@ const GAMES: { key: Game; label: string; emoji: string; blurb: string }[] = [
   { key: 'slots',     label: 'Slots',     emoji: '🎰', blurb: 'Pull for the jackpot' },
 ]
 
-const BANTER = [
-  'Welcome, boys. Place your bets.',
-]
+// Dealer bubble lines now live in lib/dealerLines (they react to your session P&L).
 
 // The house dealer — a glamorous woman (real photo cutout) at the table.
 function Dealer({ line }: { line: string }) {
@@ -169,7 +169,9 @@ export default function GamesTable() {
   const { user } = useAuthStore()
   const { data: balance = 0 } = useTokenBalance(user?.id)
   const [game, setGame] = useState<Game | null>(null)
-  const [line] = useState(() => BANTER[Math.floor(Math.random() * BANTER.length)])
+  const net = useSessionPnl((s) => s.net)
+  // The dealer's bubble reflects how your night is going (up = needle, down = console).
+  const line = useMemo(() => bubbleLine(net), [net])
   const stageRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -206,6 +208,7 @@ export default function GamesTable() {
           <div className="flex items-center gap-2">
             <PnlChip />
             <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} ₿</span>
+            <MuteButton />
           </div>
         </div>
 

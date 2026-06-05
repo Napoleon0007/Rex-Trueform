@@ -3,6 +3,7 @@ import { makeDeck, shuffle, evaluate, compareScore, type Card } from '../../lib/
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
+import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
 import PlayingCard from './PlayingCard'
 
@@ -15,6 +16,8 @@ const BET_OPTIONS = [1, 2, 5]
 
 export default function Poker() {
   const wallet = useWallet()
+  const celebrate = useJuice((s) => s.celebrate)
+  const commiserate = useJuice((s) => s.commiserate)
   const kids = useKidsWarning()
   const deck = useRef<Card[]>([])
   const [ante, setAnte] = useState(5)
@@ -31,6 +34,7 @@ export default function Poker() {
   function deal() {
     if (!wallet.canBet(ante)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(ante, 'poker')
+    sfx.deal()
     deck.current = shuffle(makeDeck())
     setHole([draw(), draw()]); setDealer([draw(), draw()]); setBoard([draw(), draw(), draw()])
     setPot(ante); setStreetBet(1)
@@ -39,6 +43,7 @@ export default function Poker() {
 
   function fold() {
     sfx.lose()
+    commiserate()
     setMsg(`Folded — ${pot} ₿ to the house.`)
     setPhase('done')
   }
@@ -77,8 +82,8 @@ export default function Poker() {
     else { text = `Dealer's ${dl.name} beats your ${me.name}.` }
 
     if (win > 0) wallet.payout(win, 'poker')
-    if (cmp > 0) sfx.win()
-    else if (cmp < 0) sfx.lose()
+    if (cmp > 0) { win >= 200 ? sfx.jackpot() : sfx.win(); celebrate(win) }
+    else if (cmp < 0) { sfx.lose(); commiserate() }
     setMsg(text)
     setPhase('done')
   }

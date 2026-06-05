@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
+import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
 
 // Three-reel one-armed bandit. Reels are uniform over six symbols; a line of
@@ -25,6 +26,8 @@ function evaluate(r: string[]): { mult: number; label: string } {
 
 export default function Slots() {
   const wallet = useWallet()
+  const celebrate = useJuice((s) => s.celebrate)
+  const commiserate = useJuice((s) => s.commiserate)
   const kids = useKidsWarning()
   const [stake, setStake] = useState(5)
   const [reels, setReels] = useState(['🍒', '🔔', '💎'])
@@ -46,15 +49,17 @@ export default function Slots() {
     const { mult, label } = evaluate(final)
     const winnings = mult * stake
     if (winnings > 0) wallet.payout(winnings, 'slots')
-    if (mult > 1) { sfx.win(); setMsg(`${label} +${winnings} ₿ 🎉`) }
+    const threeKind = final[0] === final[1] && final[1] === final[2]
+    if (mult > 1) { (threeKind || winnings >= 200) ? sfx.jackpot() : sfx.win(); celebrate(winnings); setMsg(`${label} +${winnings} ₿ 🎉`) }
     else if (mult === 1) setMsg(label)
-    else { sfx.lose(); setMsg(label) }
+    else { sfx.lose(); commiserate(); setMsg(label) }
   }
 
   function pull() {
     if (spinning) return
     if (!wallet.canBet(stake)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(stake, 'slots')
+    sfx.spin()
     setSpinning(true)
     setMsg('Spinning…')
 

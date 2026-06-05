@@ -3,6 +3,7 @@ import { makeDeck, shuffle, blackjackValue, type Card } from '../../lib/cards'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
+import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
 import PlayingCard from './PlayingCard'
 
@@ -11,6 +12,8 @@ const CHIPS = [2, 5, 10, 25, 50, 100]
 
 export default function Blackjack() {
   const wallet = useWallet()
+  const celebrate = useJuice((s) => s.celebrate)
+  const commiserate = useJuice((s) => s.commiserate)
   const kids = useKidsWarning()
   const deck = useRef<Card[]>([])
   const [bet, setBet] = useState(5)
@@ -34,8 +37,8 @@ export default function Blackjack() {
     else if (pv === dv) { win = bet; text = 'Push — bet returned.' }
     else text = 'House wins.'
     if (win > 0) wallet.payout(Math.round(win), 'blackjack')
-    if (win > bet) sfx.win()
-    else if (win === 0) sfx.lose()
+    if (win > bet) { Math.round(win) >= 200 ? sfx.jackpot() : sfx.win(); celebrate(Math.round(win)) }
+    else if (win === 0) { sfx.lose(); commiserate() }
     setMsg(text)
     setPhase('done')
   }
@@ -50,6 +53,7 @@ export default function Blackjack() {
   function deal() {
     if (!wallet.canBet(bet)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(bet, 'blackjack')
+    sfx.deal()
     const p = [draw(), draw()], d = [draw(), draw()]
     setPlayer(p); setDealer(d)
     if (blackjackValue(p).total === 21) { setPhase('dealer'); setMsg('Blackjack!'); setTimeout(() => dealerPlay(p, d), 600) }
@@ -57,6 +61,7 @@ export default function Blackjack() {
   }
 
   function hit() {
+    sfx.deal()
     const p = [...player, draw()]
     setPlayer(p)
     if (blackjackValue(p).total > 21) settle(p, dealer)

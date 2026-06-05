@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
+import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal, TABLE_MAX } from './KidsWarning'
 import RouletteWheel, { isRouletteRed as isRed, WHEEL_STEP as STEP } from './RouletteWheel'
 
@@ -24,6 +25,8 @@ const OUTSIDE: { key: string; label: string; mult: number; hit: (n: number) => b
 
 export default function Roulette() {
   const wallet = useWallet()
+  const celebrate = useJuice((s) => s.celebrate)
+  const commiserate = useJuice((s) => s.commiserate)
   const kids = useKidsWarning()
   const [chip, setChip] = useState(5)
   const [bets, setBets] = useState<Record<string, number>>({})
@@ -50,6 +53,7 @@ export default function Roulette() {
     if (total === 0) { toast.error('Place a bet first'); return }
     if (!wallet.canBet(total)) { toast.error('Not enough Bitcoin'); return }
     wallet.bet(total, 'roulette')
+    sfx.spin()
     const n = Math.floor(Math.random() * 37)
     setResult(n)
     setPhase('spinning')
@@ -73,8 +77,8 @@ export default function Roulette() {
       }
     }
     const dot = n === 0 ? '🟢' : isRed(n) ? '🔴' : '⚫'
-    if (win > 0) { wallet.payout(win, 'roulette'); sfx.win(); setMsg(`${n} ${dot} — you win ${win} ₿! 🎉`) }
-    else { sfx.lose(); setMsg(`${n} ${dot} — house takes it.`) }
+    if (win > 0) { wallet.payout(win, 'roulette'); win >= 200 ? sfx.jackpot() : sfx.win(); celebrate(win); setMsg(`${n} ${dot} — you win ${win} ₿! 🎉`) }
+    else { sfx.lose(); commiserate(); setMsg(`${n} ${dot} — house takes it.`) }
     setPhase('done')
   }
 

@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore'
 import { useProfile } from '../../hooks/useAuth'
 import Header from './Header'
 import Toaster from '../ui/Toast'
+import JuiceOverlay from '../games/JuiceOverlay'
 import PoolLounge from '../pool/PoolLounge'
 import { cn } from '../../lib/utils'
 
@@ -85,6 +86,7 @@ export default function AppLayout() {
       <PoolLounge />
       <BottomNav />
       <Toaster />
+      <JuiceOverlay />
     </div>
   )
 }
