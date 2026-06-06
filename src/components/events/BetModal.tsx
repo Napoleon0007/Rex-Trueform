@@ -34,7 +34,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
   const [predHome, setPredHome] = useState('')
   const [predAway, setPredAway] = useState('')
   const [prediction, setPrediction] = useState('')
-  const [amount, setAmount] = useState(1)
+  const [amount, setAmount] = useState(0)
   const [error, setError] = useState('')
 
   // (Re)seed the form whenever the modal opens — prefilled from the existing bet in edit mode.
@@ -52,7 +52,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
       setPredHome('')
       setPredAway('')
       setPrediction('')
-      setAmount(1)
+      setAmount(0)
     }
   }, [open, existingBet, isWinner, isScore])
 
@@ -97,10 +97,9 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
     }
   }
 
-  // Only offer chips you can actually afford.
-  const chips = [1, 5, 10, maxSpendable].filter(
-    (v, i, arr) => v > 0 && v <= maxSpendable && arr.indexOf(v) === i,
-  )
+  // Chip denominations you can afford. Tapping a chip ADDS it to your stake
+  // (tap 5 three times → 15). The box below also takes any custom amount.
+  const chips = [2, 5, 10, 25, 50, 100].filter((v) => v <= maxSpendable)
 
   const WINNER_OPTIONS: { pick: 1 | 2 | 3; label: string }[] = [
     { pick: 1, label: event.team_home ?? 'Home' },
@@ -190,31 +189,47 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
             <span>How many Bitcoin?</span>
             <span className="text-xs text-slate-500">{maxSpendable} available</span>
           </label>
-          <div className="flex gap-2">
-            {chips.map((chip) => (
+          {/* Tap a chip to ADD it to your stake (tap 5 three times → 15). */}
+          <div className="flex flex-wrap gap-2">
+            {chips.map((c) => (
               <button
-                key={chip}
+                key={c}
                 type="button"
-                onClick={() => setAmount(chip)}
-                className={`flex-1 rounded-xl py-2 text-sm font-semibold border transition-colors ${
-                  amount === chip
-                    ? 'border-orange-500 bg-orange-500/15 text-orange-400'
-                    : 'border-casino-line bg-casino-elevated text-slate-400 hover:border-orange-500/40 hover:text-orange-300'
-                }`}
+                onClick={() => setAmount((a) => Math.min(a + c, maxSpendable))}
+                className="flex-1 rounded-xl border border-casino-line bg-casino-elevated py-2 text-sm font-semibold text-slate-300 transition-colors hover:border-orange-500/40 hover:text-orange-300 active:scale-95"
               >
-                {chip === maxSpendable ? 'All' : chip}
+                +{c}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setAmount(maxSpendable)}
+              className="flex-1 rounded-xl border border-orange-500/40 bg-orange-500/10 py-2 text-sm font-semibold text-orange-300 transition-colors hover:bg-orange-500/20 active:scale-95"
+            >
+              All
+            </button>
           </div>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={maxSpendable}
-            value={amount}
-            onChange={(e) => setAmount(Math.min(Math.max(1, Number(e.target.value)), maxSpendable))}
-            className="w-full rounded-xl border border-casino-line bg-casino-elevated px-4 py-2.5 text-center text-lg font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
-          />
+
+          {/* Or type any custom amount. */}
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={maxSpendable}
+              value={amount}
+              onChange={(e) => setAmount(Math.min(Math.max(0, Math.floor(Number(e.target.value) || 0)), maxSpendable))}
+              className="w-full flex-1 rounded-xl border border-casino-line bg-casino-elevated px-4 py-2.5 text-center text-lg font-bold text-orange-400 focus:border-orange-500/60 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => setAmount(0)}
+              disabled={amount === 0}
+              className="rounded-xl border border-casino-line px-4 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:text-slate-200 disabled:opacity-40"
+            >
+              Clear
+            </button>
+          </div>
         </div>
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
@@ -233,7 +248,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
           loading={mutation.isPending}
           className="w-full"
           size="lg"
-          disabled={maxSpendable === 0 || (isWinner && winnerPick === null)}
+          disabled={maxSpendable === 0 || amount < 1 || (isWinner && winnerPick === null)}
         >
           {isEdit
             ? `Update bet · ${amount} ₿`

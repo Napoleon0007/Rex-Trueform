@@ -161,7 +161,7 @@ function EventRow({
     <div className="rounded-2xl border border-casino-hairline bg-casino-card overflow-hidden">
       {/* Main row */}
       <div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-casino-raised transition-colors"
+        className="flex flex-wrap items-center gap-3 px-4 py-3 cursor-pointer hover:bg-casino-raised transition-colors"
         onClick={() => navigate(`/events/${event.id}`)}
       >
         <span className="text-lg shrink-0">{emoji}</span>
@@ -177,7 +177,7 @@ function EventRow({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
           <StatusBadge status={event.status} />
 
           {/* Open events: Edit */}
