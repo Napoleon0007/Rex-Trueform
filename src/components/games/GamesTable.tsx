@@ -11,16 +11,8 @@ import MuteButton from './MuteButton'
 import Modal from '../ui/Modal'
 import CasinoStats from './CasinoStats'
 import CasinoPresence from './CasinoPresence'
+import GameTiles, { type Game } from './GameTiles'
 import { bubbleLine } from '../../lib/dealerLines'
-
-type Game = 'roulette' | 'blackjack' | 'poker' | 'slots'
-
-const GAMES: { key: Game; label: string; emoji: string; blurb: string }[] = [
-  { key: 'roulette',  label: 'Roulette',  emoji: '🎡', blurb: 'Spin the wheel' },
-  { key: 'blackjack', label: 'Blackjack', emoji: '🃏', blurb: 'Beat the dealer to 21' },
-  { key: 'poker',     label: 'Poker',     emoji: '♠️', blurb: "Texas Hold'em vs the house" },
-  { key: 'slots',     label: 'Slots',     emoji: '🎰', blurb: 'Pull for the jackpot' },
-]
 
 // Dealer bubble lines now live in lib/dealerLines (they react to your session P&L).
 
@@ -303,16 +295,7 @@ export default function GamesTable() {
                 <p className="text-lg font-bold text-amber-50">What do you want to play?</p>
                 <p className="mb-6 mt-1 text-sm text-amber-200/60">One table. One stack of gold. Your call.</p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {GAMES.map((g) => (
-                  <button key={g.key} onClick={() => setGame(g.key)}
-                    className="group rounded-2xl border border-amber-500/30 bg-black/25 p-5 transition-all hover:border-amber-400 hover:bg-black/40 active:scale-95">
-                    <div className="text-4xl">{g.emoji}</div>
-                    <div className="mt-2 font-black uppercase tracking-widest text-amber-200">{g.label}</div>
-                    <div className="mt-0.5 text-xs text-amber-200/50">{g.blurb}</div>
-                  </button>
-                ))}
-              </div>
+              <GameTiles onPick={setGame} />
             </div>
           ) : (
             <div>
