@@ -45,9 +45,10 @@ export function useCreateEvent() {
       description?: string
       unit: string
       category: string
-      event_type: 'numeric' | 'score' | 'winner'
+      event_type: 'numeric' | 'score' | 'pick'
       team_home?: string
       team_away?: string
+      options?: string[]
       closing_time: string
     }) => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -73,9 +74,10 @@ export function useUpdateEvent() {
       description?: string
       unit?: string
       category?: string
-      event_type?: 'numeric' | 'score' | 'winner'
+      event_type?: 'numeric' | 'score' | 'pick'
       team_home?: string | null
       team_away?: string | null
+      options?: string[] | null
       closing_time?: string
     }) => {
       const { data, error } = await supabase

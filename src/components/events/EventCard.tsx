@@ -94,9 +94,9 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
         {/* CTA for open events with no bet */}
         {isOpen && !userBet && (
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-slate-600">
-              {event.event_type === 'winner'
-                ? `${event.team_home} · Draw · ${event.team_away}`
+            <span className="text-xs text-slate-600 truncate min-w-0 mr-2">
+              {event.event_type === 'pick'
+                ? (event.options ?? []).join(' · ')
                 : event.event_type === 'score'
                 ? `${event.team_home} vs ${event.team_away}`
                 : `Unit: ${event.unit}`

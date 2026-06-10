@@ -4,6 +4,7 @@ import Button from '../ui/Button'
 import Input from '../ui/Input'
 import { useCreateEvent } from '../../hooks/useEvents'
 import { SPORT_CATEGORIES } from '../../lib/categories'
+import OptionsEditor from './OptionsEditor'
 
 interface CreateEventModalProps {
   open: boolean
@@ -12,17 +13,18 @@ interface CreateEventModalProps {
 
 const UNIT_SUGGESTIONS = ['goals', 'points', 'runs', 'seconds', 'votes', '°C', 'km/h', 'minutes']
 
-type EventType = 'winner' | 'score' | 'numeric'
+type EventType = 'score' | 'pick' | 'numeric'
 
 const EVENT_TYPES: { type: EventType; label: string }[] = [
-  { type: 'winner', label: '⚽ Winner' },
-  { type: 'score',  label: '🏆 Score' },
+  { type: 'score',   label: '🏆 Score' },
+  { type: 'pick',    label: '🎯 Pick' },
   { type: 'numeric', label: '🔢 Numeric' },
 ]
 
 export default function CreateEventModal({ open, onClose }: CreateEventModalProps) {
   const createEvent = useCreateEvent()
-  const [eventType, setEventType] = useState<EventType>('winner')
+  const [eventType, setEventType] = useState<EventType>('score')
+  const [options, setOptions] = useState<string[]>(['', ''])
   const [form, setForm] = useState({
     event_name: '',
     description: '',
@@ -48,9 +50,16 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
     const closingDate = new Date(form.closing_time)
     if (closingDate <= new Date()) { setError('Closing time must be in the future'); return }
 
-    if (eventType === 'score' || eventType === 'winner') {
+    const trimmedOptions = options.map((o) => o.trim())
+    if (eventType === 'score') {
       if (!form.team_home.trim()) { setError('Home team name is required'); return }
       if (!form.team_away.trim()) { setError('Away team name is required'); return }
+    } else if (eventType === 'pick') {
+      if (trimmedOptions.some((o) => !o)) { setError('Every option needs a name'); return }
+      if (trimmedOptions.length < 2) { setError('Pick markets need at least 2 options'); return }
+      if (new Set(trimmedOptions.map((o) => o.toLowerCase())).size < trimmedOptions.length) {
+        setError('Options must be unique'); return
+      }
     } else {
       if (!form.unit.trim()) { setError('Unit is required'); return }
     }
@@ -62,13 +71,15 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         category: form.category,
         event_type: eventType,
         unit: eventType === 'numeric' ? form.unit.trim() : eventType,
-        team_home: (eventType === 'score' || eventType === 'winner') ? form.team_home.trim() : undefined,
-        team_away: (eventType === 'score' || eventType === 'winner') ? form.team_away.trim() : undefined,
+        team_home: eventType === 'score' ? form.team_home.trim() : undefined,
+        team_away: eventType === 'score' ? form.team_away.trim() : undefined,
+        options: eventType === 'pick' ? trimmedOptions : undefined,
         closing_time: closingDate.toISOString(),
       })
       onClose()
       setForm({ event_name: '', description: '', category: 'General', unit: '', team_home: '', team_away: '', closing_time: '' })
-      setEventType('winner')
+      setOptions(['', ''])
+      setEventType('score')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to create event')
     }
@@ -104,8 +115,8 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
 
         {/* Helper text */}
         <p className="text-xs text-slate-500">
-          {eventType === 'winner'
-            ? 'Players pick who wins — correct pickers take the losers\' matched money by stake.'
+          {eventType === 'pick'
+            ? 'Players pick one option — correct pickers take the losers\' matched money by stake.'
             : eventType === 'score'
             ? 'Players predict the exact score — closest takes the winnings, ties split by stake.'
             : 'Players predict a number — closest takes the winnings, ties split by stake.'
@@ -115,8 +126,8 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         <Input
           label="Event name"
           placeholder={
-            eventType === 'winner' ? 'e.g. South Africa vs England' :
-            eventType === 'score'  ? 'e.g. Springboks vs All Blacks' :
+            eventType === 'pick'  ? 'e.g. Who wins The Masters?' :
+            eventType === 'score' ? 'e.g. Springboks vs All Blacks' :
             'e.g. Total goals scored'
           }
           value={form.event_name}
@@ -156,8 +167,8 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
           </div>
         </div>
 
-        {/* Score / Winner: team names */}
-        {(eventType === 'score' || eventType === 'winner') && (
+        {/* Score: team names */}
+        {eventType === 'score' && (
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Home team"
@@ -172,6 +183,11 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
               onChange={(e) => set('team_away', e.target.value)}
             />
           </div>
+        )}
+
+        {/* Pick: named options */}
+        {eventType === 'pick' && (
+          <OptionsEditor options={options} onChange={setOptions} />
         )}
 
         {/* Numeric: unit */}

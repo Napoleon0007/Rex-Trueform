@@ -5,7 +5,7 @@ import Input from '../ui/Input'
 import { usePlaceBet, useUpdateBet } from '../../hooks/useBets'
 import { useTokenBalance } from '../../hooks/useTokenBalance'
 import { useAuthStore } from '../../store/authStore'
-import { winnerLabel, formatPrediction } from '../../lib/utils'
+import { pickLabel, formatPrediction } from '../../lib/utils'
 import { toast } from '../../store/toastStore'
 import type { Bet, EventWithResult } from '../../types/database'
 
@@ -22,15 +22,16 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
   const { data: balance = 0 } = useTokenBalance(user?.id)
   const placeBet = usePlaceBet()
   const updateBet = useUpdateBet()
-  const isScore  = event.event_type === 'score'
-  const isWinner = event.event_type === 'winner'
-  const isEdit   = !!existingBet
+  const isScore = event.event_type === 'score'
+  const isPick  = event.event_type === 'pick'
+  const options = event.options ?? []
+  const isEdit  = !!existingBet
 
   // Editing refunds the old stake first, so that much extra is spendable.
   const maxSpendable = balance + (existingBet?.amount ?? 0)
   const mutation = isEdit ? updateBet : placeBet
 
-  const [winnerPick, setWinnerPick] = useState<1 | 2 | 3 | null>(null)
+  const [pick, setPick] = useState<number | null>(null)
   const [predHome, setPredHome] = useState('')
   const [predAway, setPredAway] = useState('')
   const [prediction, setPrediction] = useState('')
@@ -42,19 +43,19 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
     if (!open) return
     setError('')
     if (existingBet) {
-      setWinnerPick(isWinner ? (existingBet.prediction as 1 | 2 | 3) : null)
+      setPick(isPick ? existingBet.prediction : null)
       setPredHome(isScore ? String(existingBet.prediction) : '')
       setPredAway(isScore ? String(existingBet.prediction_away ?? '') : '')
-      setPrediction(!isWinner && !isScore ? String(existingBet.prediction) : '')
+      setPrediction(!isPick && !isScore ? String(existingBet.prediction) : '')
       setAmount(existingBet.amount)
     } else {
-      setWinnerPick(null)
+      setPick(null)
       setPredHome('')
       setPredAway('')
       setPrediction('')
       setAmount(0)
     }
-  }, [open, existingBet, isWinner, isScore])
+  }, [open, existingBet, isPick, isScore])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -66,9 +67,9 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
       let chosenPrediction: number
       let chosenAway: number | undefined
 
-      if (isWinner) {
-        if (winnerPick === null) { setError('Pick a result first'); return }
-        chosenPrediction = winnerPick
+      if (isPick) {
+        if (pick === null) { setError('Pick an option first'); return }
+        chosenPrediction = pick
       } else if (isScore) {
         const home = parseInt(predHome, 10)
         const away = parseInt(predAway, 10)
@@ -101,45 +102,45 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
   // (tap 5 three times → 15). The box below also takes any custom amount.
   const chips = [2, 5, 10, 25, 50, 100].filter((v) => v <= maxSpendable)
 
-  const WINNER_OPTIONS: { pick: 1 | 2 | 3; label: string }[] = [
-    { pick: 1, label: event.team_home ?? 'Home' },
-    { pick: 2, label: 'Draw' },
-    { pick: 3, label: event.team_away ?? 'Away' },
-  ]
-
   return (
     <Modal open={open} onClose={onClose} title={`${isEdit ? 'Edit bet' : 'Bet'} on "${event.event_name}"`}>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm text-slate-400">
           {event.description && <p className="mb-1">{event.description}</p>}
-          {(isScore || isWinner) ? (
+          {isScore ? (
             <p className="font-medium text-slate-200">
               {event.team_home} <span className="text-slate-500 mx-1">vs</span> {event.team_away}
             </p>
+          ) : isPick ? (
+            <p className="font-medium text-slate-200 line-clamp-2">{options.join(' · ')}</p>
           ) : (
             <p>Unit: <span className="text-slate-200">{event.unit}</span></p>
           )}
         </div>
 
-        {isWinner ? (
+        {isPick ? (
           <div>
-            <p className="text-sm font-medium text-slate-300 mb-3">Who wins?</p>
-            <div className="flex flex-col gap-2">
-              {WINNER_OPTIONS.map(({ pick, label }) => (
-                <button
-                  key={pick}
-                  type="button"
-                  onClick={() => setWinnerPick(pick)}
-                  className={`w-full rounded-xl py-3 text-base font-bold border transition-colors ${
-                    winnerPick === pick
-                      ? 'border-orange-500 bg-orange-500/20 text-orange-300'
-                      : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <p className="text-sm font-medium text-slate-300 mb-3">Your pick</p>
+            {options.length < 2 ? (
+              <p className="text-sm text-rose-400">This market is misconfigured — no options to pick from.</p>
+            ) : (
+              <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
+                {options.map((label, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setPick(i + 1)}
+                    className={`w-full rounded-xl py-3 px-3 text-base font-bold border transition-colors truncate ${
+                      pick === i + 1
+                        ? 'border-orange-500 bg-orange-500/20 text-orange-300'
+                        : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : isScore ? (
           <div>
@@ -235,7 +236,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 p-3 text-xs text-slate-400">
-          {isWinner
+          {isPick
             ? 'Correct pickers win — they take the losers\' matched money in proportion to their stakes. Unmatched stake comes back to you.'
             : isScore
             ? 'Closest score takes the winnings — spot on beats everyone. Ties split by stake, and losers get back whatever the winners couldn\'t match.'
@@ -248,12 +249,12 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
           loading={mutation.isPending}
           className="w-full"
           size="lg"
-          disabled={maxSpendable === 0 || amount < 1 || (isWinner && winnerPick === null)}
+          disabled={maxSpendable === 0 || amount < 1 || (isPick && pick === null)}
         >
           {isEdit
             ? `Update bet · ${amount} ₿`
-            : isWinner && winnerPick !== null
-            ? `${winnerLabel(winnerPick, event.team_home, event.team_away)} · ${amount} ₿`
+            : isPick && pick !== null
+            ? `${pickLabel(options, pick)} · ${amount} ₿`
             : `Place bet · ${amount} ₿`
           }
         </Button>

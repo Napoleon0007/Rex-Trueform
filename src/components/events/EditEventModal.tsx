@@ -3,7 +3,9 @@ import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
 import { useUpdateEvent } from '../../hooks/useEvents'
+import { useEventBets } from '../../hooks/useBets'
 import { SPORT_CATEGORIES } from '../../lib/categories'
+import OptionsEditor from './OptionsEditor'
 import type { EventWithResult } from '../../types/database'
 
 interface EditEventModalProps {
@@ -24,12 +26,20 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
     return local.toISOString().slice(0, 16)
   }
 
-  const [eventType, setEventType] = useState<'numeric' | 'score' | 'winner'>(event.event_type ?? 'numeric')
+  // Bets lock the market's shape: predictions are picks-by-index /
+  // scores against these exact settings, so the type and options must
+  // not change once anyone has money down. (Pre-close the admin only
+  // sees their own bet, so this can undercount — fine at our scale.)
+  const { data: eventBets } = useEventBets(event.id)
+  const hasBets = (eventBets?.length ?? 0) > 0
+
+  const [eventType, setEventType] = useState<'numeric' | 'score' | 'pick'>(event.event_type ?? 'numeric')
+  const [options, setOptions] = useState<string[]>(event.options ?? ['', ''])
   const [form, setForm] = useState({
     event_name: event.event_name,
     description: event.description ?? '',
     category: event.category,
-    unit: (event.unit === 'score' || event.unit === 'winner') ? '' : event.unit,
+    unit: (event.unit === 'score' || event.unit === 'winner' || event.unit === 'pick') ? '' : event.unit,
     team_home: event.team_home ?? '',
     team_away: event.team_away ?? '',
     closing_time: toLocalDatetime(event.closing_time),
@@ -39,11 +49,12 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
   // Reset form when event changes
   useEffect(() => {
     setEventType(event.event_type ?? 'numeric')
+    setOptions(event.options ?? ['', ''])
     setForm({
       event_name: event.event_name,
       description: event.description ?? '',
       category: event.category,
-      unit: (event.unit === 'score' || event.unit === 'winner') ? '' : event.unit,
+      unit: (event.unit === 'score' || event.unit === 'winner' || event.unit === 'pick') ? '' : event.unit,
       team_home: event.team_home ?? '',
       team_away: event.team_away ?? '',
       closing_time: toLocalDatetime(event.closing_time),
@@ -64,9 +75,16 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
 
     const closingDate = new Date(form.closing_time)
 
-    if (eventType === 'score' || eventType === 'winner') {
+    const trimmedOptions = options.map((o) => o.trim())
+    if (eventType === 'score') {
       if (!form.team_home.trim()) { setError('Home team name is required'); return }
       if (!form.team_away.trim()) { setError('Away team name is required'); return }
+    } else if (eventType === 'pick') {
+      if (trimmedOptions.some((o) => !o)) { setError('Every option needs a name'); return }
+      if (trimmedOptions.length < 2) { setError('Pick markets need at least 2 options'); return }
+      if (new Set(trimmedOptions.map((o) => o.toLowerCase())).size < trimmedOptions.length) {
+        setError('Options must be unique'); return
+      }
     } else {
       if (!form.unit.trim()) { setError('Unit is required'); return }
     }
@@ -79,8 +97,9 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
         category: form.category,
         event_type: eventType,
         unit: eventType === 'numeric' ? form.unit.trim() : eventType,
-        team_home: (eventType === 'score' || eventType === 'winner') ? form.team_home.trim() : null,
-        team_away: (eventType === 'score' || eventType === 'winner') ? form.team_away.trim() : null,
+        team_home: eventType === 'score' ? form.team_home.trim() : null,
+        team_away: eventType === 'score' ? form.team_away.trim() : null,
+        options: eventType === 'pick' ? trimmedOptions : null,
         closing_time: closingDate.toISOString(),
       })
       onClose()
@@ -93,23 +112,30 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
     <Modal open={open} onClose={onClose} title="Edit Market">
       <form onSubmit={handleSubmit} className="space-y-4">
 
-        {/* Event type toggle */}
+        {/* Event type toggle — frozen once bets exist (predictions are
+            tied to the market's shape) */}
         <div className="flex gap-2 rounded-xl border border-casino-border bg-casino-chip p-1">
-          {(['score', 'numeric', 'winner'] as const).map((t) => (
+          {(['score', 'pick', 'numeric'] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setEventType(t)}
-              className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors ${
+              disabled={hasBets && t !== eventType}
+              className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-colors disabled:opacity-40 ${
                 eventType === t
                   ? 'bg-orange-500 text-white'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {t === 'score' ? '🏆 Score' : t === 'winner' ? '🥇 Winner' : '🔢 Numeric'}
+              {t === 'score' ? '🏆 Score' : t === 'pick' ? '🎯 Pick' : '🔢 Numeric'}
             </button>
           ))}
         </div>
+        {hasBets && (
+          <p className="text-xs text-slate-500">
+            Market type{eventType === 'pick' ? ' and options are' : ' is'} locked — bets already placed.
+          </p>
+        )}
 
         <Input
           label="Event name"
@@ -151,7 +177,7 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
           </div>
         </div>
 
-        {(eventType === 'score' || eventType === 'winner') && (
+        {eventType === 'score' && (
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Home team"
@@ -166,6 +192,10 @@ export default function EditEventModal({ event, open, onClose }: EditEventModalP
               onChange={(e) => set('team_away', e.target.value)}
             />
           </div>
+        )}
+
+        {eventType === 'pick' && (
+          <OptionsEditor options={options} onChange={setOptions} disabled={hasBets} />
         )}
 
         {eventType === 'numeric' && (

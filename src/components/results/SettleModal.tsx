@@ -3,7 +3,7 @@ import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import { useSettleEvent } from '../../hooks/useEvents'
 import { useEventBets } from '../../hooks/useBets'
-import { winnerLabel } from '../../lib/utils'
+import { pickLabel } from '../../lib/utils'
 import type { EventWithResult } from '../../types/database'
 
 interface SettleModalProps {
@@ -20,61 +20,67 @@ type BetRow = {
   profiles: { display_name: string; username: string }
 }
 
+// Mirrors settle_event exactly (closest wins + matched stakes, 018/019):
+// pick = correct option, score/numeric = smallest distance; losers pay in
+// at most the winners' total stake and get the unmatched remainder back;
+// winners split the collected pool in proportion to stake on top of their
+// own stake. Nobody right / everyone tied = full refunds.
 function calcPayouts(
   bets: BetRow[],
   actualHome: number,
   actualAway: number | null,
-  eventType: 'numeric' | 'score' | 'winner',
+  eventType: 'numeric' | 'score' | 'pick',
 ) {
   const totalBet = bets.reduce((s, b) => s + b.amount, 0)
 
-  if (eventType === 'winner') {
-    const correctTotal = bets
-      .filter((b) => b.prediction === actualHome)
-      .reduce((s, b) => s + b.amount, 0)
-    const nobodyRight = correctTotal === 0
-
-    return bets
-      .map((b) => {
-        const correct = b.prediction === actualHome
-        const payout = nobodyRight
-          ? b.amount
-          : correct
-          ? Math.round((b.amount / correctTotal) * totalBet)
-          : 0
-        return { ...b, distance: correct ? 0 : 1, score: correct ? b.amount : 0, payout }
-      })
-      .sort((a, b) => b.payout - a.payout)
-  }
-
-  const withScores = bets.map((b) => {
+  const withDistance = bets.map((b) => {
     const distance =
-      eventType === 'score'
+      eventType === 'pick'
+        ? (b.prediction === actualHome ? 0 : 1)
+        : eventType === 'score'
         ? Math.abs(b.prediction - actualHome) + Math.abs((b.prediction_away ?? 0) - (actualAway ?? 0))
         : Math.abs(b.prediction - actualHome)
-    const score = b.amount * (1 / (distance + 1))
-    return { ...b, distance, score, payout: 0 }
+    return { ...b, distance }
   })
 
-  const totalScore = withScores.reduce((s, b) => s + b.score, 0)
+  // Pick events only win on an exact match; closest events always have
+  // at least one winner (the smallest distance).
+  const minDist = Math.min(...withDistance.map((b) => b.distance))
+  const isWin = (b: { distance: number }) =>
+    eventType === 'pick' ? b.distance === 0 : b.distance === minDist
 
-  return withScores
-    .map((b) => ({
-      ...b,
-      payout: totalScore > 0 ? Math.round((b.score / totalScore) * totalBet) : 0,
-    }))
+  const winnerTotal = withDistance.filter(isWin).reduce((s, b) => s + b.amount, 0)
+  const refundAll = (winnerTotal === 0 && totalBet > 0) || winnerTotal === totalBet
+
+  const pool = refundAll
+    ? 0
+    : withDistance
+        .filter((b) => !isWin(b))
+        .reduce((s, b) => s + Math.min(b.amount, winnerTotal), 0)
+
+  return withDistance
+    .map((b) => {
+      const win = isWin(b)
+      const payout = refundAll
+        ? b.amount
+        : win
+        ? Math.round(b.amount + (pool * b.amount) / winnerTotal)
+        : b.amount - Math.min(b.amount, winnerTotal) // giveback of unmatched stake
+      return { ...b, score: win ? b.amount : 0, payout }
+    })
     .sort((a, b) => b.payout - a.payout)
 }
 
 export default function SettleModal({ event, open, onClose }: SettleModalProps) {
   const settleEvent = useSettleEvent()
   const { data: bets = [] } = useEventBets(event.id)
-  const isScore  = event.event_type === 'score'
-  const isWinner = event.event_type === 'winner'
+  const isScore = event.event_type === 'score'
+  const isPick  = event.event_type === 'pick'
+  const options = event.options ?? []
 
   const [homeResult, setHomeResult] = useState('')
   const [awayResult, setAwayResult] = useState('')
-  const [winnerResult, setWinnerResult] = useState<1 | 2 | 3 | null>(null)
+  const [pickResult, setPickResult] = useState<number | null>(null)
   const [confirmed, setConfirmed] = useState(false)
   const [error, setError] = useState('')
 
@@ -83,13 +89,13 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
   const homeValid  = !isNaN(parsedHome) && parsedHome >= 0
   const awayValid  = !isNaN(parsedAway) && parsedAway >= 0
 
-  const inputValid = isWinner
-    ? winnerResult !== null
+  const inputValid = isPick
+    ? pickResult !== null && pickResult >= 1 && pickResult <= options.length
     : isScore
     ? homeValid && awayValid
     : homeValid
 
-  const actualForCalc = isWinner ? (winnerResult ?? 0) : parsedHome
+  const actualForCalc = isPick ? (pickResult ?? 0) : parsedHome
 
   const preview = useMemo(() => {
     if (!inputValid || bets.length === 0) return null
@@ -106,30 +112,24 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
     try {
       await settleEvent.mutateAsync({
         eventId: event.id,
-        actualResult: isWinner ? (winnerResult as number) : parsedHome,
+        actualResult: isPick ? (pickResult as number) : parsedHome,
         ...(isScore ? { actualAway: parsedAway } : {}),
       })
       onClose()
       setHomeResult('')
       setAwayResult('')
-      setWinnerResult(null)
+      setPickResult(null)
       setConfirmed(false)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to settle event')
     }
   }
 
-  const resultLabel = isWinner
-    ? winnerLabel(winnerResult ?? 0, event.team_home, event.team_away)
+  const resultLabel = isPick
+    ? pickLabel(options, pickResult ?? 0)
     : isScore
     ? `${event.team_home} ${parsedHome} – ${parsedAway} ${event.team_away}`
     : `${parsedHome} ${event.unit}`
-
-  const WINNER_OPTIONS: { pick: 1 | 2 | 3; label: string }[] = [
-    { pick: 1, label: event.team_home ?? 'Home' },
-    { pick: 2, label: 'Draw' },
-    { pick: 3, label: event.team_away ?? 'Away' },
-  ]
 
   return (
     <Modal open={open} onClose={onClose} title="Enter actual result">
@@ -137,33 +137,39 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
         {/* Event info */}
         <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-sm">
           <p className="font-medium text-slate-200">{event.event_name}</p>
-          {(isScore || isWinner) && (
+          {isScore ? (
             <p className="mt-0.5 text-xs text-slate-500">
               {event.team_home} vs {event.team_away}
             </p>
-          )}
+          ) : isPick ? (
+            <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{options.join(' · ')}</p>
+          ) : null}
         </div>
 
         {/* Result input */}
-        {isWinner ? (
+        {isPick ? (
           <div>
             <p className="text-sm font-medium text-slate-300 mb-3">Who won?</p>
-            <div className="flex flex-col gap-2">
-              {WINNER_OPTIONS.map(({ pick, label }) => (
-                <button
-                  key={pick}
-                  type="button"
-                  onClick={() => { setWinnerResult(pick); setConfirmed(false) }}
-                  className={`w-full rounded-xl py-3 text-base font-bold border transition-colors ${
-                    winnerResult === pick
-                      ? 'border-orange-500 bg-orange-500/20 text-orange-300'
-                      : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            {options.length < 2 ? (
+              <p className="text-sm text-rose-400">This market is misconfigured — no options to pick from.</p>
+            ) : (
+              <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
+                {options.map((label, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => { setPickResult(i + 1); setConfirmed(false) }}
+                    className={`w-full rounded-xl py-3 px-3 text-base font-bold border transition-colors truncate ${
+                      pickResult === i + 1
+                        ? 'border-orange-500 bg-orange-500/20 text-orange-300'
+                        : 'border-casino-line bg-casino-elevated text-slate-300 hover:border-orange-500/40 hover:text-orange-300'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : isScore ? (
           <div>
@@ -225,7 +231,7 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                     <th className="text-left px-3 py-2 text-xs text-slate-600 font-medium">Player</th>
                     <th className="text-center px-3 py-2 text-xs text-slate-600 font-medium">Predicted</th>
                     <th className="text-center px-3 py-2 text-xs text-slate-600 font-medium">
-                      {isWinner ? 'Result' : 'Off by'}
+                      {isPick ? 'Result' : 'Off by'}
                     </th>
                     <th className="text-right px-3 py-2 text-xs text-slate-600 font-medium">Payout</th>
                   </tr>
@@ -240,15 +246,15 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                         {row.profiles.display_name || row.profiles.username}
                       </td>
                       <td className="px-3 py-2 text-center text-slate-400">
-                        {isWinner
-                          ? winnerLabel(row.prediction, event.team_home, event.team_away)
+                        {isPick
+                          ? pickLabel(options, row.prediction)
                           : isScore
                           ? `${row.prediction}–${row.prediction_away ?? 0}`
                           : row.prediction
                         }
                       </td>
                       <td className="px-3 py-2 text-center text-xs">
-                        {isWinner ? (
+                        {isPick ? (
                           row.distance === 0
                             ? <span className="text-emerald-400 font-bold">✓ Correct</span>
                             : <span className="text-slate-600">✗ Wrong</span>

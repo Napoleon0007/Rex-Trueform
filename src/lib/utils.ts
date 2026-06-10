@@ -25,33 +25,35 @@ export function pluralise(n: number, word: string): string {
   return `${n} ${word}${n === 1 ? '' : 's'}`
 }
 
-export function winnerLabel(
+/** Label of a 1-based pick within an event's option list. */
+export function pickLabel(
+  options: string[] | null | undefined,
   pick: number,
-  teamHome: string | null | undefined,
-  teamAway: string | null | undefined,
 ): string {
-  if (pick === 1) return teamHome ?? 'Home'
-  if (pick === 2) return 'Draw'
-  if (pick === 3) return teamAway ?? 'Away'
-  return String(pick)
+  return options?.[pick - 1] ?? String(pick)
 }
 
 /**
  * Human-readable display of a prediction (or actual result) for any event type.
- *   winner  → "Draw" / team name
+ *   pick    → the chosen option's name ("Scheffler" / "Draw")
  *   score   → "3–1"
  *   numeric → "3 goals"
  */
 export function formatPrediction(
-  event: Pick<CasinoEvent, 'event_type' | 'unit' | 'team_home' | 'team_away'>,
+  event: Pick<CasinoEvent, 'event_type' | 'unit' | 'options'>,
   primary: number,
   away?: number | null,
 ): string {
-  if (event.event_type === 'winner') {
-    return winnerLabel(primary, event.team_home, event.team_away)
+  if (event.event_type === 'pick') {
+    return pickLabel(event.options, primary)
   }
   if (event.event_type === 'score') {
     return `${primary}–${away ?? 0}`
+  }
+  // Unknown types from a stale cache (e.g. a pre-migration 'winner' row)
+  // still label correctly when the converted row carries options.
+  if (event.options?.length) {
+    return pickLabel(event.options, primary)
   }
   return `${primary} ${event.unit}`.trim()
 }

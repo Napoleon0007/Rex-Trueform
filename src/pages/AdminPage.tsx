@@ -8,7 +8,7 @@ import CreateEventModal from '../components/events/CreateEventModal'
 import EditEventModal from '../components/events/EditEventModal'
 import SettleModal from '../components/results/SettleModal'
 import { categoryEmoji } from '../lib/categories'
-import { timeUntil, formatDateTime } from '../lib/utils'
+import { timeUntil, formatDateTime, formatPrediction } from '../lib/utils'
 import type { EventWithResult } from '../types/database'
 
 export default function AdminPage() {
@@ -154,7 +154,7 @@ function EventRow({
   const resultStr = isSettled
     ? event.event_type === 'score'
       ? `${event.team_home} ${event.actual_result}–${event.actual_away} ${event.team_away}`
-      : `Result: ${event.actual_result} ${event.unit}`
+      : `Result: ${formatPrediction(event, event.actual_result ?? 0, event.actual_away)}`
     : null
 
   return (

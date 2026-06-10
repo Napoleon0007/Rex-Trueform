@@ -17,12 +17,12 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
   const { user } = useAuthStore()
   const { data: bets, isLoading } = useEventBets(event.id)
 
-  const isWinner = event.event_type === 'winner'
-  const isScore  = event.event_type === 'score'
+  const isPick  = event.event_type === 'pick'
+  const isScore = event.event_type === 'score'
   const actualHome = event.actual_result ?? 0
   const actualAway = event.actual_away ?? 0
 
-  // How far off a prediction was (winner is correct/incorrect, not a distance).
+  // How far off a prediction was (pick is correct/incorrect, not a distance).
   const offBy = (b: Pick<BetWithProfile, 'prediction' | 'prediction_away'>) =>
     isScore
       ? Math.abs(b.prediction - actualHome) + Math.abs((b.prediction_away ?? 0) - actualAway)
@@ -30,7 +30,7 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
 
   // Accuracy descriptor shared by "your result" and the ranking rows.
   const accuracy = (b: BetWithProfile) => {
-    if (isWinner) {
+    if (isPick) {
       return b.prediction === actualHome
         ? <span className="text-emerald-400">Correct ✓</span>
         : <span className="text-slate-600">Wrong ✗</span>
@@ -53,11 +53,18 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
       {/* Result hero */}
       <Card highlight className="text-center space-y-1 py-6">
         <p className="text-sm uppercase tracking-widest text-orange-500/70">Actual result</p>
-        <p className={`font-black text-orange-400 ${isWinner ? 'text-4xl' : 'text-6xl'}`}>
-          {formatPrediction(event, actualHome, actualAway)}
-        </p>
-        {!isWinner && !isScore && <p className="text-lg text-slate-400">{event.unit}</p>}
-        {(isScore || isWinner) && (event.team_home || event.team_away) && (
+        {(() => {
+          const resultText = formatPrediction(event, actualHome, actualAway)
+          // Long pick names (golf fields, full fighter names) scale down to fit.
+          const size = !isPick
+            ? 'text-6xl'
+            : resultText.length > 16
+            ? 'text-2xl break-words'
+            : 'text-4xl'
+          return <p className={`font-black text-orange-400 ${size}`}>{resultText}</p>
+        })()}
+        {!isPick && !isScore && <p className="text-lg text-slate-400">{event.unit}</p>}
+        {(isScore || isPick) && (event.team_home || event.team_away) && (
           <p className="text-sm text-slate-500">{event.team_home} vs {event.team_away}</p>
         )}
       </Card>
