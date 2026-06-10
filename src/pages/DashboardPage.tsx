@@ -56,7 +56,16 @@ export default function DashboardPage() {
       .filter((e) =>
         !search || e.event_name.toLowerCase().includes(search.toLowerCase()),
       )
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .sort((a, b) => {
+        // Live markets first, the one with the LEAST time left to bet on top;
+        // closed/settled sink below, most recently closed first.
+        const aLive = a.status === 'open' && new Date(a.closing_time).getTime() > now
+        const bLive = b.status === 'open' && new Date(b.closing_time).getTime() > now
+        if (aLive !== bLive) return aLive ? -1 : 1
+        const aT = new Date(a.closing_time).getTime()
+        const bT = new Date(b.closing_time).getTime()
+        return aLive ? aT - bT : bT - aT
+      })
   }, [allEvents, category, search, now])
 
   return (

@@ -105,10 +105,10 @@ export default function CreateEventModal({ open, onClose }: CreateEventModalProp
         {/* Helper text */}
         <p className="text-xs text-slate-500">
           {eventType === 'winner'
-            ? 'Players pick who wins — correct pickers share the pot.'
+            ? 'Players pick who wins — correct pickers take the losers\' matched money by stake.'
             : eventType === 'score'
-            ? 'Players predict the exact score — closest prediction wins the most.'
-            : 'Players predict a number — closest prediction wins the most.'
+            ? 'Players predict the exact score — closest takes the winnings, ties split by stake.'
+            : 'Players predict a number — closest takes the winnings, ties split by stake.'
           }
         </p>
 

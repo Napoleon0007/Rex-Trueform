@@ -236,10 +236,10 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
 
         <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 p-3 text-xs text-slate-400">
           {isWinner
-            ? 'Correct pickers split the entire pot — wrong picks get nothing.'
+            ? 'Correct pickers win — they take the losers\' matched money in proportion to their stakes. Unmatched stake comes back to you.'
             : isScore
-            ? 'Payout based on how close your predicted score is to the actual result — closest wins the most.'
-            : 'Payout is proportional to accuracy and pool size — more precise predictions win bigger.'
+            ? 'Closest score takes the winnings — spot on beats everyone. Ties split by stake, and losers get back whatever the winners couldn\'t match.'
+            : 'Closest prediction takes the winnings. Ties split by stake, and losers get back whatever the winners couldn\'t match.'
           }
         </div>
 
