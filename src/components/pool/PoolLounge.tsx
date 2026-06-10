@@ -3,6 +3,7 @@ import TrophyWall from './TrophyWall'
 import FixturesModal from './FixturesModal'
 import GamesTable from '../games/GamesTable'
 import VelvetCurtain from './VelvetCurtain'
+import TruefBanner from './TruefBanner'
 
 // Springbok green-and-gold velvet carpet with a gold damask weave + vignette.
 const CARPET: React.CSSProperties = {
@@ -16,27 +17,6 @@ const CARPET: React.CSSProperties = {
     linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.62))
   `,
 }
-
-// Allover carpet pattern: a SOLID leaping-springbok silhouette tiled in faint
-// gold (original artwork — filled body & tapered legs, not the stick-figure look).
-const SPRINGBOK_TILE = `url("data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 120' width='150' height='120'>` +
-  `<g transform='translate(14,26)' fill='#e9c46a'>` +
-  `<ellipse cx='62' cy='46' rx='28' ry='13'/>` +
-  `<circle cx='38' cy='46' r='15'/>` +
-  `<circle cx='84' cy='46' r='12'/>` +
-  `<path d='M82 38 Q96 30 100 18 L94 14 Q88 28 78 40 Z'/>` +
-  `<ellipse cx='103' cy='15' rx='9' ry='6' transform='rotate(20 103 15)'/>` +
-  `<path d='M108 12 L120 7 L116 15 L109 18 Z'/>` +
-  `<path d='M99 8 Q104 -5 100 -9 L98 -8 Q101 -3 97 8 Z'/>` +
-  `<path d='M102 8 Q107 -4 103 -9 L101 -8 Q104 -3 100 8 Z'/>` +
-  `<path d='M24 44 L15 52 L20 54 L28 48 Z'/>` +
-  `<path d='M32 56 L25 80 L31 81 L39 58 Z'/>` +
-  `<path d='M46 58 L41 82 L47 83 L52 60 Z'/>` +
-  `<path d='M80 56 L92 78 L97 76 L86 56 Z'/>` +
-  `<path d='M72 58 L80 82 L85 80 L78 58 Z'/>` +
-  `</g></svg>`,
-)}")`
 
 function VelvetRope() {
   return (
@@ -75,8 +55,19 @@ export default function PoolLounge() {
       <VelvetCurtain />
       {/* warm spotlight */}
       <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 35%, rgba(255,210,120,0.10), transparent 60%)' }} />
-      {/* springbok silhouette tiled across the whole carpet */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.13]" style={{ backgroundImage: SPRINGBOK_TILE, backgroundSize: '132px 106px' }} />
+      {/* SA Rugby crest inlaid into the carpet floor as you enter */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-[170px] -translate-x-1/2 opacity-[0.22]"
+        style={{
+          width: 'min(82%, 560px)',
+          aspectRatio: '804 / 444',
+          backgroundImage: 'url("/sa-rugby-floor.png")',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }}
+      />
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 pb-24 pt-16">
         {/* Title block — at the very top, above the rope and the baboon */}
@@ -109,6 +100,9 @@ export default function PoolLounge() {
         <div className="mt-10">
           <PoolTable />
         </div>
+
+        {/* "Gamble for $TRUEF" header — between the pool table and the games */}
+        <TruefBanner />
 
         {/* Games table comes after the pool table */}
         <GamesTable />
