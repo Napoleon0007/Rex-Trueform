@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 
-const INK = '#1f2d52'   // ballpoint navy
-const RED = '#b3261e'   // red-pen emphasis
+const INK = '#14110a'    // thick black ink (warm near-black)
+const ORANGE = '#e2640c' // orange pen for emphasis
 const HAND = '"Caveat", cursive'
 
-// Red-pen / ink emphasis span.
-function Hi({ c = RED, children }: { c?: string; children: React.ReactNode }) {
-  return <span style={{ color: c, fontWeight: 700 }}>{children}</span>
+// Orange-pen emphasis — heavier stroke so it reads like it's pressed in.
+function Hi({ children }: { children: React.ReactNode }) {
+  return <span style={{ color: ORANGE, WebkitTextStroke: `0.7px ${ORANGE}` }}>{children}</span>
 }
 
 export default function RulesDropdown() {
@@ -36,61 +36,85 @@ export default function RulesDropdown() {
             style={{ maxHeight: '84vh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* crumpled paper texture */}
             <div
               className="absolute inset-0"
               style={{ backgroundImage: 'url(/rules-paper.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
             />
-            {/* warm aged wash */}
             <div
               className="absolute inset-0"
               style={{ background: 'radial-gradient(ellipse at 50% 38%, rgba(255,250,235,0.10), rgba(150,125,80,0.16) 78%, rgba(80,62,38,0.42))', mixBlendMode: 'multiply' }}
             />
 
-            {/* content — ruled lines + red margin live on this layer */}
             <div
               className="paper-rules relative overflow-y-auto py-6 pr-6"
-              style={{ maxHeight: '84vh', paddingLeft: '58px', fontFamily: HAND, color: INK }}
+              style={{ maxHeight: '84vh', paddingLeft: '58px' }}
             >
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close"
-                className="absolute right-3 top-1 text-3xl leading-none"
+                className="absolute right-3 top-1 text-3xl font-bold leading-none"
                 style={{ fontFamily: HAND, color: INK }}
               >
                 ✕
               </button>
 
-              {/* $TRUEF logo, stuck on like a sticker */}
+              {/* $TRUEF logo, stuck on like a sticker (kept crisp, not blended) */}
               <img
                 src="/logo.png"
                 alt="$TRUEF"
                 className="absolute right-4 top-14 h-16 w-16 rounded-lg"
-                style={{ transform: 'rotate(7deg)', boxShadow: '0 3px 9px rgba(0,0,0,0.4)', border: '2px solid rgba(255,255,255,0.75)' }}
+                style={{ transform: 'rotate(7deg)', boxShadow: '0 3px 9px rgba(0,0,0,0.45)', border: '2px solid rgba(255,255,255,0.8)' }}
               />
 
-              <h3
-                style={{ fontFamily: HAND, fontWeight: 700, fontSize: '2.35rem', lineHeight: 1, color: INK, textDecoration: 'underline', textDecorationColor: RED, textUnderlineOffset: '6px' }}
+              {/* The ink — multiply-blended into the paper so it looks written on,
+                  bold Caveat with a stroke so every letter is thick and legible. */}
+              <div
+                style={{
+                  fontFamily: HAND,
+                  fontWeight: 700,
+                  color: INK,
+                  WebkitTextStroke: `0.55px ${INK}`,
+                  mixBlendMode: 'multiply',
+                }}
               >
-                House Rules
-              </h3>
-              <p style={{ fontSize: '1.2rem', marginTop: '2px', color: '#6a5d45' }}>
-                <Hi c="#9a6a1f">$TRUEF</Hi> · just between mates
-              </p>
+                <h3
+                  style={{
+                    fontSize: '2.6rem',
+                    lineHeight: 1,
+                    textDecoration: 'underline',
+                    textDecorationColor: ORANGE,
+                    textDecorationThickness: '3px',
+                    textUnderlineOffset: '6px',
+                    WebkitTextStroke: `1px ${INK}`,
+                  }}
+                >
+                  House Rules
+                </h3>
+                <p style={{ fontSize: '1.3rem', marginTop: '4px' }}>
+                  <Hi>$TRUEF</Hi> · just between mates
+                </p>
 
-              <ul style={{ fontSize: '1.4rem', lineHeight: '32px', marginTop: '18px' }}>
-                <li>★ <Hi c={INK}>+1,000 $TRUEF</Hi> every month — yours to keep, it carries over</li>
-                <li>★ Closest prediction <Hi>wins</Hi>. Spot on beats everyone — there's always a winner!</li>
-                <li>★ <u>Matched stakes</u>: winners take the losers' money by stake — never more than they put up. The rest comes back to you.</li>
-                <li>★ Tied? Split by stake — bigger risk, bigger share.</li>
-                <li>★ Gamble your $TRUEF on the games for bigger payouts… you could <Hi>lose the lot</Hi>!</li>
-              </ul>
+                <ul style={{ fontSize: '1.55rem', lineHeight: '32px', marginTop: '18px' }}>
+                  <li><span style={{ color: ORANGE }}>★</span> <Hi>+1,000 $TRUEF</Hi> every month — yours to keep, it carries over</li>
+                  <li><span style={{ color: ORANGE }}>★</span> Closest prediction <Hi>wins</Hi>. Spot on beats everyone — there's always a winner!</li>
+                  <li><span style={{ color: ORANGE }}>★</span> <u>Matched stakes</u>: winners take the losers' money by stake — never more than they put up. The rest comes back to you.</li>
+                  <li><span style={{ color: ORANGE }}>★</span> Tied? Split by stake — bigger risk, bigger share.</li>
+                  <li><span style={{ color: ORANGE }}>★</span> Gamble your <Hi>$TRUEF</Hi> on the games for bigger payouts… you could <Hi>lose the lot</Hi>!</li>
+                </ul>
 
-              <p
-                style={{ fontSize: '2.1rem', fontWeight: 700, color: RED, transform: 'rotate(-3deg)', marginTop: '22px', textAlign: 'center' }}
-              >
-                NO CRYBABIES!!
-              </p>
+                <p
+                  style={{
+                    fontSize: '2.4rem',
+                    color: ORANGE,
+                    transform: 'rotate(-3deg)',
+                    marginTop: '22px',
+                    textAlign: 'center',
+                    WebkitTextStroke: `1px ${ORANGE}`,
+                  }}
+                >
+                  NO CRYBABIES!!
+                </p>
+              </div>
             </div>
           </div>
         </div>,
