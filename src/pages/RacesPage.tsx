@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWallet } from '../hooks/useWallet'
 import { useJuice, BIG_WIN } from '../store/juice'
 import { toast } from '../store/toastStore'
@@ -8,6 +8,9 @@ import { SILKS } from '../lib/horseNames'
 import { RaceSim, FIELD } from '../lib/raceSim'
 import { samplePath, centrelinePoints, LAP_LENGTH } from '../components/races/track'
 import RaceCanvas from '../components/races/RaceCanvas'
+import RaceFallback2D from '../components/races/RaceFallback2D'
+import ErrorBoundary from '../components/ErrorBoundary'
+import { canUseWebGL } from '../lib/webgl'
 import * as THREE from 'three'
 
 // ── The Rex Racing Ring (3D) ──────────────────────────────────────────────────
@@ -63,12 +66,38 @@ export default function RacesPage() {
   const stakeRef = useRef(0)
   const v = useMemo(() => new THREE.Vector3(), [])
 
+  // Decide up front whether to mount the 3D track at all. If WebGL is off/absent
+  // we render the 2D fallback directly — far more reliable than catching the
+  // async throw the GPU renderer makes, which a React error boundary never sees.
+  const [can3D, setCan3D] = useState(canUseWebGL)
+
+  // Belt-and-suspenders: if a WebGL renderer still dies asynchronously (e.g. a
+  // phone runs out of GPU memory mid-init), that surfaces as an uncaught window
+  // error. Catch it and drop to the 2D track so the page never goes blank.
+  useEffect(() => {
+    if (!can3D) return
+    const onErr = (e: ErrorEvent) => {
+      if (/webgl|context lost|out of memory/i.test(e.message || '')) setCan3D(false)
+    }
+    window.addEventListener('error', onErr)
+    return () => window.removeEventListener('error', onErr)
+  }, [can3D])
+
+  // The full-screen background video competes with the 3D track for GPU/memory
+  // (the exact pressure that blanks phones). Freeze it while this heavy page is
+  // open; resume it on the way out.
+  useEffect(() => {
+    const bg = document.querySelector<HTMLVideoElement>('video[data-bg-video]')
+    if (bg) bg.pause()
+    return () => { bg?.play?.().catch(() => {}) }
+  }, [])
+
   function addChip(value: number) {
     if (phase !== 'bet') return
     if (picked === null) { toast.error('Pick a horse first'); return }
     const next = stake + value
-    if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} ₿`); return }
-    if (!wallet.canBet(next)) { toast.error('Not enough Bitcoin'); return }
+    if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} Ŧ`); return }
+    if (!wallet.canBet(next)) { toast.error('Not enough Truth Tokens'); return }
     sfx.clink()
     kids.check(next)
     setStake(next)
@@ -78,7 +107,7 @@ export default function RacesPage() {
     if (phase !== 'bet') return
     if (picked === null) { toast.error('Pick a horse to back'); return }
     if (stake <= 0) { toast.error('Place a bet first'); return }
-    if (!wallet.canBet(stake)) { toast.error('Not enough Bitcoin'); return }
+    if (!wallet.canBet(stake)) { toast.error('Not enough Truth Tokens'); return }
 
     pickedRef.current = picked
     stakeRef.current = stake
@@ -138,23 +167,44 @@ export default function RacesPage() {
       ? `${runners[leaderId].name} leads down the back straight.`
       : `And they're off — ${runners[leaderId].name} shows the way.`
 
+  // The no-WebGL view — also drives the sim to settlement, so a bet resolves the
+  // same with or without the 3D track. Reused as both the direct render (WebGL
+  // off) and the error-boundary fallback (a 3D render throw).
+  const fallback2D = (
+    <RaceFallback2D
+      sim={sim}
+      phase={phase}
+      oval={MINI}
+      silk={silk}
+      leaderId={leaderId}
+      onOrder={(ids) => { setOrder(ids); force((n) => n + 1) }}
+      onFinish={onFinish}
+    />
+  )
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-black tracking-tight text-white">🏇 Rex Racing Ring</h1>
         <div className="rounded-full bg-black/50 px-3 py-1 text-sm font-bold text-amber-300">
-          {wallet.balance} ₿
+          {wallet.balance} Ŧ
         </div>
       </div>
 
       {/* ── The 3D track ── */}
       <div className="relative w-full overflow-hidden rounded-2xl border-2 border-amber-900/60 bg-sky-200 shadow-2xl" style={{ height: 'min(54vh, 420px)' }}>
-        <RaceCanvas
-          sim={sim}
-          phase={phase}
-          onOrder={(ids) => { setOrder(ids); force((n) => n + 1) }}
-          onFinish={onFinish}
-        />
+        {can3D ? (
+          <ErrorBoundary fallback={fallback2D}>
+            <RaceCanvas
+              sim={sim}
+              phase={phase}
+              onOrder={(ids) => { setOrder(ids); force((n) => n + 1) }}
+              onFinish={onFinish}
+            />
+          </ErrorBoundary>
+        ) : (
+          fallback2D
+        )}
 
         {/* live running order — broadcast lower-third */}
         <div className="pointer-events-none absolute left-2 top-2 z-20 rounded-lg bg-black/55 px-2 py-1 text-[10px] leading-tight text-white backdrop-blur-sm">
@@ -204,7 +254,7 @@ export default function RacesPage() {
       {phase === 'done' && result && (
         <div className={`rounded-xl px-4 py-3 text-center font-bold ${result.win ? 'bg-emerald-600/90 text-white' : 'bg-rose-900/80 text-rose-100'}`}>
           {result.win ? (
-            <>🏆 {runners[result.winnerId].name} romps home — you win {result.amount} ₿!</>
+            <>🏆 {runners[result.winnerId].name} romps home — you win {result.amount} Ŧ!</>
           ) : (
             <>🏁 {runners[result.winnerId].name} takes it. {picked !== null ? 'Not your runner this time.' : ''}</>
           )}
@@ -273,8 +323,8 @@ export default function RacesPage() {
                 <div className="mt-3 flex items-center gap-2">
                   <div className="flex-1 text-sm text-slate-300">
                     {picked !== null ? (
-                      <>Stake <b className="text-white">{stake} ₿</b> on <b className="text-amber-300">{runners[picked].name}</b>
-                        {stake > 0 && <> → wins <b className="text-emerald-400">{Math.round(stake * runners[picked].odds)} ₿</b></>}
+                      <>Stake <b className="text-white">{stake} Ŧ</b> on <b className="text-amber-300">{runners[picked].name}</b>
+                        {stake > 0 && <> → wins <b className="text-emerald-400">{Math.round(stake * runners[picked].odds)} Ŧ</b></>}
                       </>
                     ) : (
                       'Tap a horse, then add chips.'

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RaceSim, FIELD } from '../../lib/raceSim'
+import { newRaceLoopState, stepRace } from '../../lib/raceLoop'
 import Track3D from './Track3D'
 import Venue from './Venue'
 import Horse3D from './Horse3D'
@@ -18,36 +19,15 @@ type Props = {
 // the live running order up to the HUD, and — after a short photo-finish beat
 // once the leader crosses — reports the final classification to settle bets.
 function RaceDriver({ sim, phase, onOrder, onFinish }: Props) {
-  const orderAcc = useRef(0)
-  const finishTimer = useRef<number | null>(null)
-  const settled = useRef(false)
+  const loop = useRef(newRaceLoopState())
 
   useEffect(() => {
-    // reset per race
-    settled.current = false
-    finishTimer.current = null
+    loop.current = newRaceLoopState() // reset per race
   }, [sim])
 
   useFrame((_, dt) => {
     if (phase !== 'running') return
-
-    const leaderDone = sim.step(dt)
-    if (leaderDone && finishTimer.current === null) finishTimer.current = 0
-
-    orderAcc.current += dt
-    if (orderAcc.current > 0.12) {
-      orderAcc.current = 0
-      onOrder(sim.order())
-    }
-
-    if (finishTimer.current !== null && !settled.current) {
-      finishTimer.current += dt
-      // let trailers stream past the post under the photo-finish shot
-      if (finishTimer.current > 1.6) {
-        settled.current = true
-        onFinish(sim.classify())
-      }
-    }
+    stepRace(sim, dt, loop.current, onOrder, onFinish)
   })
 
   return null
