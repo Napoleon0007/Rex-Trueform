@@ -20,8 +20,8 @@ export const BALL_R = 16          // bigger balls so they read on a phone (rack 
 export const POCKET_R = 24
 const MOUTH = POCKET_R + 2          // cushion gap half-width around each pocket
 const CUSHION_REST = 0.92           // energy kept on a cushion bounce
-const STOP_SPEED = 4                // px/s below which a ball is parked
-const FRICTION_K = 1.35             // higher = more drag
+const STOP_SPEED = 3                // px/s below which a ball is parked
+const FRICTION_K = 0.95             // higher = more drag (lowered so balls roll/coast longer)
 
 export const POCKETS = [
   { x: 0,          y: 0 },

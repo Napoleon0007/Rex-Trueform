@@ -78,7 +78,21 @@ export default function PoolLounge() {
           <h2 className="mt-3 font-black uppercase tracking-tight text-amber-50" style={{ fontSize: 'clamp(1.8rem, 7vw, 3.5rem)', textShadow: '0 0 22px rgba(245,200,80,0.45)' }}>
             The Boys' Quarters
           </h2>
-          <p className="mt-1 text-sm text-amber-200/70">Rack 'em up. House rules. Place your bets.</p>
+          <p
+            className="mx-auto mt-2 max-w-lg italic"
+            style={{
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: 'clamp(0.95rem, 2.7vw, 1.3rem)',
+              letterSpacing: '0.01em',
+              background: 'linear-gradient(100deg,#ffe9a8,#f5d36b 45%,#e9c46a 70%,#fff3c4)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter: 'drop-shadow(0 1px 7px rgba(245,200,80,0.35))',
+            }}
+          >
+            A place where empires are born whilst leveraging the short long
+          </p>
         </div>
 
         {/* the baboon snuck past the bouncer and paces the velvet rope — below the title now */}

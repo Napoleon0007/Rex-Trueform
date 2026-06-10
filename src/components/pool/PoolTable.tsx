@@ -36,36 +36,30 @@ export default function PoolTable() {
 
   useEffect(() => { modeRef.current = mode }, [mode])
 
-  // A cheeky baboon perches on the felt at the START. The instant the first shot is
-  // fired he bolts off — and then he stays away for at least 10 minutes (the cooldown
-  // resets on every shot). He's a beginning-only guest, not a between-shots regular.
-  const COOLDOWN_MS = 10 * 60 * 1000
+  // A cheeky baboon perches on the felt at the START of a rack. The instant the
+  // first shot is fired he bolts off — and he STAYS gone for the rest of the game,
+  // only ambling back when the rack is reset (newGame). A beginning-only guest.
   const [monkey, setMonkey] = useState<'sit' | 'flee' | 'hidden'>('sit')
-  const cooldownUntil = useRef(0)
+  const [gameStarted, setGameStarted] = useState(false)
   useEffect(() => {
     if (phase === 'rolling') {
-      cooldownUntil.current = Date.now() + COOLDOWN_MS  // a shot was taken — he's gone for 10 min
       setMonkey('flee')
       const t = setTimeout(() => setMonkey('hidden'), 650)
       return () => clearTimeout(t)
     }
-    if (phase === 'over') { setMonkey('hidden'); return }
-    // idle: only let him amble back once the 10-minute cooldown has fully elapsed
-    const remaining = cooldownUntil.current - Date.now()
-    if (remaining <= 0) {
-      const t = setTimeout(() => setMonkey('sit'), 450)
-      return () => clearTimeout(t)
-    }
-    setMonkey('hidden')
-    const t = setTimeout(() => setMonkey('sit'), remaining + 300)
+    // Game underway (a shot has been taken) → he stays hidden until the reset.
+    if (gameStarted) { setMonkey('hidden'); return }
+    // Fresh, untouched rack → he sits on the felt.
+    const t = setTimeout(() => setMonkey('sit'), 300)
     return () => clearTimeout(t)
-  }, [phase])
+  }, [phase, gameStarted])
 
   function newGame(nextMode: Mode = mode) {
     if (aiTimer.current) clearTimeout(aiTimer.current)
     ballsRef.current = createRack()
     pottedRef.current = []
     scratchRef.current = false
+    setGameStarted(false)   // fresh rack — the baboon ambles back
     phaseRef.current = 'idle'; setPhase('idle')
     turnRef.current = 'you'; setTurn('you')
     groupsRef.current = { you: null, ai: null }; setGroups({ you: null, ai: null })
@@ -182,6 +176,7 @@ export default function PoolTable() {
 
     shoot(cue, best.angle, best.power)
     phaseRef.current = 'rolling'; setPhase('rolling')
+    setGameStarted(true)
   }
 
   // pointer → logical table coords
@@ -211,7 +206,9 @@ export default function PoolTable() {
     const { x, y } = toLogical(e)
     const cue = ballsRef.current.find((b) => b.id === 0)!
     const dx = x - cue.x, dy = y - cue.y
-    aimRef.current.angle = Math.atan2(dy, dx)
+    // Slingshot feel: drag BACKWARDS to fire FORWARDS — the shot launches
+    // opposite to the pull, away from where you drag.
+    aimRef.current.angle = Math.atan2(-dy, -dx)
     aimRef.current.power = Math.min(1, Math.hypot(dx, dy) / POWER_MAX)
     aimRef.current.px = x; aimRef.current.py = y
   }
@@ -224,6 +221,7 @@ export default function PoolTable() {
     const cue = ballsRef.current.find((b) => b.id === 0)!
     shoot(cue, aim.angle, aim.power)
     phaseRef.current = 'rolling'; setPhase('rolling')
+    setGameStarted(true)   // rack is in play — baboon stays gone until reset
   }
 
   // render + simulation loop
@@ -382,23 +380,52 @@ function draw(ctx: CanvasRenderingContext2D, balls: Ball[], aim: Aim, turn: 'you
     ctx.fill()
   }
 
-  // aim guide
+  // aim guide — pulled-back cue stick (the slingshot) + forward trajectory
+  // prediction showing the cue's path, the ghost ball at contact, and where
+  // the struck ball will head.
   const cue = balls.find((b) => b.id === 0)!
   if (aim.active && !cue.potted) {
-    const len = 60 + aim.power * 320
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'
+    const ux = Math.cos(aim.angle), uy = Math.sin(aim.angle)
+    const pred = predictShot(balls, cue.x, cue.y, ux, uy)
+    const endX = pred.hit ? pred.hit.gx : cue.x + ux * pred.dist
+    const endY = pred.hit ? pred.hit.gy : cue.y + uy * pred.dist
+
+    // cue-ball path
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'
     ctx.lineWidth = 2
-    ctx.setLineDash([6, 6])
-    ctx.beginPath()
-    ctx.moveTo(cue.x, cue.y)
-    ctx.lineTo(cue.x + Math.cos(aim.angle) * len, cue.y + Math.sin(aim.angle) * len)
-    ctx.stroke()
+    ctx.setLineDash([7, 6])
+    ctx.beginPath(); ctx.moveTo(cue.x, cue.y); ctx.lineTo(endX, endY); ctx.stroke()
     ctx.setLineDash([])
-    // power pip
+
+    if (pred.hit) {
+      // ghost ball at the contact point
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'
+      ctx.lineWidth = 1.5
+      ctx.beginPath(); ctx.arc(pred.hit.gx, pred.hit.gy, BALL_R, 0, Math.PI * 2); ctx.stroke()
+      // the struck ball's resulting direction (the line through both centres)
+      const exLen = 130
+      ctx.strokeStyle = 'rgba(255,209,102,0.9)'
+      ctx.lineWidth = 2.5
+      ctx.beginPath()
+      ctx.moveTo(pred.hit.ball.x, pred.hit.ball.y)
+      ctx.lineTo(pred.hit.ball.x + pred.hit.ex * exLen, pred.hit.ball.y + pred.hit.ey * exLen)
+      ctx.stroke()
+    }
+
+    // the pulled-back cue stick, behind the ball — length grows with power
+    const pull = 26 + aim.power * 150
+    const sx = cue.x - ux * (BALL_R + 6), sy = cue.y - uy * (BALL_R + 6)
+    const tx = cue.x - ux * (BALL_R + 6 + pull), ty = cue.y - uy * (BALL_R + 6 + pull)
+    const stick = ctx.createLinearGradient(sx, sy, tx, ty)
+    stick.addColorStop(0, '#d8b15a'); stick.addColorStop(1, '#5e4419')
+    ctx.strokeStyle = stick
+    ctx.lineWidth = 6
+    ctx.lineCap = 'round'
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(tx, ty); ctx.stroke()
+    ctx.lineCap = 'butt'
+    // power pip on the stick tip (green = soft, red = full power)
     ctx.fillStyle = `hsl(${(1 - aim.power) * 90}, 90%, 55%)`
-    ctx.beginPath()
-    ctx.arc(cue.x + Math.cos(aim.angle) * len, cue.y + Math.sin(aim.angle) * len, 5, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.beginPath(); ctx.arc(tx, ty, 5, 0, Math.PI * 2); ctx.fill()
   }
 
   // balls — rendered as glossy ivory spheres: contact shadow, spherical
@@ -465,6 +492,40 @@ function draw(ctx: CanvasRenderingContext2D, balls: Ball[], aim: Aim, turn: 'you
     ctx.fillStyle = 'rgba(0,0,0,0.25)'
     roundRect(ctx, 8, 8, W - 16, H - 16, 16); ctx.fill()
   }
+}
+
+// Predict the cue ball's path: the nearest object ball it would strike along
+// the aim ray. Returns the ghost-ball contact point + the struck ball's exit
+// direction (the line through both centres at contact), or just the distance to
+// the cushion if it hits nothing.
+function predictShot(
+  balls: Ball[], cx: number, cy: number, ux: number, uy: number,
+): { dist: number; hit: { ball: Ball; gx: number; gy: number; ex: number; ey: number } | null } {
+  const R2 = BALL_R * 2
+  let best: { ball: Ball; gx: number; gy: number; ex: number; ey: number } | null = null
+  let bestT = Infinity
+  for (const b of balls) {
+    if (b.potted || b.id === 0) continue
+    const fx = b.x - cx, fy = b.y - cy
+    const tc = fx * ux + fy * uy                 // distance to closest approach
+    if (tc <= 0) continue                         // ball sits behind the aim
+    const perp = Math.hypot(b.x - (cx + ux * tc), b.y - (cy + uy * tc))
+    if (perp > R2) continue                       // ray misses this ball
+    const t = tc - Math.sqrt(R2 * R2 - perp * perp)  // distance to contact
+    if (t > 0 && t < bestT) {
+      bestT = t
+      const gx = cx + ux * t, gy = cy + uy * t    // cue centre at contact (ghost)
+      const od = Math.hypot(b.x - gx, b.y - gy) || 1
+      best = { ball: b, gx, gy, ex: (b.x - gx) / od, ey: (b.y - gy) / od }
+    }
+  }
+  // hit nothing → run the line to the cushion
+  let railT = Infinity
+  if (ux > 0) railT = Math.min(railT, (TABLE.W - BALL_R - cx) / ux)
+  else if (ux < 0) railT = Math.min(railT, (BALL_R - cx) / ux)
+  if (uy > 0) railT = Math.min(railT, (TABLE.H - BALL_R - cy) / uy)
+  else if (uy < 0) railT = Math.min(railT, (BALL_R - cy) / uy)
+  return { dist: best ? bestT : Math.max(0, railT), hit: best }
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {

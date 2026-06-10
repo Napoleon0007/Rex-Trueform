@@ -24,6 +24,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       animation: {
         'fade-in':  'fadeIn 0.3s ease-out',
