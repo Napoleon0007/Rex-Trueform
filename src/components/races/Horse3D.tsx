@@ -41,11 +41,12 @@ export default function Horse3D({ sim, index, running }: Props) {
     const moving = running && sim.progress[index] < 1
     const stride = moving ? 1 : 0
 
-    // Body bob (twice per stride) + pitch as it reaches and gathers.
+    // Body bound (twice per stride) + a stronger reach-and-gather pitch so it
+    // reads as galloping rather than sliding.
     if (body.current) {
-      const bob = Math.sin(g * Math.PI * 2 * 2) * 0.06 * stride
+      const bob = Math.sin(g * Math.PI * 2 * 2) * 0.085 * stride
       body.current.position.y = 0.92 + bob
-      body.current.rotation.x = Math.sin(g * Math.PI * 2) * 0.10 * stride
+      body.current.rotation.x = Math.sin(g * Math.PI * 2) * 0.13 * stride
     }
 
     // Four-beat gallop: swing each leg from the hip, bend the knee on recovery.
@@ -70,24 +71,31 @@ export default function Horse3D({ sim, index, running }: Props) {
       <group ref={body} position={[0, 0.92, 0]}>
         {/* barrel */}
         <mesh castShadow position={[0, 0, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
-          <capsuleGeometry args={[0.4, 1.05, 6, 12]} />
+          <capsuleGeometry args={[0.4, 1.05, 8, 18]} />
           <meshStandardMaterial color={coat} roughness={0.75} />
         </mesh>
         {/* chest */}
         <mesh castShadow position={[0, 0.05, -0.66]}>
-          <sphereGeometry args={[0.42, 12, 10]} />
+          <sphereGeometry args={[0.42, 18, 14]} />
           <meshStandardMaterial color={coat} roughness={0.75} />
         </mesh>
         {/* neck */}
         <mesh castShadow position={[0, 0.42, -0.92]} rotation={[0.7, 0, 0]}>
-          <cylinderGeometry args={[0.2, 0.32, 0.75, 10]} />
+          <cylinderGeometry args={[0.2, 0.32, 0.75, 14]} />
           <meshStandardMaterial color={coat} roughness={0.75} />
         </mesh>
-        {/* head */}
-        <mesh castShadow position={[0, 0.78, -1.16]} rotation={[0.35, 0, 0]}>
-          <boxGeometry args={[0.26, 0.3, 0.6]} />
+        {/* head — rounded (a sphere stretched into a muzzle), not a box */}
+        <mesh castShadow position={[0, 0.78, -1.16]} rotation={[0.35, 0, 0]} scale={[0.85, 0.95, 1.95]}>
+          <sphereGeometry args={[0.16, 16, 12]} />
           <meshStandardMaterial color={coat} roughness={0.7} />
         </mesh>
+        {/* ears */}
+        {[-0.07, 0.07].map((ex) => (
+          <mesh key={ex} castShadow position={[ex, 0.98, -1.02]} rotation={[-0.25, 0, ex < 0 ? 0.25 : -0.25]}>
+            <coneGeometry args={[0.045, 0.16, 6]} />
+            <meshStandardMaterial color={coat} roughness={0.8} />
+          </mesh>
+        ))}
         {/* muzzle */}
         <mesh castShadow position={[0, 0.66, -1.42]} rotation={[0.35, 0, 0]}>
           <boxGeometry args={[0.18, 0.18, 0.26]} />

@@ -40,7 +40,7 @@ export const TEQUILA = [
 ]
 
 export const BROKE = [
-  'No Truth Tokens, no drink. Go win some.',
+  'No $TRUEF, no drink. Go win some.',
   'Your tab’s drier than your wallet, punk.',
   'Come back when you can pay.',
   'Broke boys don’t drink at my bar.',

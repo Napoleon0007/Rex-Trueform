@@ -79,7 +79,7 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
                 You predicted <span className="text-white font-bold">{formatPrediction(event, userBet.prediction, userBet.prediction_away)}</span>
                 <span className="text-slate-400"> · {accuracy(userBet)}</span>
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">Wagered {userBet.amount} Truth Tokens</p>
+              <p className="text-xs text-slate-500 mt-0.5">Wagered {userBet.amount} $TRUEF</p>
             </div>
             <div className="text-right">
               <p className={`text-2xl font-black ${userWon ? 'text-emerald-400' : 'text-rose-400'}`}>
@@ -87,7 +87,7 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
               </p>
               <p className={`text-xs font-semibold ${userWon ? 'text-emerald-500' : 'text-rose-500'}`}>
                 {(userBet.payout ?? 0) >= userBet.amount ? '▲' : '▼'}
-                {' '}{Math.abs(Math.round((userBet.payout ?? 0) - userBet.amount))} Truth Tokens
+                {' '}{Math.abs(Math.round((userBet.payout ?? 0) - userBet.amount))} $TRUEF
               </p>
             </div>
           </div>

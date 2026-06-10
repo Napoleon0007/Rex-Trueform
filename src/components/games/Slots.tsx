@@ -57,7 +57,7 @@ export default function Slots() {
 
   function pull() {
     if (spinning) return
-    if (!wallet.canBet(stake)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(stake)) { toast.error('Not enough $TRUEF'); return }
     wallet.bet(stake, 'slots')
     sfx.spin()
     setSpinning(true)

@@ -23,7 +23,11 @@ const CHIPS = [2, 5, 10, 25, 50, 100]
 const LENGTHS_PER_LAP = LAP_LENGTH / 2.4 // ~2.4m per horse length
 
 type Phase = 'bet' | 'running' | 'done'
-type RaceResult = { win: boolean; amount: number; winnerId: number }
+// place: 0 = won, 1 = 2nd, 2 = 3rd, -1 = out of the money (no prize)
+type RaceResult = { win: boolean; place: number; amount: number; winnerId: number }
+
+// Top-three pay: 1st = full (stake × odds), 2nd = half, 3rd = a quarter.
+const PLACE_FRACTION = [1, 0.5, 0.25]
 
 const silk = (i: number) => SILKS[i % SILKS.length]
 
@@ -97,7 +101,7 @@ export default function RacesPage() {
     if (picked === null) { toast.error('Pick a horse first'); return }
     const next = stake + value
     if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} Ŧ`); return }
-    if (!wallet.canBet(next)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(next)) { toast.error('Not enough $TRUEF'); return }
     sfx.clink()
     kids.check(next)
     setStake(next)
@@ -107,7 +111,7 @@ export default function RacesPage() {
     if (phase !== 'bet') return
     if (picked === null) { toast.error('Pick a horse to back'); return }
     if (stake <= 0) { toast.error('Place a bet first'); return }
-    if (!wallet.canBet(stake)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(stake)) { toast.error('Not enough $TRUEF'); return }
 
     pickedRef.current = picked
     stakeRef.current = stake
@@ -124,16 +128,18 @@ export default function RacesPage() {
     const winnerId = classified[0]
     const myId = pickedRef.current
     const myStake = stakeRef.current
-    if (myId === winnerId) {
-      const win = Math.round(myStake * sim.runners[winnerId].odds)
-      wallet.payout(win, 'races')
-      win >= BIG_WIN ? sfx.jackpot() : sfx.win()
-      celebrate(win)
-      setResult({ win: true, amount: win, winnerId })
+    // Where did the horse I backed finish? 0 = won, 1 = 2nd, 2 = 3rd.
+    const place = myId === null ? -1 : classified.indexOf(myId)
+    if (place >= 0 && place <= 2) {
+      const amount = Math.round(myStake * sim.runners[myId!].odds * PLACE_FRACTION[place])
+      wallet.payout(amount, 'races')
+      amount >= BIG_WIN ? sfx.jackpot() : sfx.win()
+      celebrate(amount)
+      setResult({ win: true, place, amount, winnerId })
     } else {
       sfx.lose()
       commiserate()
-      setResult({ win: false, amount: 0, winnerId })
+      setResult({ win: false, place, amount: 0, winnerId })
     }
     setOrder(classified)
     setPhase('done')
@@ -151,6 +157,7 @@ export default function RacesPage() {
   const leaderId = order[0]
   const leaderP = sim.progress[leaderId] ?? 0
   const runners = sim.runners
+  const myHorseName = picked !== null ? runners[picked].name : 'your runner'
 
   // gap in lengths behind the leader, for the broadcast board
   const gapLengths = (id: number) =>
@@ -253,10 +260,14 @@ export default function RacesPage() {
       {/* ── Result banner ── */}
       {phase === 'done' && result && (
         <div className={`rounded-xl px-4 py-3 text-center font-bold ${result.win ? 'bg-emerald-600/90 text-white' : 'bg-rose-900/80 text-rose-100'}`}>
-          {result.win ? (
-            <>🏆 {runners[result.winnerId].name} romps home — you win {result.amount} Ŧ!</>
+          {result.place === 0 ? (
+            <>🏆 {myHorseName} wins it — you collect {result.amount} Ŧ!</>
+          ) : result.place === 1 ? (
+            <>🥈 2nd place! {myHorseName} lands in the money — you collect {result.amount} Ŧ.</>
+          ) : result.place === 2 ? (
+            <>🥉 3rd place! {myHorseName} grabs a prize — you collect {result.amount} Ŧ.</>
           ) : (
-            <>🏁 {runners[result.winnerId].name} takes it. {picked !== null ? 'Not your runner this time.' : ''}</>
+            <>🏁 {runners[result.winnerId].name} takes it — {myHorseName} ran {result.place + 1}th. No prize this time.</>
           )}
         </div>
       )}
@@ -270,7 +281,7 @@ export default function RacesPage() {
         ) : (
           <>
             <div className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">
-              {phase === 'running' ? 'And they’re off!' : 'Back a horse to win'}
+              {phase === 'running' ? 'And they’re off!' : 'Back a horse — top 3 pay'}
             </div>
 
             <div className="space-y-1.5">
@@ -323,8 +334,16 @@ export default function RacesPage() {
                 <div className="mt-3 flex items-center gap-2">
                   <div className="flex-1 text-sm text-slate-300">
                     {picked !== null ? (
-                      <>Stake <b className="text-white">{stake} Ŧ</b> on <b className="text-amber-300">{runners[picked].name}</b>
-                        {stake > 0 && <> → wins <b className="text-emerald-400">{Math.round(stake * runners[picked].odds)} Ŧ</b></>}
+                      <>
+                        <div>
+                          Stake <b className="text-white">{stake} Ŧ</b> on <b className="text-amber-300">{runners[picked].name}</b>
+                          {stake > 0 && <> → win <b className="text-emerald-400">{Math.round(stake * runners[picked].odds)} Ŧ</b></>}
+                        </div>
+                        {stake > 0 && (
+                          <div className="mt-0.5 text-xs text-slate-400">
+                            🥈 2nd {Math.round(stake * runners[picked].odds * PLACE_FRACTION[1])} Ŧ · 🥉 3rd {Math.round(stake * runners[picked].odds * PLACE_FRACTION[2])} Ŧ
+                          </div>
+                        )}
                       </>
                     ) : (
                       'Tap a horse, then add chips.'

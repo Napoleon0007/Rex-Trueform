@@ -32,7 +32,7 @@ export default function TokenBadge() {
         type="button"
         onClick={() => setOpen(true)}
         className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-transform hover:scale-105 active:scale-95 ${tone}`}
-        title="Tap to see what your Truth Tokens are worth"
+        title="Tap to see what your $TRUEF are worth"
       >
         <span className="text-base font-bold leading-none" style={{ color: TOKEN_COLOR }}>{TOKEN_GLYPH}</span>
         <span className="text-sm font-bold">{balance ?? '—'}</span>

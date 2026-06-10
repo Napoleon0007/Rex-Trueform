@@ -6,7 +6,7 @@
 // into real-money gambling — don't.
 export const TOKEN_MINT = 'GA9WPiXPoP53mCVhwBYus1J7GcVgCWgHsrqc7m1bpump'
 
-export const TOKEN_NAME = 'Truth Tokens'        // friendly name for the in-game currency
+export const TOKEN_NAME = '$TRUEF'        // friendly name for the in-game currency
 export const TOKEN_TICKER = 'TRUEF'             // exchange ticker (shown as $TRUEF)
 export const TOKEN_COIN_NAME = 'Rex Trueform coin'
 export const TOKEN_GLYPH = 'Ŧ'                  // inline currency mark (replaces the old Bitcoin ₿)

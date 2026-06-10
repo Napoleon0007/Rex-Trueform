@@ -34,9 +34,12 @@ export default function RaceCanvas(props: Props) {
   return (
     <Canvas
       shadows={!IS_MOBILE}
-      dpr={IS_MOBILE ? 1 : [1, 1.75]}
+      // Keep edges smooth on phones (antialiasing + a moderate pixel ratio) — the
+      // jaggy "pixel" look came from running with neither. The heavy memory hogs
+      // (post-processing + shadows) stay off on mobile, so this is still safe.
+      dpr={IS_MOBILE ? [1, 1.5] : [1, 1.75]}
       camera={{ fov: 46, near: 0.5, far: 2000, position: [0, 90, 150] }}
-      gl={{ antialias: !IS_MOBILE, powerPreference: IS_MOBILE ? 'default' : 'high-performance' }}
+      gl={{ antialias: true, powerPreference: IS_MOBILE ? 'default' : 'high-performance' }}
       onCreated={({ gl }) => { gl.toneMappingExposure = 0.92 }}
     >
       <fog attach="fog" args={['#cfe3f5', 520, 1700]} />

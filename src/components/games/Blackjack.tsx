@@ -51,7 +51,7 @@ export default function Blackjack() {
   }
 
   function deal() {
-    if (!wallet.canBet(bet)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(bet)) { toast.error('Not enough $TRUEF'); return }
     wallet.bet(bet, 'blackjack')
     sfx.deal()
     const p = [draw(), draw()], d = [draw(), draw()]

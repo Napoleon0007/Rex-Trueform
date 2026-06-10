@@ -43,7 +43,7 @@ export default function Roulette() {
     if (phase !== 'bet') return
     const next = total + chip
     if (next > TABLE_MAX) { toast.error(`Table max is ${TABLE_MAX} Ŧ`); return }
-    if (!wallet.canBet(next)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(next)) { toast.error('Not enough $TRUEF'); return }
     sfx.clink()
     kids.check(next)
     setBets((b) => ({ ...b, [key]: (b[key] ?? 0) + chip }))
@@ -52,7 +52,7 @@ export default function Roulette() {
 
   function spin() {
     if (total === 0) { toast.error('Place a bet first'); return }
-    if (!wallet.canBet(total)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(total)) { toast.error('Not enough $TRUEF'); return }
     lastBets.current = bets
     wallet.bet(total, 'roulette')
     sfx.spin()

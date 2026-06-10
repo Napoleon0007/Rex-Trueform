@@ -187,7 +187,7 @@ export default function BetModal({ event, open, onClose, existingBet }: BetModal
 
         <div className="space-y-3">
           <label className="flex items-center justify-between text-sm font-medium text-slate-300">
-            <span>How many Truth Tokens?</span>
+            <span>How many $TRUEF?</span>
             <span className="text-xs text-slate-500">{maxSpendable} available</span>
           </label>
           {/* Tap a chip to ADD it to your stake (tap 5 three times → 15). */}

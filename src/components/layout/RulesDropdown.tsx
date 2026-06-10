@@ -38,12 +38,12 @@ export default function RulesDropdown() {
             </div>
 
             <ul className="space-y-2.5 text-sm text-slate-300">
-              <li><span className="text-orange-400 font-semibold">+1,000 Truth Tokens</span> pocket money lands on the 1st of every month</li>
+              <li><span className="text-orange-400 font-semibold">+1,000 $TRUEF</span> pocket money lands on the 1st of every month</li>
               <li><span className="text-emerald-400 font-semibold">Your stack carries over</span> — winnings are yours to keep and build on</li>
               <li>Predict outcomes before markets close — the <span className="text-white font-semibold">closest prediction wins</span>. Spot on beats everyone, and there is always a winner.</li>
               <li><span className="text-orange-400 font-semibold">Matched stakes:</span> winners take the losers' money in proportion to their stakes — but never more than the winners put up themselves. Whatever isn't matched comes straight back to you.</li>
               <li>Tied closest? The winnings split by stake — the bigger risk earns the bigger share.</li>
-              <li>You're allowed to <span className="text-orange-400 font-semibold">gamble your Truth Tokens</span> for bigger payouts or bigger bets on games. The risk is you could <span className="text-rose-400 font-semibold">lose everything</span> — play at your own risk.</li>
+              <li>You're allowed to <span className="text-orange-400 font-semibold">gamble your $TRUEF</span> for bigger payouts or bigger bets on games. The risk is you could <span className="text-rose-400 font-semibold">lose everything</span> — play at your own risk.</li>
               <li><span className="text-orange-400 font-semibold">No crybabies</span></li>
             </ul>
           </div>

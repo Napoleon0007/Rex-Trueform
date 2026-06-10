@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { PREVIEW_ENABLED } from '../lib/devPreview'
 
 // On open, every signed-in member silently claims their current month's 1,000
-// Truth Tokens — if they haven't already this month. The grant is idempotent on the
+// $TRUEF — if they haven't already this month. The grant is idempotent on the
 // server (one monthly_allocations row per member per month, see migration 011),
 // so calling it on every load is safe: it only ever pays out once a month.
 export function useMonthlyClaim(userId: string | undefined) {

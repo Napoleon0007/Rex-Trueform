@@ -50,7 +50,7 @@ export default function TruefBanner() {
         </h2>
 
         <p className="mx-auto mt-2 max-w-md text-sm text-amber-100/70">
-          Take on the house — Roulette, Blackjack, Poker &amp; Slots. Winner takes the Truth Tokens.
+          Take on the house — Roulette, Blackjack, Poker &amp; Slots. Winner takes the $TRUEF.
         </p>
 
         {/* live market cap + price of the real coin */}

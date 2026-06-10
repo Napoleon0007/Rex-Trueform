@@ -32,7 +32,7 @@ export default function Poker() {
   const draw = () => deck.current.pop()!
 
   function deal() {
-    if (!wallet.canBet(ante)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(ante)) { toast.error('Not enough $TRUEF'); return }
     wallet.bet(ante, 'poker')
     sfx.deal()
     deck.current = shuffle(makeDeck())
@@ -52,7 +52,7 @@ export default function Poker() {
   // river → showdown. Each call stakes the chosen 1/2/5 into the pot.
   function callStreet() {
     const amt = streetBet
-    if (!wallet.canBet(amt)) { toast.error('Not enough Truth Tokens'); return }
+    if (!wallet.canBet(amt)) { toast.error('Not enough $TRUEF'); return }
     sfx.clink()
     wallet.bet(amt, 'poker')
     const newPot = pot + amt

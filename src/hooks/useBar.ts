@@ -16,7 +16,7 @@ export function useOrderDrink() {
       // Preview mode: spend from the local wallet, no Supabase round-trip.
       if (PREVIEW_ENABLED) {
         const cost = PREVIEW_COST[drink]
-        if (wallet.balance < cost) throw new Error(`Not enough Truth Tokens: have ${wallet.balance}, need ${cost}`)
+        if (wallet.balance < cost) throw new Error(`Not enough $TRUEF: have ${wallet.balance}, need ${cost}`)
         wallet.spend(cost)
         return wallet.balance - cost
       }
