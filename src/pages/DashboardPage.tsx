@@ -153,6 +153,15 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* Events section heading */}
+      <div className="flex items-baseline gap-3 pt-1">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-white">Events</h2>
+        <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          live
+        </span>
+      </div>
+
       {/* Results count */}
       {!isLoading && !isError && (
         <p className="text-xs text-slate-600">
