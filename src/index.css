@@ -492,54 +492,14 @@
 }
 .reveal-chip { animation: chipDrop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* ── Cyberpunk rules panel ──────────────────────────────────────────────── */
-.cyber-panel {
-  border: 1px solid rgba(0, 229, 255, 0.55);
-  box-shadow:
-    0 0 0 1px rgba(255, 0, 153, 0.18),
-    0 0 30px rgba(0, 229, 255, 0.35),
-    0 0 64px rgba(255, 0, 153, 0.18),
-    inset 0 0 44px rgba(0, 0, 0, 0.55);
+/* ── Crumpled-paper "house rules" note ──────────────────────────────────── */
+.paper-note {
+  transform: rotate(-1.4deg);
+  box-shadow: 0 26px 64px rgba(0, 0, 0, 0.72), 0 2px 0 rgba(0, 0, 0, 0.25);
 }
-/* HUD corner brackets — cyan top-left, magenta bottom-right */
-.cyber-panel::before,
-.cyber-panel::after {
-  content: ""; position: absolute; width: 22px; height: 22px; pointer-events: none; z-index: 6;
+/* feint blue ruled lines + a red margin, like an exercise book */
+.paper-rules {
+  background-image:
+    linear-gradient(90deg, transparent 44px, rgba(190, 60, 50, 0.40) 44px 46px, transparent 46px),
+    repeating-linear-gradient(180deg, transparent 0 31px, rgba(40, 70, 150, 0.20) 31px 32px);
 }
-.cyber-panel::before {
-  top: 7px; left: 7px;
-  border-top: 2px solid #00e5ff; border-left: 2px solid #00e5ff;
-  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.8));
-}
-.cyber-panel::after {
-  bottom: 7px; right: 7px;
-  border-bottom: 2px solid #ff0099; border-right: 2px solid #ff0099;
-  filter: drop-shadow(0 0 6px rgba(255, 0, 153, 0.8));
-}
-.cyber-scanlines {
-  background: repeating-linear-gradient(0deg, rgba(0, 229, 255, 0.05) 0 1px, transparent 1px 3px);
-  mix-blend-mode: screen;
-}
-/* a neon line sweeping top→bottom */
-.cyber-sweep { overflow: hidden; }
-.cyber-sweep::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, #00e5ff 50%, transparent);
-  box-shadow: 0 0 14px #00e5ff;
-  animation: cyberSweep 4.5s linear infinite;
-}
-@keyframes cyberSweep {
-  0% { top: -2%; opacity: 0; }
-  12% { opacity: 0.85; }
-  88% { opacity: 0.85; }
-  100% { top: 102%; opacity: 0; }
-}
-/* decorative spectrum bars */
-.cyber-bars { display: flex; align-items: flex-end; gap: 3px; height: 16px; }
-.cyber-bar {
-  width: 3px; height: 30%;
-  background: linear-gradient(180deg, #00e5ff, #ff0099);
-  box-shadow: 0 0 6px rgba(0, 229, 255, 0.6);
-  animation: cyberBar 1.2s ease-in-out infinite;
-}
-@keyframes cyberBar { 0%, 100% { height: 18%; } 50% { height: 100%; } }
