@@ -140,7 +140,7 @@ export default function Bar() {
       setServed((s) => [...s, { id: nextId.current++, emoji: d.emoji }].slice(-8))
       setSpent((v) => v + d.cost)
       say(d.key === 'beer' ? BEER : TEQUILA)
-      toast.success(`${d.label} poured · −${d.cost} ₿`, d.emoji)
+      toast.success(`${d.label} poured · −${d.cost} Ŧ`, d.emoji)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'The bar is closed'
       if (/not enough|insufficient/i.test(msg)) say(BROKE)
@@ -226,7 +226,7 @@ export default function Bar() {
       <div className="bg-[#160a04] p-3">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-black uppercase tracking-widest text-amber-300">Order a round</span>
-          <span className="text-xs text-amber-200/60">Tab: {spent} ₿</span>
+          <span className="text-xs text-amber-200/60">Tab: {spent} Ŧ</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           {DRINKS.map((d) => {
@@ -244,13 +244,13 @@ export default function Bar() {
               >
                 <span className="text-2xl leading-none">{d.emoji}</span>
                 <span className="text-xs font-semibold text-amber-100">{d.label}</span>
-                <span className="text-[11px] font-bold text-amber-400">{d.cost} ₿</span>
+                <span className="text-[11px] font-bold text-amber-400">{d.cost} Ŧ</span>
               </button>
             )
           })}
         </div>
         <p className="mt-2 text-center text-[11px] text-amber-200/50">
-          {pouring ? 'Pouring…' : `Paid from your balance · ${balance} ₿ left`}
+          {pouring ? 'Pouring…' : `Paid from your balance · ${balance} Ŧ left`}
         </p>
       </div>
     </div>

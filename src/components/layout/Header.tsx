@@ -1,6 +1,7 @@
 import TokenBadge from './TokenBadge'
 import RulesDropdown from './RulesDropdown'
 import ProfileMenu from './ProfileMenu'
+import PriceTicker from './PriceTicker'
 
 export default function Header() {
   return (
@@ -24,6 +25,8 @@ export default function Header() {
           <ProfileMenu />
         </div>
       </div>
+
+      <PriceTicker />
     </header>
   )
 }

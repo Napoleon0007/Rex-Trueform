@@ -32,7 +32,7 @@ export default function Poker() {
   const draw = () => deck.current.pop()!
 
   function deal() {
-    if (!wallet.canBet(ante)) { toast.error('Not enough Bitcoin'); return }
+    if (!wallet.canBet(ante)) { toast.error('Not enough Truth Tokens'); return }
     wallet.bet(ante, 'poker')
     sfx.deal()
     deck.current = shuffle(makeDeck())
@@ -44,7 +44,7 @@ export default function Poker() {
   function fold() {
     sfx.lose()
     commiserate()
-    setMsg(`Folded — ${pot} ₿ to the house.`)
+    setMsg(`Folded — ${pot} Ŧ to the house.`)
     setPhase('done')
   }
 
@@ -52,7 +52,7 @@ export default function Poker() {
   // river → showdown. Each call stakes the chosen 1/2/5 into the pot.
   function callStreet() {
     const amt = streetBet
-    if (!wallet.canBet(amt)) { toast.error('Not enough Bitcoin'); return }
+    if (!wallet.canBet(amt)) { toast.error('Not enough Truth Tokens'); return }
     sfx.clink()
     wallet.bet(amt, 'poker')
     const newPot = pot + amt
@@ -77,7 +77,7 @@ export default function Poker() {
     let win = 0
     let text = ''
 
-    if (cmp > 0) { win = finalPot * 2; text = `${me.name} beats ${dl.name} — you win ${finalPot} ₿! ✊` }
+    if (cmp > 0) { win = finalPot * 2; text = `${me.name} beats ${dl.name} — you win ${finalPot} Ŧ! ✊` }
     else if (cmp === 0) { win = finalPot; text = `Tie on ${me.name} — push.` }
     else { text = `Dealer's ${dl.name} beats your ${me.name}.` }
 
@@ -130,7 +130,7 @@ export default function Poker() {
           {hole.length === 0 && <div className="h-14" />}
         </div>
         <p className="mt-1.5 text-xs uppercase tracking-widest text-amber-300/70">
-          You {pot > 0 && `· pot ${pot} ₿`}
+          You {pot > 0 && `· pot ${pot} Ŧ`}
         </p>
       </div>
 
@@ -142,7 +142,7 @@ export default function Poker() {
               <button key={c} onClick={() => pickAnte(c)} className={`h-9 w-9 rounded-full border-2 text-xs font-black transition ${ante === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
             ))}
           </div>
-          <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95">Ante · {ante} ₿</button>
+          <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95">Ante · {ante} Ŧ</button>
         </div>
       )}
       {betting && (
@@ -154,7 +154,7 @@ export default function Poker() {
             ))}
           </div>
           <div className="flex justify-center gap-2">
-            <button onClick={callStreet} className="rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-bold text-emerald-950 hover:bg-emerald-400 active:scale-95">{actionLabel} · {streetBet} ₿</button>
+            <button onClick={callStreet} className="rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-bold text-emerald-950 hover:bg-emerald-400 active:scale-95">{actionLabel} · {streetBet} Ŧ</button>
             <button onClick={fold} className="rounded-full bg-rose-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-rose-400 active:scale-95">Fold</button>
           </div>
         </div>

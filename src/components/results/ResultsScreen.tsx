@@ -79,15 +79,15 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
                 You predicted <span className="text-white font-bold">{formatPrediction(event, userBet.prediction, userBet.prediction_away)}</span>
                 <span className="text-slate-400"> · {accuracy(userBet)}</span>
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">Wagered {userBet.amount} Bitcoin</p>
+              <p className="text-xs text-slate-500 mt-0.5">Wagered {userBet.amount} Truth Tokens</p>
             </div>
             <div className="text-right">
               <p className={`text-2xl font-black ${userWon ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {Math.round(userBet.payout ?? 0)} ₿
+                {Math.round(userBet.payout ?? 0)} Ŧ
               </p>
               <p className={`text-xs font-semibold ${userWon ? 'text-emerald-500' : 'text-rose-500'}`}>
                 {(userBet.payout ?? 0) >= userBet.amount ? '▲' : '▼'}
-                {' '}{Math.abs(Math.round((userBet.payout ?? 0) - userBet.amount))} Bitcoin
+                {' '}{Math.abs(Math.round((userBet.payout ?? 0) - userBet.amount))} Truth Tokens
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function ResultsScreen({ event }: ResultsScreenProps) {
 
               <div className="text-right shrink-0">
                 <p className={`text-sm font-bold ${payout > bet.amount ? 'text-emerald-400' : 'text-slate-400'}`}>
-                  {payout} ₿
+                  {payout} Ŧ
                 </p>
                 <p className="text-xs text-slate-600">of {bet.amount} bet</p>
               </div>

@@ -59,7 +59,7 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
             }
           </span>
           {event.status === 'settled' && event.total_tokens_bet != null && (
-            <span className="text-slate-500">₿ {event.total_tokens_bet} pool</span>
+            <span className="text-slate-500">Ŧ {event.total_tokens_bet} pool</span>
           )}
         </div>
 
@@ -74,13 +74,13 @@ export default function EventCard({ event, userBet, onBet }: EventCardProps) {
                     Predicted <span className="text-slate-200 font-medium">{predDisplay}</span>
                   </span>
                   <span className={userBet.payout >= userBet.amount ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                    {userBet.payout >= userBet.amount ? '+' : ''}{Math.round(userBet.payout - userBet.amount)} Bitcoin
+                    {userBet.payout >= userBet.amount ? '+' : ''}{Math.round(userBet.payout - userBet.amount)} Truth Tokens
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">
-                    Your bet: <span className="text-orange-400 font-semibold">{userBet.amount} Bitcoin</span>
+                    Your bet: <span className="text-orange-400 font-semibold">{userBet.amount} Truth Tokens</span>
                     {' on '}
                     <span className="text-white font-medium">{predDisplay}</span>
                   </span>

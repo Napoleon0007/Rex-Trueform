@@ -81,7 +81,7 @@ function PnlChip() {
            : 'border-rose-400/50 bg-rose-500/15 text-rose-300'
       }`}
     >
-      {up ? '▲' : '▼'} {up ? '+' : ''}{net} ₿ tonight
+      {up ? '▲' : '▼'} {up ? '+' : ''}{net} Ŧ tonight
     </button>
   )
 }
@@ -214,7 +214,7 @@ export default function GamesTable() {
           <h3 className="font-black uppercase tracking-[0.2em] text-amber-300 text-sm">🎰 The Games Table</h3>
           <div className="flex items-center gap-2">
             <PnlChip />
-            <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} ₿</span>
+            <span className="rounded-full border border-amber-400/40 bg-black/30 px-3 py-1 text-xs font-bold text-amber-300">{balance} Ŧ</span>
             <MuteButton />
             <button
               type="button"

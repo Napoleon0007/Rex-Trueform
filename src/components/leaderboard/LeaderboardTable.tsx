@@ -77,7 +77,7 @@ export default function LeaderboardTable({ entries, isLoading }: LeaderboardTabl
 
             {/* Tokens won */}
             <div className="text-right shrink-0">
-              <p className="font-black text-base text-orange-400">{entry.tokens_won} ₿</p>
+              <p className="font-black text-base text-orange-400">{entry.tokens_won} Ŧ</p>
               <p className="text-xs text-slate-600">won</p>
             </div>
           </div>

@@ -252,7 +252,7 @@ function EventRow({
           <p className="text-xs text-slate-400">
             Delete permanently?{' '}
             {isSettled
-              ? 'Bitcoin history remains — only the event record is removed.'
+              ? 'Token history remains — only the event record is removed.'
               : isClosed
               ? 'Refunds already processed via void.'
               : 'Only possible if no bets placed.'

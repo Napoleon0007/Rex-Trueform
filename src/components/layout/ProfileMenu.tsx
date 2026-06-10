@@ -60,7 +60,7 @@ export default function ProfileMenu() {
             <Avatar url={profile?.avatar_url} name={profile?.display_name} size={46} className="ring-2 ring-orange-500/40" />
             <div className="min-w-0">
               <p className="truncate text-base font-black text-white">{profile?.display_name ?? 'Player'}</p>
-              <p className="text-xs font-bold text-orange-400">{balance} ₿ this month</p>
+              <p className="text-xs font-bold text-orange-400">{balance} Ŧ this month</p>
             </div>
           </div>
 

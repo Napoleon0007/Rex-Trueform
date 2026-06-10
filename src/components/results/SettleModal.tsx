@@ -265,14 +265,14 @@ export default function SettleModal({ event, open, onClose }: SettleModalProps) 
                         )}
                       </td>
                       <td className="px-3 py-2 text-right font-bold text-orange-400">
-                        {row.payout} ₿
+                        {row.payout} Ŧ
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-slate-600">Total pool: {bets.reduce((s, b) => s + b.amount, 0)} ₿</p>
+            <p className="text-xs text-slate-600">Total pool: {bets.reduce((s, b) => s + b.amount, 0)} Ŧ</p>
           </div>
         )}
 

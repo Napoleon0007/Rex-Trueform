@@ -51,7 +51,7 @@ export default function Blackjack() {
   }
 
   function deal() {
-    if (!wallet.canBet(bet)) { toast.error('Not enough Bitcoin'); return }
+    if (!wallet.canBet(bet)) { toast.error('Not enough Truth Tokens'); return }
     wallet.bet(bet, 'blackjack')
     sfx.deal()
     const p = [draw(), draw()], d = [draw(), draw()]
@@ -115,7 +115,7 @@ export default function Blackjack() {
               <button key={c} onClick={() => pickBet(c)} className={`h-10 w-10 rounded-full border-2 text-xs font-black transition ${bet === c ? 'border-amber-300 bg-amber-400/20 text-amber-200' : 'border-white/20 text-slate-300'}`}>{c}</button>
             ))}
           </div>
-          <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95 transition">Deal · {bet} ₿</button>
+          <button onClick={deal} className="rounded-full bg-amber-500 px-8 py-3 text-sm font-black uppercase tracking-widest text-emerald-950 hover:bg-amber-400 active:scale-95 transition">Deal · {bet} Ŧ</button>
         </div>
       )}
       {phase === 'player' && (
