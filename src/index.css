@@ -503,3 +503,79 @@
     linear-gradient(90deg, transparent 44px, rgba(190, 60, 50, 0.40) 44px 46px, transparent 46px),
     repeating-linear-gradient(180deg, transparent 0 31px, rgba(40, 70, 150, 0.20) 31px 32px);
 }
+
+/* ============================================================
+   GAMES ON THE FELT — pieces for playing the actual games on the
+   diorama table (CasinoStage tableChildren). Cards slide in from
+   the deck, bet chips slide onto the felt, the roulette ball
+   circles the bowl, the slots cabinet stands upright.
+   ============================================================ */
+
+/* Card dealt from the deck to its spot: --fx/--fy is the px vector back to the
+   deck, --rot the card's resting fan angle. Lands with a small settle. */
+@keyframes feltDeal {
+  0% {
+    transform: translate(calc(-50% + var(--fx, 60px)), calc(-50% + var(--fy, -40px)))
+               rotate(calc(var(--rot, 0deg) - 40deg)) scale(0.85);
+    opacity: 0;
+  }
+  18%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(1); opacity: 1; }
+}
+.felt-deal { animation: feltDeal 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Hole-card flip as a squash-and-swap (no rotateY inside the tilted plane —
+   Safari renders that unreliably; this reads the same). */
+@keyframes feltFlipOut { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes feltFlipIn  { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.felt-flip-out { animation: feltFlipOut 0.16s ease-in forwards; }
+.felt-flip-in  { animation: feltFlipIn 0.16s ease-out 0.16s both; }
+
+/* One bet chip sliding onto the tower from the player's side of the table. */
+@keyframes chipSlideIn {
+  0%   { transform: translate(var(--cx, 56px), var(--cy, 42px)); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+.chip-slide { animation: chipSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Upright billboard standing on the tilted felt — counters the table's
+   rotateX(54deg) exactly (same trick the chip towers use). */
+.billboard-up {
+  transform: rotateX(-54deg);
+  transform-origin: bottom center;
+}
+
+/* Printed felt marking (betting circle/box), silk-screened gold. */
+.felt-ring {
+  border: 2px dashed rgba(255, 224, 150, 0.45);
+  border-radius: 9999px;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.25);
+}
+
+/* The roulette ball: an orbit wrapper spins counter to the wheel and settles at
+   12 o'clock (the wheel's landing math always parks the winning pocket under the
+   top pointer, so the ball's final angle is constant); the ball itself spirals
+   inward from the rim to the pocket ring over the same duration. */
+.ball-orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: ballOrbit 3.3s cubic-bezier(0.17, 0.67, 0.12, 0.99) both;
+}
+@keyframes ballOrbit { from { transform: rotate(1260deg); } to { transform: rotate(0deg); } }
+.roulette-ball {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #ccd0d6 55%, #878d98);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+  animation: ballSpiral 3.3s cubic-bezier(0.3, 0.5, 0.2, 1) both;
+}
+@keyframes ballSpiral { from { top: 3%; } to { top: 16.5%; } }
+/* once landed, the same markup holds still at the pocket */
+.ball-orbit--rest, .ball-orbit--rest .roulette-ball { animation: none; }
+.ball-orbit--rest .roulette-ball { top: 16.5%; }

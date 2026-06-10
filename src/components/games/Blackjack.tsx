@@ -1,14 +1,19 @@
 import { useRef, useState } from 'react'
-import { makeDeck, shuffle, blackjackValue, type Card } from '../../lib/cards'
+import { makeDeck, shuffle, blackjackValue, rankLabel, type Card } from '../../lib/cards'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
 import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
-import PlayingCard from './PlayingCard'
+import CasinoStage from './CasinoStage'
+import { FeltGameCard, FeltFlipCard, FeltDeck, FeltRing, BetChips, HudPill } from './feltPieces'
 
 type Phase = 'bet' | 'player' | 'dealer' | 'done'
 const CHIPS = [2, 5, 10, 25, 50, 100]
+
+// fan a hand around the centre of the felt: index i of n → x%, with a slight tilt
+const fanX = (i: number, n: number) => 50 + (i - (n - 1) / 2) * 6.5
+const fanRot = (i: number, n: number) => (i - (n - 1) / 2) * 5
 
 export default function Blackjack() {
   const wallet = useWallet()
@@ -85,27 +90,52 @@ export default function Blackjack() {
   function pickBet(c: number) { sfx.clink(); kids.check(c); setBet(c) }
 
   return (
-    <div className="space-y-5 text-center">
+    <div className="space-y-4 text-center">
       <KidsAtHomeModal open={kids.open} onClose={kids.close} />
-      {/* dealer */}
-      <div>
-        <p className="mb-2 text-xs uppercase tracking-widest text-emerald-300/70">Dealer {dealer.length > 0 && `· ${hideHole ? dv + '+' : dv}`}</p>
-        <div className="flex justify-center gap-2">
-          {dealer.map((c, i) => <PlayingCard key={i} card={c} hidden={hideHole && i === 1} />)}
-          {dealer.length === 0 && <div className="h-20" />}
-        </div>
-      </div>
+
+      {/* ── the hand plays out ON the diorama felt ── */}
+      <CasinoStage
+        mode="game"
+        feltChildren={<FeltRing x={24} y={52} label="bet" />}
+        tableChildren={
+          <>
+            <FeltDeck />
+            {/* dealer's hand on her side of the felt — hole card flips on her turn */}
+            {dealer.map((c, i) =>
+              i === 1 ? (
+                <FeltFlipCard key={i} x={fanX(i, dealer.length)} y={26} rot={fanRot(i, dealer.length)}
+                  rank={rankLabel(c.rank)} suit={c.suit} revealed={!hideHole} delay={0.3} />
+              ) : (
+                <FeltGameCard key={i} x={fanX(i, dealer.length)} y={26} rot={fanRot(i, dealer.length)}
+                  rank={rankLabel(c.rank)} suit={c.suit} delay={i < 2 ? 0.15 : (i - 2) * 0.18} />
+              )
+            )}
+            {/* your hand at the near rail */}
+            {player.map((c, i) => (
+              <FeltGameCard key={i} x={fanX(i, player.length)} y={74} rot={fanRot(i, player.length)}
+                rank={rankLabel(c.rank)} suit={c.suit} delay={i < 2 ? i * 0.22 : 0} />
+            ))}
+            {/* your stake slides into the betting circle on deal */}
+            <BetChips x={24} y={52} amount={phase === 'bet' ? 0 : bet} />
+          </>
+        }
+        overlay={
+          <>
+            {dealer.length > 0 && (
+              <HudPill style={{ left: '50%', top: '45%', transform: 'translateX(-50%)' }}>
+                Dealer · {hideHole ? `${dv}+` : dv}
+              </HudPill>
+            )}
+            {player.length > 0 && (
+              <HudPill style={{ left: '50%', top: '88%', transform: 'translateX(-50%)' }}>
+                You · {pv}
+              </HudPill>
+            )}
+          </>
+        }
+      />
 
       <p className="text-sm font-semibold text-amber-100">{msg}</p>
-
-      {/* player */}
-      <div>
-        <div className="flex justify-center gap-2">
-          {player.map((c, i) => <PlayingCard key={i} card={c} />)}
-          {player.length === 0 && <div className="h-20" />}
-        </div>
-        <p className="mt-2 text-xs uppercase tracking-widest text-amber-300/70">You {player.length > 0 && `· ${pv}`}</p>
-      </div>
 
       {/* controls */}
       {phase === 'bet' && (

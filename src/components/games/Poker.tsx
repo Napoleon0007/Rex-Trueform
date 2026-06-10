@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
-import { makeDeck, shuffle, evaluate, compareScore, type Card } from '../../lib/cards'
+import { makeDeck, shuffle, evaluate, compareScore, rankLabel, type Card } from '../../lib/cards'
 import { useWallet } from '../../hooks/useWallet'
 import { toast } from '../../store/toastStore'
 import { sfx } from '../../lib/sfx'
 import { useJuice } from '../../store/juice'
 import { useKidsWarning, KidsAtHomeModal } from './KidsWarning'
-import PlayingCard from './PlayingCard'
+import CasinoStage from './CasinoStage'
+import { FeltGameCard, FeltFlipCard, FeltDeck, BetChips } from './feltPieces'
 
 // Heads-up Texas Hold'em vs the house. Ante to see the flop, then bet across three
 // streets — flop, turn, river — choosing 1, 2 or 5 each time. Best hand at the
@@ -103,36 +104,35 @@ export default function Poker() {
   return (
     <div className="space-y-4 text-center">
       <KidsAtHomeModal open={kids.open} onClose={kids.close} />
-      {/* dealer */}
-      <div>
-        <p className="mb-1.5 text-xs uppercase tracking-widest text-emerald-300/70">Dealer</p>
-        <div className="flex justify-center gap-1.5">
-          {dealer.map((c, i) => <PlayingCard key={i} card={c} hidden={!reveal} small />)}
-          {dealer.length === 0 && <div className="h-14" />}
-        </div>
-      </div>
 
-      {/* board */}
-      <div>
-        <p className="mb-1.5 text-xs uppercase tracking-widest text-amber-300/60">Board</p>
-        <div className="flex justify-center gap-1.5">
-          {board.map((c, i) => <PlayingCard key={i} card={c} small />)}
-          {board.length === 0 && <div className="h-14" />}
-        </div>
-      </div>
+      {/* ── the whole street plays out ON the diorama felt ── */}
+      <CasinoStage
+        mode="game"
+        tableChildren={
+          <>
+            <FeltDeck />
+            {/* dealer's hole cards stay face-down until showdown */}
+            {dealer.map((c, i) => (
+              <FeltFlipCard key={i} x={46 + i * 8} y={26} rot={i === 0 ? -4 : 4}
+                rank={rankLabel(c.rank)} suit={c.suit} revealed={reveal} delay={0.25 + i * 0.12} />
+            ))}
+            {/* the community board across the centre */}
+            {board.map((c, i) => (
+              <FeltGameCard key={i} x={30 + i * 10} y={50} rot={(i - 2) * 2}
+                rank={rankLabel(c.rank)} suit={c.suit} delay={i < 3 ? i * 0.16 : 0} />
+            ))}
+            {/* your hole cards at the near rail */}
+            {hole.map((c, i) => (
+              <FeltGameCard key={i} x={46 + i * 8} y={74} rot={i === 0 ? -5 : 5}
+                rank={rankLabel(c.rank)} suit={c.suit} delay={i * 0.14} />
+            ))}
+            {/* the pot grows street by street */}
+            <BetChips x={16} y={50} amount={pot} label="pot" />
+          </>
+        }
+      />
 
       <p className="text-sm font-semibold text-amber-100">{msg}</p>
-
-      {/* player */}
-      <div>
-        <div className="flex justify-center gap-1.5">
-          {hole.map((c, i) => <PlayingCard key={i} card={c} small />)}
-          {hole.length === 0 && <div className="h-14" />}
-        </div>
-        <p className="mt-1.5 text-xs uppercase tracking-widest text-amber-300/70">
-          You {pot > 0 && `· pot ${pot} Ŧ`}
-        </p>
-      </div>
 
       {/* controls */}
       {phase === 'bet' && (
